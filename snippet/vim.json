@@ -1,0 +1,16 @@
+{
+  "For Loop": {
+    "prefix": [
+      "for-items"
+    ],
+    "body": [
+      "for [key, value] in items(${1:dict})",
+      "\t${0}",
+      "endfor"
+    ]
+  },
+  "Excute printf": {
+    "prefix": "ex-pr",
+    "body": "execute printf('${0}')"
+  }
+}
