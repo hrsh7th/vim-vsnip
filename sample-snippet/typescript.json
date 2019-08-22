@@ -12,13 +12,13 @@
       "$reactfc"
     ],
     "body": [
-      "import React from 'react'",
+      "import React from 'react';",
       "",
-      "type Props = {}",
+      "type Props = {};",
       "",
-      "export const ${1:SomeComponent} = ({  }: Props) => {",
-      "\t$0",
-      "}"
+      "export const ${TM_FILENAME_BASE} = (_: Props) => {",
+      "\treturn <div></div>;",
+      "};"
     ]
   }
 }
