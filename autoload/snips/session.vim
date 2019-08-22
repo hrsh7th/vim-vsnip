@@ -1,30 +1,7 @@
-let s:session = {}
-
 function! snips#session#activate(prefix, snippet)
-  let s:session = s:Session.new(a:prefix, a:snippet)
-  call s:session.activate()
-endfunction
-
-function! snips#session#jumpable()
-  if empty(s:session)
-    return
-  endif
-  return s:session.jumpable()
-endfunction
-
-function! snips#session#jump()
-  if empty(s:session)
-    return
-  endif
-  call s:session.jump()
-endfunction
-
-function! snips#session#expand()
-  if empty(s:session)
-    return
-  endif
-  call s:session.expand()
-  call s:session.jump()
+  let l:session = s:Session.new(a:prefix, a:snippet)
+  call l:session.activate()
+  return l:session
 endfunction
 
 let s:Session = {}

@@ -1,17 +1,25 @@
+let s:session = {}
+
 function! snips#expandable_or_jumpable()
-  let l:target = snips#cursor#get_snippet_with_prefix(&filetype)
-  return !empty(l:target) || snips#session#jumpable()
+  return s:expandable() || s:jumpable()
 endfunction
 
 function! snips#expand_or_jump()
-  let l:target = snips#cursor#get_snippet_with_prefix(&filetype)
-  if empty(l:target)
-    if snips#session#jumpable()
-      call snips#session#jump()
-    endif
-  else
-    call snips#session#activate(l:target['prefix'], l:target['snippet'])
-    call snips#session#expand()
+  if s:expandable()
+    let l:target = snips#cursor#get_snippet_with_prefix(&filetype)
+    let s:session = snips#session#activate(l:target['prefix'], l:target['snippet'])
+    call s:session.expand()
+    call s:session.jump()
+  elseif s:jumpable()
+    call s:session.jump()
   endif
+endfunction
+
+function! s:expandable()
+  return !empty(snips#cursor#get_snippet_with_prefix(&filetype))
+endfunction
+
+function! s:jumpable()
+  return !empty(s:session) && s:session.jumpable()
 endfunction
 
