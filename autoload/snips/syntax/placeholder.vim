@@ -21,6 +21,7 @@ function! snips#syntax#placeholder#resolve(text)
           \ }))
     let l:match_start = strlen(l:before . l:placeholder['default'])
   endwhile
+
   return [l:text, s:sort(l:placeholders)]
 endfunction
 

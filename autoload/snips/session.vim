@@ -44,17 +44,13 @@ function! s:Session.new(prefix, snippet)
 endfunction
 
 function! s:Session.activate()
-  " remove prefix
   execute printf('noautocmd normal! %dh', strlen(self.prefix))
   execute printf('noautocmd normal! %dx', strlen(self.prefix))
-
-  " initialize state.
   let self.state = s:new_state(self.snippet)
 endfunction
 
 function! s:Session.jumpable()
-  let l:placeholder = get(self.state.placeholders, self.state.current_idx + 1, {})
-  return !empty(l:placeholder)
+  return !empty(get(self.state.placeholders, self.state.current_idx + 1, {}))
 endfunction
 
 function! s:Session.jump()
@@ -64,17 +60,16 @@ function! s:Session.jump()
     return
   endif
 
-  let [l:lnum, l:col] = s:getpos(self.state, l:placeholder['start'])
-  call cursor([l:lnum, l:col])
+  let l:pos = snips#utils#compute_pos(self.state.start, l:placeholder['start'], self.state.text)
+  call cursor(l:pos)
 
   if l:placeholder['end'] > 0
-    execute printf('normal! %dlgh', l:placeholder['end'] - 1)
-    call cursor([l:lnum, l:col])
+    execute printf('noautocmd normal! %dlgh', l:placeholder['end'] - 1)
+    call cursor(l:pos)
   endif
 endfunction
 
 function! s:Session.expand()
-  " store state.
   let l:save_paste = &paste
   let l:save_pos = getcurpos()
 
@@ -82,7 +77,6 @@ function! s:Session.expand()
   call setpos('.', self.state.start)
   execute printf('noautocmd normal! i%s', self.state.text)
 
-  " restore state.
   call setpos('.', l:save_pos)
   let &paste = l:save_paste
 endfunction
@@ -114,18 +108,5 @@ function! s:new_state(snippet)
   let l:state.placeholders = l:placeholders
 
   return l:state
-endfunction
-
-function! s:sync_state(state)
-  let l:diffs = lsp#utils#diffs(a:state.buffer, getline('^', '$'))
-endfunction
-
-function! s:getpos(state, start)
-  let l:lines = split(strpart(a:state.text, 0, a:start), "\n")
-  let l:offset_lnum = len(l:lines) - 1
-  let l:offset_col = strlen(l:lines[-1])
-  let l:lnum = a:state.start.lnum + l:offset_lnum
-  let l:col = (l:offset_lnum == 0 ? a:state.start.col : 1) + l:offset_col
-  return [lnum, l:col]
 endfunction
 
