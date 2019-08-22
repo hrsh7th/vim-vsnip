@@ -1,5 +1,15 @@
 let g:snips#snippet#dir = expand('<sfile>:p:h') . '/../../sample-snippet'
 
+function! snips#snippet#get_filepath(filetype)
+  for l:filetype in split(a:filetype, '\.')
+    let l:filepath = printf('%s/%s.json', g:snips#snippet#dir, l:filetype)
+    if filereadable(l:filepath)
+      return l:filepath
+    endif
+  endfor
+  return ''
+endfunction
+
 function! snips#snippet#get_definition(filetype)
   for l:filetype in split(a:filetype, '\.')
     let l:filepath = printf('%s/%s.json', g:snips#snippet#dir, l:filetype)

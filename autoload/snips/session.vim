@@ -105,40 +105,14 @@ function! s:new_state(snippet)
   let l:text = substitute(l:text, "\n\\s\\+\\ze\n", "\n", 'g')
   let l:state.text = l:text
 
-  " replace variables.
-  let l:match_start = 0
-  while 1
-    let [l:variable, l:start, l:end] = matchstrpos(l:state.text, g:snips#utils#variable_regexp, l:match_start, 1)
-    if empty(l:variable)
-      break
-    endif
-    let l:before = strpart(l:state.text, 0, l:start)
-    let l:after = strpart(l:state.text, l:end, strlen(l:state.text))
-    let l:resolved_variable = snips#utils#resolve_variable(l:variable)
-    let l:state.text = l:before . l:resolved_variable . l:after
-    let l:match_start = strlen(l:before . l:resolved_variable)
-  endwhile
+  " resolve variables.
+  let l:state.text = snips#syntax#variable#resolve(l:state.text)
 
-  " initialize placeholders.
-  let l:match_start = 0
-  while 1
-    let [l:placeholder, l:start, l:end] = matchstrpos(l:state.text, g:snips#utils#placeholder_regexp, l:match_start, 1)
-    if empty(l:placeholder)
-      break
-    endif
+  " resolve placeholders.
+  let [l:text, l:placeholders] = snips#syntax#placeholder#resolve(l:state.text)
+  let l:state.text = l:text
+  let l:state.placeholders = l:placeholders
 
-    let l:before = strpart(l:state.text, 0, l:start)
-    let l:after = strpart(l:state.text, l:end, strlen(l:state.text))
-    let l:resolved_placeholder = snips#utils#resolve_placeholder(l:placeholder)
-    let l:state.text = l:before . l:resolved_placeholder['default'] . l:after
-    call add(l:state.placeholders, {
-          \   'order': l:resolved_placeholder['order'],
-          \   'start': l:start,
-          \   'end': strlen(l:resolved_placeholder['default'])
-          \ })
-    let l:match_start = strlen(l:before . l:resolved_placeholder['default'])
-  endwhile
-  let l:state.placeholders = snips#utils#sort_placeholders(l:state.placeholders)
   return l:state
 endfunction
 

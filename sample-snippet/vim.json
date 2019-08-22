@@ -10,7 +10,11 @@
     ]
   },
   "Excute printf": {
-    "prefix": "ex-pr",
+    "prefix": "execute",
     "body": "execute printf('${0}')"
+  },
+  "Log": {
+    "prefix": "log",
+    "body": "echomsg string([$0])"
   }
 }
