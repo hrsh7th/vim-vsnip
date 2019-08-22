@@ -3,4 +3,5 @@ if exists('g:loaded_snips')
 endif
 let g:loaded_snips = 1
 
-inoremap <Plug>(snips-expand) <C-o>:<C-u>call snips#expand()<CR>
+inoremap <Plug>(snips-expand-or-jump) <C-o>:<C-u>call snips#expand_or_jump()<CR>
+
