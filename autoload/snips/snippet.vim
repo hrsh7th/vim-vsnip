@@ -1,27 +1,13 @@
-let g:snips#snippet#dir = expand('<sfile>:p:h') . '/../../snippet'
-
-let s:cache = {}
+let g:snips#snippet#dir = expand('<sfile>:p:h') . '/../../sample-snippet'
 
 function! snips#snippet#get_definition(filetype)
-  call s:cache(a:filetype)
-  if has_key(s:cache, a:filetype)
-    return s:cache[a:filetype]
-  endif
-  return {}
-endfunction
-
-function! s:cache(filetype)
-  if has_key(s:cache, a:filetype)
-    return
-  endif
-
-  let l:filepath = printf('%s/%s.json', g:snips#snippet#dir, a:filetype)
-  echomsg string(l:filepath)
-  if filereadable(l:filepath)
-    let s:cache[a:filetype] = s:normalize(json_decode(readfile(l:filepath)))
-  else
-    let s:cache[a:filetype] = s:normalize({})
-  endif
+  for l:filetype in split(a:filetype, '\.')
+    let l:filepath = printf('%s/%s.json', g:snips#snippet#dir, l:filetype)
+    if filereadable(l:filepath)
+      return s:normalize(json_decode(readfile(l:filepath)))
+    endif
+  endfor
+  return s:normalize({})
 endfunction
 
 function! s:normalize(snippets)

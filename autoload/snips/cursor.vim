@@ -1,7 +1,7 @@
 function! snips#cursor#get_snippet_with_prefix(filetype)
  let l:definition = snips#snippet#get_definition(a:filetype)
  if empty(l:definition)
-   return ['', {}]
+   return {}
  endif
 
  let l:line = getline('.')
@@ -12,9 +12,9 @@ function! snips#cursor#get_snippet_with_prefix(filetype)
      continue
    endif
    if l:text[-strlen(l:prefix) : -1] ==# l:prefix
-     return [l:prefix, l:definition['snippets'][l:idx]]
+     return { 'prefix': l:prefix, 'snippet': l:definition['snippets'][l:idx] }
    endif
  endfor
- return ['', {}]
+ return {}
 endfunction
 

@@ -5,7 +5,12 @@
     ],
     "body": [
       "for [key, value] in items(${1:dict})",
-      "\t${0}",
+      "",
+      "",
+      "",
+      "",
+      "\t'${TM_CURRENT_WORD:test}'",
+      "\t'${TM_FILEPATH:test}'",
       "endfor"
     ]
   },

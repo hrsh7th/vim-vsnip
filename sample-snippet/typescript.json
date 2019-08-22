@@ -1,0 +1,24 @@
+{
+  "Function": {
+    "prefix": [
+      "f"
+    ],
+    "body": [
+      "() => $0"
+    ]
+  },
+  "React Function Component Template": {
+    "prefix": [
+      "$reactfc"
+    ],
+    "body": [
+      "import React from 'react'",
+      "",
+      "type Props = {}",
+      "",
+      "export const ${1:SomeComponent} = ({  }: Props) => {",
+      "\t$0",
+      "}"
+    ]
+  }
+}
