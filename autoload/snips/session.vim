@@ -27,15 +27,16 @@ function! s:Session.expand()
   let l:saved_vedit = &virtualedit
   set virtualedit=all
 
-  execute printf('noautocmd normal! %dh%dx', strlen(self.prefix) - 1, strlen(self.prefix))
+  execute printf('noautocmd normal! %s%s', repeat('h', strlen(self.prefix) - 1), repeat('x', strlen(self.prefix)))
   let self.state = s:create_state(self.snippet)
 
   let l:saved_paste = &paste
   set paste
+
   execute printf('noautocmd normal! i%s', self.state.text)
   call cursor(self.state.startpos)
-
   let &paste = l:saved_paste
+
   let &virtualedit = l:saved_vedit
 endfunction
 
@@ -68,7 +69,7 @@ function! s:Session.jump()
   let l:pos = snips#utils#compute_pos(self.state.startpos, l:placeholder['start'], self.state.text)
   call cursor(l:pos)
   if l:placeholder['end'] > 0
-    execute printf('noautocmd normal! %dlgh', l:placeholder['end'] - 1)
+    execute printf('noautocmd normal! %sgh', repeat('l', l:placeholder['end'] - 1))
     call cursor(l:pos)
   else
     startinsert

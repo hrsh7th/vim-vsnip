@@ -4,7 +4,7 @@
       "for-items"
     ],
     "body": [
-      "for [key, value] in items(${1:dict})",
+      "for [l:k, l:v] in items(${1:dict})",
       "\t$0",
       "endfor"
     ]
@@ -16,5 +16,9 @@
   "Log": {
     "prefix": "log",
     "body": "echomsg string([$0])"
+  },
+  "Test": {
+    "prefix": "f",
+    "body": "() => ${0}"
   }
 }
