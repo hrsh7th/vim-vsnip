@@ -7,10 +7,11 @@ endfunction
 function! snips#expand_or_jump()
   if s:expandable()
     let l:target = snips#cursor#get_snippet_with_prefix(&filetype)
-    let s:session = snips#session#activate(l:target['prefix'], l:target['snippet'])
+    let s:session = snips#session#new(l:target['prefix'], l:target['snippet'])
     call s:session.expand()
-    call s:session.jump()
-  elseif s:jumpable()
+  endif
+
+  if s:jumpable()
     call s:session.jump()
   endif
 endfunction

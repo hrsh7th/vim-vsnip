@@ -12,5 +12,5 @@ function! s:snips_edit()
   execute printf('tabedit %s', l:filepath)
 endfunction
 
-inoremap <Plug>(snips-expand-or-jump) <C-o>:<C-u>call snips#expand_or_jump()<CR>
+inoremap <Plug>(snips-expand-or-jump) <Esc>:<C-u>call snips#expand_or_jump()<CR>
 

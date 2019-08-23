@@ -4,8 +4,9 @@ function! snips#cursor#get_snippet_with_prefix(filetype)
    return {}
  endif
 
- let l:line = getline('.')
- let l:col = min([col('.'), strlen(l:line)])
+ let l:pos = snips#utils#curpos()
+ let l:line = getline(l:pos[0])
+ let l:col = min([l:pos[1], strlen(l:line)])
  let l:text = l:line[0 : l:col]
  for [l:prefix, l:idx] in items(l:definition['index'])
    if strlen(l:text) < strlen(l:prefix)
@@ -17,4 +18,3 @@ function! snips#cursor#get_snippet_with_prefix(filetype)
  endfor
  return {}
 endfunction
-

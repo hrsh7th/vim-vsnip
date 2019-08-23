@@ -20,7 +20,7 @@ function! snips#syntax#variable#resolve(text)
 endfunction
 
 function! s:resolve(symbol)
-  let l:matches = matchlist(a:symbol, g:snips#utils#variable_regexp)
+  let l:matches = matchlist(a:symbol, s:regex)
   if empty(l:matches)
     return ''
   endif

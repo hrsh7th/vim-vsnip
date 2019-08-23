@@ -4,9 +4,9 @@ function! snips#syntax#placeholder#resolve(text)
   let l:text = a:text
   let l:placeholders = []
 
-  let l:match_start = 0
+  let l:pos_start = 0
   while 1
-    let [l:symbol, l:start, l:end] = matchstrpos(l:text, s:regex, l:match_start, 1)
+    let [l:symbol, l:start, l:end] = matchstrpos(l:text, s:regex, l:pos_start, 1)
     if empty(l:symbol)
       break
     endif
@@ -19,7 +19,7 @@ function! snips#syntax#placeholder#resolve(text)
           \   'start': l:start,
           \   'end': strlen(l:placeholder['default'])
           \ }))
-    let l:match_start = strlen(l:before . l:placeholder['default'])
+    let l:pos_start = strlen(l:before . l:placeholder['default'])
   endwhile
 
   return [l:text, s:sort(l:placeholders)]

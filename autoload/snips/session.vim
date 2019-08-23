@@ -1,67 +1,84 @@
-function! snips#session#activate(prefix, snippet)
-  let l:session = s:Session.new(a:prefix, a:snippet)
-  call l:session.activate()
-  return l:session
+function! snips#session#new(prefix, snippet)
+  return s:Session.new(a:prefix, a:snippet)
 endfunction
 
 let s:Session = {}
 
+"
+" Create session instance.
+"
 function! s:Session.new(prefix, snippet)
   return extend(deepcopy(s:Session), {
         \   'prefix': a:prefix,
         \   'snippet': a:snippet,
-        \   'state': {
-        \     'start': { 'lnum': 0, 'col': 0 },
-        \     'buffer': [],
-        \     'text': '',
-        \     'current_idx': -1,
-        \     'placeholders': [],
-        \   }
+        \   'state': {}
         \ })
 endfunction
 
-function! s:Session.activate()
-  execute printf('noautocmd normal! %dh', strlen(self.prefix))
-  execute printf('noautocmd normal! %dx', strlen(self.prefix))
-  let self.state = s:new_state(self.snippet)
+"
+" Expand snippet body.
+"
+function! s:Session.expand()
+  let l:saved_vedit = &virtualedit
+  set virtualedit=all
+
+  execute printf('noautocmd normal! %dh%dx', strlen(self.prefix) - 1, strlen(self.prefix))
+  let self.state = s:create_state(self.snippet)
+
+  let l:saved_paste = &paste
+  set paste
+  execute printf('noautocmd normal! i%s', self.state.text)
+  call cursor(self.state.startpos)
+
+  let &paste = l:saved_paste
+  let &virtualedit = l:saved_vedit
 endfunction
 
+"
+" Check jump marker enabled.
+"
 function! s:Session.jumpable()
+  let self.state = s:sync_state(self.state, getline('^', '$'))
   return !empty(get(self.state.placeholders, self.state.current_idx + 1, {}))
 endfunction
 
+"
+" Jump to next pos.
+"
 function! s:Session.jump()
+  let l:save_vedit = &virtualedit
+  set virtualedit=all
+
+  " sync state.
+  let self.state = s:sync_state(self.state, getline('^', '$'))
+
+  " get placeholder.
   let self.state.current_idx = self.state.current_idx + 1
   let l:placeholder = get(self.state.placeholders, self.state.current_idx, {})
   if empty(l:placeholder)
     return
   endif
 
-  let l:pos = snips#utils#compute_pos(self.state.start, l:placeholder['start'], self.state.text)
+  " move & select.
+  let l:pos = snips#utils#compute_pos(self.state.startpos, l:placeholder['start'], self.state.text)
   call cursor(l:pos)
-
   if l:placeholder['end'] > 0
     execute printf('noautocmd normal! %dlgh', l:placeholder['end'] - 1)
     call cursor(l:pos)
+  else
+    startinsert
   endif
+
+  let &virtualedit = l:save_vedit
 endfunction
 
-function! s:Session.expand()
-  let l:save_paste = &paste
-  let l:save_pos = getcurpos()
-
-  set paste
-  call setpos('.', self.state.start)
-  execute printf('noautocmd normal! i%s', self.state.text)
-
-  call setpos('.', l:save_pos)
-  let &paste = l:save_paste
-endfunction
-
-function! s:new_state(snippet)
+"
+" Create state.
+"
+function! s:create_state(snippet)
   let l:state = {
         \ 'buffer': getbufline('^', '$'),
-        \ 'start': { 'lnum': line('.'), 'col': col('.') },
+        \ 'startpos': snips#utils#curpos(),
         \ 'text': '',
         \ 'current_idx': -1,
         \ 'placeholders': [],
@@ -85,5 +102,12 @@ function! s:new_state(snippet)
   let l:state.placeholders = l:placeholders
 
   return l:state
+endfunction
+
+"
+" Sync state.
+"
+function! s:sync_state(state, buffer)
+  return a:state
 endfunction
 
