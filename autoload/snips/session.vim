@@ -9,9 +9,14 @@ let s:Session = {}
 "
 function! s:Session.new(prefix, snippet)
   return extend(deepcopy(s:Session), {
+        \   'timers': {
+        \     'debounce_text_changed': 0,
+        \   },
         \   'prefix': a:prefix,
         \   'snippet': a:snippet,
-        \   'state': {}
+        \   'state': {
+        \     'running': v:false
+        \   }
         \ })
 endfunction
 
@@ -73,10 +78,19 @@ function! s:Session.jump()
 endfunction
 
 "
+" Sync state.
+"
+function! s:Session.sync()
+  let self.state = s:sync_state(self.state, getline('^', '$'))
+  let self.synced = v:true
+endfunction
+
+"
 " Create state.
 "
 function! s:create_state(snippet)
   let l:state = {
+        \ 'running': v:true,
         \ 'buffer': getbufline('^', '$'),
         \ 'startpos': snips#utils#curpos(),
         \ 'text': '',
@@ -107,7 +121,10 @@ endfunction
 "
 " Sync state.
 "
-function! s:sync_state(state, buffer)
+function! s:sync_state(state, new_buffer)
+  let l:old_buffer = a:state.buffer
+  let l:new_buffer = a:new_buffer
+  let a:state.buffer = a:new_buffer
   return a:state
 endfunction
 

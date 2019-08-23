@@ -1,5 +1,9 @@
 let s:session = {}
 
+function! snips#get_session()
+  return s:session
+endfunction
+
 function! snips#expandable_or_jumpable()
   return s:expandable() || s:jumpable()
 endfunction
@@ -21,6 +25,6 @@ function! s:expandable()
 endfunction
 
 function! s:jumpable()
-  return !empty(s:session) && s:session.jumpable()
+  return snips#utils#get(s:session, ['state', 'running'], v:false) && s:session.jumpable()
 endfunction
 

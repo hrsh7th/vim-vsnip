@@ -25,3 +25,15 @@ function! snips#utils#curpos()
   return [l:pos[1], l:pos[2]]
 endfunction
 
+function! snips#utils#get(dict, keys, def)
+  let l:target = a:dict
+  for l:key in a:keys
+    if type(l:target) != v:t_dict | return a:def | endif
+    let _ = get(l:target, l:key, v:null)
+    unlet! l:target
+    let l:target = _
+    if l:target is v:null | return a:def | endif
+  endfor
+  return l:target
+endfunction
+

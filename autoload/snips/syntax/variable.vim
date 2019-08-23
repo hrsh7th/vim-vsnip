@@ -5,7 +5,7 @@ function! snips#syntax#variable#resolve(text)
 
   let l:pos_start = 0
   while 1
-    let [l:symbol, l:start, l:end] = matchstrpos(a:text, s:regex, l:pos_start, 1)
+    let [l:symbol, l:start, l:end] = matchstrpos(l:text, s:regex, l:pos_start, 1)
     if empty(l:symbol)
       break
     endif
@@ -33,7 +33,7 @@ function! s:resolve(symbol)
   endif
 
   " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
-  if l:variables['name'] == 'TM_SELECTED_TEXT'
+  if l:variable['name'] == 'TM_SELECTED_TEXT'
     echoerr '$TM_SELECTED_TEXT is not supported.'
     return ''
 
