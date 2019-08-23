@@ -7,11 +7,11 @@ function! snips#cursor#get_snippet_with_prefix(filetype)
   let l:pos = snips#utils#curpos()
   let l:line = getline(l:pos[0])
   let l:col = min([l:pos[1] - 1, strlen(l:line) - 1])
-  if mode() == 'i' &&  l:pos[1] < strlen(l:line)
+  if mode() == 'i' &&  l:pos[1] <= strlen(l:line)
     let l:col = l:col - 1
   endif
-  let l:text = l:line[0 : l:col]
 
+  let l:text = l:line[0 : l:col]
   for [l:prefix, l:idx] in items(l:definition['index'])
     if strlen(l:text) < strlen(l:prefix)
       continue

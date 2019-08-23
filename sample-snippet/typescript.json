@@ -1,15 +1,15 @@
 {
-  "Function": {
-    "prefix": [
-      "f"
-    ],
-    "body": [
-      "() => $0"
-    ]
+  "Arrow Function": {
+    "prefix": "f",
+    "body": "() => $0"
+  },
+  "Log": {
+    "prefix": "log",
+    "body": "console.log($0);"
   },
   "React Function Component Template": {
     "prefix": [
-      "$reactfc"
+      "react-fc"
     ],
     "body": [
       "import React from 'react';",
