@@ -37,3 +37,14 @@ function! snips#utils#get(dict, keys, def)
   return l:target
 endfunction
 
+function! snips#utils#resolve_prefixes(prefixes)
+  let l:prefixes = []
+  for l:prefix in a:prefixes
+    call add(l:prefixes, l:prefix)
+    if l:prefix =~# '^\a\w\+\%(-\w\+\)\+$'
+      call add(l:prefixes, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
+    endif
+  endfor
+  return l:prefixes
+endfunction
+

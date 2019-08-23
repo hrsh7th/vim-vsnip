@@ -25,7 +25,7 @@ function! s:normalize(snippets)
   for [l:label, l:snippet] in items(a:snippets)
     let l:snippet['prefix'] = s:to_list(l:snippet['prefix'])
     let l:snippet['body'] = s:to_list(l:snippet['body'])
-    for l:prefix in l:snippet['prefix']
+    for l:prefix in snips#utils#resolve_prefixes(l:snippet['prefix'])
       let l:normalized['index'][l:prefix] = len(l:normalized['snippets'])
     endfor
     call add(l:normalized['snippets'], l:snippet)

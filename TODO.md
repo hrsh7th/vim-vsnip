@@ -4,7 +4,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 # snippet
 - [x] prefix simple case
 - [x] body
-- [ ] prefix abbr
+- [x] prefix abbr
 - [ ] description
 - [ ] label
 - [ ] scope
