@@ -22,3 +22,10 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [ ] choise
 - [ ] nested
 
+# behavior
+- [x] expand
+- [x] jump
+- [ ] snippet session deactivation
+- [ ] session queue
+- [ ] sync placeholder position
+
