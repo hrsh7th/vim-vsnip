@@ -10,7 +10,7 @@ endfunction
 
 function! snips#expand_or_jump()
   if s:expandable()
-    let l:target = snips#cursor#get_snippet_with_prefix(&filetype)
+    let l:target = snips#snippet#get_snippet_with_prefix_under_cursor(&filetype)
     let s:session = snips#session#new(l:target['prefix'], l:target['snippet'])
     call s:session.expand()
   endif
@@ -21,10 +21,10 @@ function! snips#expand_or_jump()
 endfunction
 
 function! s:expandable()
-  return !empty(snips#cursor#get_snippet_with_prefix(&filetype))
+  return !empty(snips#snippet#get_snippet_with_prefix_under_cursor(&filetype))
 endfunction
 
 function! s:jumpable()
-  return snips#utils#get(s:session, ['state', 'running'], v:false) && s:session.jumpable()
+  return !empty(s:session) && s:session.jumpable()
 endfunction
 

@@ -25,7 +25,12 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 # behavior
 - [x] expand
 - [x] jump
-- [ ] snippet session deactivation
-- [ ] session queue
+- [x] snippet session deactivation
+    - [x] deactivate when above changes
+    - [x] deactivate when bellow changes
 - [ ] sync placeholder position
+- [ ] session queue
+
+# internal
+- [ ] stop using text offset pos
 

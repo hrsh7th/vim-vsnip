@@ -14,7 +14,10 @@
     "body": "execute printf('${0}')"
   },
   "Log": {
-    "prefix": "log",
+    "prefix": [
+      "log",
+      "echo"
+    ],
     "body": "echomsg string([$0])"
   },
   "Test": {
