@@ -41,7 +41,8 @@ function! s:resolve(symbol)
     return getline('.')
 
   elseif l:variable['name'] == 'TM_CURRENT_WORD'
-    return expand('<cword>')
+    echoerr '$TM_CURRENT_WORD is not supported.'
+    return ''
 
   elseif l:variable['name'] == 'TM_LINE_INDEX'
     return line('.') - 1

@@ -1,5 +1,8 @@
 let s:regex = '\%(\$\(\d\+\)\|\${\(\d\+\)\%(:\([^}]\+\)\)\?}\)'
 
+"
+" resolve all placeholders.
+"
 function! snips#syntax#placeholder#resolve(text)
   let l:text = a:text
   let l:placeholders = []
@@ -25,9 +28,39 @@ function! snips#syntax#placeholder#resolve(text)
     let l:order = l:order + 1
   endwhile
 
-  return [l:text, s:sort(l:placeholders)]
+  return [l:text, snips#syntax#placeholder#by_tabstop(l:placeholders)]
 endfunction
 
+"
+" sort by order.
+"
+function! snips#syntax#placeholder#by_order(placeholders)
+  function! s:compare(i1, i2)
+    return a:i1['order'] - a:i2['order']
+  endfunction
+  return sort(copy(a:placeholders), function('s:compare'))
+endfunction
+
+"
+" sort by tabstop index.
+"
+function! snips#syntax#placeholder#by_tabstop(placeholders)
+  function! s:compare(i1, i2)
+    if a:i1['id'] != 0 && a:i2['id'] == 0
+      return -1
+    endif
+    if a:i1['id'] == 0 && a:i2['id'] != 0
+      return 1
+    endif
+    if a:i1['id'] == a:i2['id']
+      return a:i1['order'] - a:i2['order']
+    endif
+    return a:i1['id'] - a:i2['id']
+  endfunction
+  return sort(copy(a:placeholders), function('s:compare'))
+endfunction
+
+" resolve placeholder.
 function! s:resolve(symbol)
   let l:matches = matchlist(a:symbol, s:regex)
   if empty(l:matches)
@@ -44,21 +77,5 @@ function! s:resolve(symbol)
           \ 'id': str2nr(l:matches[2]),
           \ 'default': l:matches[3] }
   endif
-endfunction
-
-function! s:sort(placeholders)
-  function! s:compare(i1, i2)
-    if a:i1['id'] != 0 && a:i2['id'] == 0
-      return -1
-    endif
-    if a:i1['id'] == 0 && a:i2['id'] != 0
-      return 1
-    endif
-    if a:i1['id'] == a:i2['id']
-      return a:i1['order'] - a:i2['order']
-    endif
-    return a:i1['id'] - a:i2['id']
-  endfunction
-  return sort(copy(a:placeholders), function('s:compare'))
 endfunction
 

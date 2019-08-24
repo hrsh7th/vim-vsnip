@@ -29,7 +29,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
     - [x] deactivate when above changes
     - [x] deactivate when bellow changes
 - [ ] sync placeholder position
-- [ ] session queue
+- [ ] session stack
 
 # internal
 - [ ] stop using text offset pos
