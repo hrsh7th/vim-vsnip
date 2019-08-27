@@ -49,9 +49,22 @@ endfunction
 " Check jump marker enabled.
 "
 function! s:Session.jumpable()
-  let l:running = snips#utils#get(self, ['state', 'running'], v:false)
-  let l:has_next = !empty(snips#utils#get(self, ['state', 'placeholders', self['state']['current_idx'] + 1], {}))
-  return l:running && l:has_next
+  if !snips#utils#get(self, ['state', 'running'], v:false)
+    return v:false
+  endif
+
+  let l:current = self['state']['placeholders'][self['state']['current_idx']]
+  let l:next = {}
+  let l:i = self['state']['current_idx'] + 1
+  while l:i < len(self['state']['placeholders'])
+    let l:p = self['state']['placeholders'][l:i]
+    if l:current['tabstop'] != l:p['tabstop']
+      let l:next = l:p
+      break
+    endif
+    let l:i += 1
+  endwhile
+  return !empty(l:next)
 endfunction
 
 "
@@ -62,14 +75,30 @@ function! s:Session.jump()
   set virtualedit=all
 
   " get placeholder.
-  let self['state']['current_idx'] = self['state']['current_idx'] + 1
-  let l:placeholder = get(self['state']['placeholders'], self['state']['current_idx'], {})
-  if empty(l:placeholder)
+  if !snips#utils#get(self, ['state', 'running'], v:false)
+    return v:false
+  endif
+
+  let l:current = self['state']['placeholders'][self['state']['current_idx']]
+  let l:next = {}
+  let l:i = self['state']['current_idx'] + 1
+  while l:i < len(self['state']['placeholders'])
+    let l:p = self['state']['placeholders'][l:i]
+    if l:current['tabstop'] != l:p['tabstop']
+      let l:next = l:p
+      break
+    endif
+    let l:i += 1
+  endwhile
+
+  if empty(l:next)
     return
   endif
 
+  let self['state']['current_idx'] = l:i
+
   " move & select.
-  call snips#utils#edit#select_or_insert(l:placeholder['range'])
+  call snips#utils#edit#select_or_insert(l:next['range'])
   let &virtualedit = l:save_vedit
 endfunction
 
