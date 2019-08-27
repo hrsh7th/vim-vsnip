@@ -4,8 +4,8 @@
       "for-items"
     ],
     "body": [
-      "let l:dict = {}",
-      "for [l:k, l:v] in items(${1:l:dict})",
+      "let ${1} = {}",
+      "for [l:k, l:v] in items(${1})",
       "\t$0",
       "endfor"
     ]
