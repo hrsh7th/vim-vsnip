@@ -31,8 +31,8 @@ function! s:Session.expand()
   " expand snippet.
   let l:saved_paste = &paste
   set paste
-  execute printf('noautocmd normal! i%s', self['state']['text'])
-  call cursor(self['state']['startpos'])
+  execute printf('noautocmd normal! i%s', join(self['state']['lines'], "\n"))
+  call cursor(self['state']['start_position'])
   let &paste = l:saved_paste
 
   " update state.
@@ -51,6 +51,7 @@ function! s:Session.jumpable()
   return l:running && l:has_next
 endfunction
 
+
 "
 " Jump to next pos.
 "
@@ -66,11 +67,11 @@ function! s:Session.jump()
   endif
 
   " move & select.
-  let l:pos = snips#utils#textpos2bufferpos(self['state']['startpos'], l:placeholder['start'], self['state']['text'])
-  call cursor(l:pos)
-  if l:placeholder['end'] > 0
-    execute printf('noautocmd normal! %sgh', repeat('l', l:placeholder['end'] - 1))
-    call cursor(l:pos)
+  let l:length = l:placeholder['range']['end'][1] - l:placeholder['range']['start'][1]
+  call cursor(l:placeholder['range']['start'])
+  if l:length > 0
+    execute printf('noautocmd normal! %sgh', repeat('l', l:length - 1))
+    call cursor(l:placeholder['range']['start'])
   else
     startinsert
   endif
@@ -81,9 +82,15 @@ endfunction
 "
 "  Handle text changed.
 "
-function! s:Session.on_text_changed()
+function! s:Session.on_insert_char_pre(char)
   if snips#utils#get(self, ['state', 'running'], v:false)
-    let self.state = s:sync_state(self.state, getline('^', '$'))
+    let self.state = s:sync_state(self.state, {
+          \   'range': {
+          \     'start': [line('.'), col('.')],
+          \     'end': [line('.'), col('.')]
+          \   },
+          \   'text': a:char
+          \ })
   endif
 endfunction
 
@@ -94,28 +101,27 @@ function! s:create_state(snippet)
   let l:state = {
         \ 'running': v:false,
         \ 'buffer': [],
-        \ 'startpos': snips#utils#curpos(),
-        \ 'text': '',
+        \ 'start_position': snips#utils#curpos(),
+        \ 'lines': [],
         \ 'current_idx': -1,
         \ 'placeholders': [],
         \ }
 
-  " create texts
+  " create body
   let l:indent = snips#utils#get_indent()
   let l:level = strchars(substitute(matchstr(getline('.'), '^\s*'), l:indent, '_', 'g'))
-  let l:text = join(a:snippet['body'], "\n")
-  let l:text = substitute(l:text, "\t", l:indent, 'g')
-  let l:text = substitute(l:text, "\n", "\n" . repeat(l:indent, l:level), 'g')
-  let l:text = substitute(l:text, "\n\\s\\+\\ze\n", "\n", 'g')
-  let l:state['text'] = l:text
+  let l:body = join(a:snippet['body'], "\n")
+  let l:body = substitute(l:body, "\t", l:indent, 'g')
+  let l:body = substitute(l:body, "\n", "\n" . repeat(l:indent, l:level), 'g')
+  let l:body = substitute(l:body, "\n\\s\\+\\ze\n", "\n", 'g')
 
   " resolve variables.
-  let l:state['text'] = snips#syntax#variable#resolve(l:state['text'])
+  let l:body = snips#syntax#variable#resolve(l:body)
 
   " resolve placeholders.
-  let [l:text, l:placeholders] = snips#syntax#placeholder#resolve(l:state['text'])
-  let l:state['text'] = l:text
+  let [l:body, l:placeholders] = snips#syntax#placeholder#resolve(l:state['start_position'], l:body)
   let l:state['placeholders'] = l:placeholders
+  let l:state['lines'] = split(l:body, "\n", v:true)
 
   return l:state
 endfunction
@@ -123,33 +129,37 @@ endfunction
 "
 " Sync state.
 "
-function! s:sync_state(state, new_buffer)
-  let l:state = a:state
-  let l:old = l:state['buffer']
-  let l:old_text = join(l:old, "\n")
-  let l:new = a:new_buffer
-  let l:new_text = join(l:new, "\n")
-  let l:parts = split(l:new_text, l:state['text'])
+function! s:sync_state(state, diff)
+  let l:placeholders = snips#syntax#placeholder#by_order(a:state['placeholders'])
 
-  let l:is_changed_in_range = len(l:parts) == 1
-  if l:is_changed_in_range
-    let l:state = s:sync_diff_state(l:state, snips#utils#diff(l:old, l:new))
-  else
-    let l:state['running'] = v:false
-  endif
+  " reallocate target with same line.
+  let l:target = {}
+  let l:old_length = 0
+  let l:new_length = 0
 
-  " update buffer.
-  let l:state['buffer'] = a:new_buffer
+  let l:i = 0
+  while l:i < len(l:placeholders)
+    let l:p = l:placeholders[l:i]
 
-  return l:state
-endfunction
+    " relocate target placeholder.
+    if snips#utils#range#in(l:p['range'], a:diff['range'])
+      let l:old_length = l:p['range']['end'][1] - l:p['range']['start'][1]
+      let l:p['text'] = l:p['text'] . a:diff['text']
+      let l:p['range']['end'] = [l:p['range']['start'][0], l:p['range']['start'][1] + strlen(l:p['text'])]
+      let l:new_length = l:p['range']['end'][1] - l:p['range']['start'][1]
+      let l:target = l:p
 
-"
-" 1. placeholder の範囲が壊れる修正の場合は deactivate して終了
-" 2. 変更された placeholder を特定して、再配置する
-" 3. placeholders を `order` 順でループして、同一 placeholder であれば編集する、全て再配置する
-"
-function! s:sync_diff_state(state, diff)
+    " relocate placeholder after target.
+    elseif !empty(l:target)
+      if l:p['range']['start'][0] == l:target['range']['start'][0]
+        let l:p['range']['start'][1] += (l:new_length - l:old_length)
+        let l:p['range']['end'][1] += (l:new_length - l:old_length)
+      endif
+    endif
+
+    let l:i += 1
+  endwhile
+
   return a:state
 endfunction
 

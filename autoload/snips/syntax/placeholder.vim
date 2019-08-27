@@ -3,7 +3,7 @@ let s:regex = '\%(\$\(\d\+\)\|\${\(\d\+\)\%(:\([^}]\+\)\)\?}\)'
 "
 " resolve all placeholders.
 "
-function! snips#syntax#placeholder#resolve(text)
+function! snips#syntax#placeholder#resolve(start_position, text)
   let l:text = a:text
   let l:placeholders = []
 
@@ -15,16 +15,21 @@ function! snips#syntax#placeholder#resolve(text)
       break
     endif
 
-    let l:placeholder  = s:resolve(l:symbol)
+
+    let l:placeholder  = s:resolve(l:symbol, l:placeholders)
     let l:before = strpart(l:text, 0, l:start)
     let l:after = strpart(l:text, l:end, strlen(l:text))
-    let l:text = l:before . l:placeholder['default'] . l:after
-    call add(l:placeholders, extend(l:placeholder, {
+    let l:text = l:before . l:placeholder['text'] . l:after
+    call add(l:placeholders, {
           \   'order': l:order,
-          \   'start': l:start,
-          \   'end': strlen(l:placeholder['default'])
-          \ }))
-    let l:pos_start = strlen(l:before . l:placeholder['default'])
+          \   'tabstop': l:placeholder['tabstop'],
+          \   'text': l:placeholder['text'],
+          \   'range': {
+          \     'start': snips#utils#text_index2buffer_pos(a:start_position, l:start, l:text),
+          \     'end': snips#utils#text_index2buffer_pos(a:start_position, l:start + strlen(l:placeholder['text']), l:text)
+          \   }
+          \ })
+    let l:pos_start = strlen(l:before . l:placeholder['text'])
     let l:order = l:order + 1
   endwhile
 
@@ -46,36 +51,47 @@ endfunction
 "
 function! snips#syntax#placeholder#by_tabstop(placeholders)
   function! s:compare(i1, i2)
-    if a:i1['id'] != 0 && a:i2['id'] == 0
+    if a:i1['tabstop'] != 0 && a:i2['tabstop'] == 0
       return -1
     endif
-    if a:i1['id'] == 0 && a:i2['id'] != 0
+    if a:i1['tabstop'] == 0 && a:i2['tabstop'] != 0
       return 1
     endif
-    if a:i1['id'] == a:i2['id']
+    if a:i1['tabstop'] == a:i2['tabstop']
       return a:i1['order'] - a:i2['order']
     endif
-    return a:i1['id'] - a:i2['id']
+    return a:i1['tabstop'] - a:i2['tabstop']
   endfunction
   return sort(copy(a:placeholders), function('s:compare'))
 endfunction
 
 " resolve placeholder.
-function! s:resolve(symbol)
+function! s:resolve(symbol, placeholders)
   let l:matches = matchlist(a:symbol, s:regex)
   if empty(l:matches)
     return {}
   endif
 
-  " normalize default value.
+  " normalize text.
   if l:matches[1] != ''
+    let l:tabstop = str2nr(l:matches[1])
     return {
-          \ 'id': str2nr(l:matches[1]),
-          \ 'default': '' }
+          \ 'tabstop': l:tabstop,
+          \ 'text': s:text(l:tabstop, a:placeholders, '') }
   else
+    let l:tabstop = str2nr(l:matches[2])
     return {
-          \ 'id': str2nr(l:matches[2]),
-          \ 'default': l:matches[3] }
+          \ 'tabstop': l:tabstop,
+          \ 'text': s:text(l:tabstop, a:placeholders, l:matches[3]) }
   endif
+endfunction
+
+function! s:text(tabstop, placeholders, default)
+  for l:p in a:placeholders
+    if l:p['tabstop'] == a:tabstop
+      return l:p['text']
+    endif
+  endfor
+  return a:default
 endfunction
 

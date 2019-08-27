@@ -4,7 +4,8 @@
       "for-items"
     ],
     "body": [
-      "for [l:k, l:v] in items(${1:dict})",
+      "let ${1:l:dict} = {}",
+      "for [l:k, l:v] in items(${1:l:hoge})",
       "\t$0",
       "endfor"
     ]
@@ -18,7 +19,7 @@
       "log",
       "echo"
     ],
-    "body": "echomsg string([$0])"
+    "body": "echomsg string([$1])${0}"
   },
   "Test": {
     "prefix": "f",

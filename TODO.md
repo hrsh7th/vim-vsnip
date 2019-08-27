@@ -1,7 +1,9 @@
 # spec
+
 https://code.visualstudio.com/docs/editor/userdefinedsnippets
 
-# snippet
+## snippet
+
 - [x] prefix simple case
 - [x] body
 - [x] prefix abbr
@@ -10,27 +12,35 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [ ] scope
 - [ ] multiple filetype
 
-# variables
+## variables
+
 - [x] parse simple case
 - [ ] regexp
 - [ ] doc comment
 - [ ] inline comment
 
-# placeholder
+## placeholder
+
 - [x] parse simple case
 - [ ] sync same placeholder
 - [ ] choise
 - [ ] nested
 
-# behavior
+## behavior
+
 - [x] expand
 - [x] jump
+  - [ ] skip same tabstop
 - [x] snippet session deactivation
     - [x] deactivate when above changes
     - [x] deactivate when bellow changes
 - [ ] sync placeholder position
 - [ ] session stack
 
-# internal
-- [ ] stop using text offset pos
+
+# priority
+
+1. sync placeholder position
+2. sync same placeholder
+3. skip same tabstop
 
