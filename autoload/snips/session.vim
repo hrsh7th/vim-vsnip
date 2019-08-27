@@ -29,11 +29,7 @@ function! s:Session.expand()
   let self['state'] = s:create_state(self['snippet'])
 
   " expand snippet.
-  let l:saved_paste = &paste
-  set paste
-  execute printf('noautocmd normal! i%s', join(self['state']['lines'], "\n"))
-  call cursor(self['state']['start_position'])
-  let &paste = l:saved_paste
+  call snips#utils#edit#insert(self['state']['start_position'], self['state']['lines'])
 
   " update state.
   let self['state']['running'] = v:true

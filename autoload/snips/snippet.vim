@@ -50,7 +50,7 @@ function! s:normalize(snippets)
   for [l:label, l:snippet] in items(a:snippets)
     let l:snippet['prefix'] = s:to_list(l:snippet['prefix'])
     let l:snippet['body'] = s:to_list(l:snippet['body'])
-    for l:prefix in snips#utils#resolve_prefixes(l:snippet['prefix'])
+    for l:prefix in s:prefixes(l:snippet['prefix'])
       let l:normalized['index'][l:prefix] = len(l:normalized['snippets'])
     endfor
     call add(l:normalized['snippets'], l:snippet)
@@ -63,5 +63,16 @@ function! s:to_list(v)
     return a:v
   endif
   return [a:v]
+endfunction
+
+function! s:prefixes(prefixes)
+  let l:prefixes = []
+  for l:prefix in a:prefixes
+    call add(l:prefixes, l:prefix)
+    if l:prefix =~# '^\a\w\+\%(-\w\+\)\+$'
+      call add(l:prefixes, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
+    endif
+  endfor
+  return l:prefixes
 endfunction
 
