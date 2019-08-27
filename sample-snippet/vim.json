@@ -5,7 +5,7 @@
     ],
     "body": [
       "let ${1} = {}",
-      "for [l:k, l:v] in items(${1})",
+      "for [${2}, ${3}] in items(${1})",
       "\t$0",
       "endfor"
     ]
