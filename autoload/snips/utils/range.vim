@@ -28,3 +28,10 @@ function! snips#utils#range#has_length(vim_range)
         \ )
 endfunction
 
+function! snips#utils#range#truncate(vim_pos, vim_range)
+  return {
+        \   'start': [a:vim_range['start'][0] - a:vim_pos[0] + 1, a:vim_range['start'][1] - a:vim_pos[1] + 1],
+        \   'end': [a:vim_range['end'][0] - a:vim_pos[0] + 1, a:vim_range['end'][1] - a:vim_pos[1] + 1],
+        \ }
+endfunction
+

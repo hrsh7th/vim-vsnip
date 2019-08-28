@@ -86,12 +86,13 @@ endfunction
 "
 function! s:Session.on_insert_char_pre(char)
   if snips#utils#get(self, ['state', 'running'], v:false)
+    let l:is_backspace = char2nr(a:char) == 29
     let self.state = s:sync_state(self.state, {
           \   'range': {
-          \     'start': [line('.'), col('.')],
+          \     'start': [line('.'), col('.') - (l:is_backspace ? 1 : 0)],
           \     'end': [line('.'), col('.')]
           \   },
-          \   'text': a:char
+          \   'lines': [l:is_backspace ? '' : a:char]
           \ })
   endif
 endfunction
@@ -148,7 +149,7 @@ function! s:sync_state(state, vimdiff)
 
   let l:placeholders = snips#syntax#placeholder#by_order(a:state['placeholders'])
 
-  " 既に変更済みのプレースホルダによってズレた分をまずは補正する
+  " fix placeholder ranges after already modified placeholder.
   let l:target = {}
   let l:i = 0
   let l:j = len(l:placeholders)
@@ -167,11 +168,17 @@ function! s:sync_state(state, vimdiff)
 
     " modified placeholder.
     if snips#utils#range#in(l:p['range'], a:vimdiff['range'])
-      let l:new_text = char2nr(a:vimdiff['text']) == 29 ? l:p['text'][0 : -2] : l:p['text'] . a:vimdiff['text']
+      let l:new_lines = snips#utils#edit#replace_text(
+            \   split(l:p['text'], "\n", v:true),
+            \   snips#utils#range#truncate(l:p['range']['start'], a:vimdiff['range']),
+            \   a:vimdiff['lines']
+            \ )
+      let l:new_text = join(l:new_lines, "\n")
+
+      " TODO: support multi-line.
       let l:old_length = l:p['range']['end'][1] - l:p['range']['start'][1]
       let l:new_length = strlen(l:new_text)
       let l:shiftwidth = l:new_length - l:old_length
-      let l:new_lines = split(l:new_text, "\n", v:true)
       let l:p['text'] = l:new_text
       let l:p['range']['end'][1] += l:shiftwidth
       let l:target = l:p
@@ -181,7 +188,7 @@ function! s:sync_state(state, vimdiff)
     let l:i += 1
   endwhile
 
-  " 編集されたプレースホルダと同一の tabstop のものを同期する
+  " sync same tabstop placeholder.
   let l:in_sync = {}
   let l:same_lines = 0
   let l:edits = []
@@ -195,7 +202,7 @@ function! s:sync_state(state, vimdiff)
             \   'range': deepcopy(l:p['range']),
             \   'lines': l:new_lines
             \ })
-      let l:p['text'] = l:new_text
+      let l:p['text'] = l:target['text']
       let l:p['range']['end'][1] += l:shiftwidth
       let l:in_sync = l:p
     endif
