@@ -38,7 +38,7 @@ function! snips#snippet#get_snippet_with_prefix_under_cursor(filetype)
     if strlen(l:text) < strlen(l:prefix)
       continue
     endif
-    if l:text[-strlen(l:prefix) : -1] ==# l:prefix
+    if l:text =~# '\<' . l:prefix . '\>$'
       return { 'prefix': l:prefix, 'snippet': l:definition['snippets'][l:idx] }
     endif
   endfor

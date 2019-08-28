@@ -4,6 +4,7 @@ endif
 let g:loaded_snips = 1
 
 inoremap <Plug>(snips-expand-or-jump) <Esc>:<C-u>call snips#expand_or_jump()<CR>
+snoremap <Plug>(snips-expand-or-jump) <Esc>:<C-u>call snips#expand_or_jump()<CR>
 
 command! SnipsEdit call s:cmd_snips_edit()
 

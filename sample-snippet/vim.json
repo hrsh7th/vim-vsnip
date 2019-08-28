@@ -1,12 +1,12 @@
 {
-  "For Loop": {
+  "Test Snippet": {
     "prefix": [
-      "for-items"
+      "test"
     ],
     "body": [
-      "let ${1} = {}",
-      "for [${2}, ${3}] in items(${1})",
-      "\t$0",
+      "let ${1:} = {}",
+      "for [${2:l:k}, ${3:l:v}] in items(${1})",
+      "\t${0:write some code}",
       "endfor"
     ]
   },

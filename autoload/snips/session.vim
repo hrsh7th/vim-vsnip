@@ -53,17 +53,7 @@ function! s:Session.jumpable()
     return v:false
   endif
 
-  let l:current = self['state']['placeholders'][self['state']['current_idx']]
-  let l:next = {}
-  let l:i = self['state']['current_idx'] + 1
-  while l:i < len(self['state']['placeholders'])
-    let l:p = self['state']['placeholders'][l:i]
-    if l:current['tabstop'] != l:p['tabstop']
-      let l:next = l:p
-      break
-    endif
-    let l:i += 1
-  endwhile
+  let [l:idx, l:next] = s:find_next_placeholder(self['state']['current_idx'], self['state']['placeholders'])
   return !empty(l:next)
 endfunction
 
@@ -79,23 +69,12 @@ function! s:Session.jump()
     return v:false
   endif
 
-  let l:current = self['state']['placeholders'][self['state']['current_idx']]
-  let l:next = {}
-  let l:i = self['state']['current_idx'] + 1
-  while l:i < len(self['state']['placeholders'])
-    let l:p = self['state']['placeholders'][l:i]
-    if l:current['tabstop'] != l:p['tabstop']
-      let l:next = l:p
-      break
-    endif
-    let l:i += 1
-  endwhile
-
+  let [l:idx, l:next] = s:find_next_placeholder(self['state']['current_idx'], self['state']['placeholders'])
   if empty(l:next)
     return
   endif
 
-  let self['state']['current_idx'] = l:i
+  let self['state']['current_idx'] = l:idx
 
   " move & select.
   call snips#utils#edit#select_or_insert(l:next['range'])
@@ -244,5 +223,25 @@ function! s:sync_state(state, vimdiff)
   endif
 
   return a:state
+endfunction
+
+function! s:find_next_placeholder(current_idx, placeholders)
+  if len(a:placeholders) == 0
+    return [-1, {}]
+  endif
+  if a:current_idx == -1
+    return [0, a:placeholders[0]]
+  endif
+
+  let l:current = a:placeholders[a:current_idx]
+  let l:i = a:current_idx + 1
+  while l:i < len(a:placeholders)
+    let l:p = a:placeholders[l:i]
+    if l:current['tabstop'] != l:p['tabstop']
+      return [l:i, l:p]
+    endif
+    let l:i += 1
+  endwhile
+  return [-1, {}]
 endfunction
 

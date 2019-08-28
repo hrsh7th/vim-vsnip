@@ -6,5 +6,35 @@
     "body": [
       "() => $0"
     ]
+  },
+  "Log": {
+    "prefix": {
+      "log"
+    },
+    "body": [
+      "console.log($0)"
+    ]
+  },
+  "class": {
+    "prefix": "class",
+    "body": [
+      "class $1 {",
+      "\t$0",
+      "}"
+    ]
+  },
+  "get": {
+    "prefix": "get",
+    "body": [
+      "get $1() {",
+      "\t$0",
+      "}"
+  },
+  "set": {
+    "prefix": "set",
+    "body": [
+      "set $1($1) {",
+      "\t$0",
+      "}"
   }
 }
