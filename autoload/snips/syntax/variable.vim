@@ -1,4 +1,4 @@
-let s:regex = '\%(\$\(\a\w*\)\|\${\(\a\w*\)\%(:\([^}]\+\)\)\?}\)'
+let s:regex = '\%(\$\(\a\w*\)\|\${\(\a\w*\)\%(:\([^}]\+\)\?\)\?}\)'
 
 function! snips#syntax#variable#resolve(text)
   let l:text = a:text
