@@ -65,7 +65,9 @@ function! snips#syntax#placeholder#by_tabstop(placeholders)
   return sort(copy(a:placeholders), function('s:compare'))
 endfunction
 
+"
 " resolve placeholder.
+"
 function! s:resolve(symbol, placeholders)
   let l:matches = matchlist(a:symbol, s:regex)
   if empty(l:matches)
@@ -86,6 +88,9 @@ function! s:resolve(symbol, placeholders)
   endif
 endfunction
 
+"
+" get text
+"
 function! s:text(tabstop, placeholders, default)
   for l:p in a:placeholders
     if l:p['tabstop'] == a:tabstop

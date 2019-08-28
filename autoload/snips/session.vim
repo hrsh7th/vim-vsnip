@@ -148,83 +148,82 @@ function! s:sync_state(state, vimdiff)
 
   let l:placeholders = snips#syntax#placeholder#by_order(a:state['placeholders'])
 
-  " 変更されたプレースホルダと、それと同じ行に存在するプレースホルダの再配置（複数行には対応していない）
+  " 既に変更済みのプレースホルダによってズレた分をまずは補正する
   let l:target = {}
-  let l:old_length = 0
-  let l:new_length = 0
-
   let l:i = 0
+  let l:j = len(l:placeholders)
   while l:i < len(l:placeholders)
     let l:p = l:placeholders[l:i]
 
-    " relocate target placeholder.
-    if snips#utils#range#in(l:p['range'], a:vimdiff['range'])
-      let l:old_length = l:p['range']['end'][1] - l:p['range']['start'][1]
-      let l:p['text'] = char2nr(a:vimdiff['text']) == 29 ? l:p['text'][0 : -2] : l:p['text'] . a:vimdiff['text']
-      let l:p['range']['end'] = [l:p['range']['start'][0], l:p['range']['start'][1] + strlen(l:p['text'])]
-      let l:new_length = l:p['range']['end'][1] - l:p['range']['start'][1]
-      let l:target = l:p
-
-    " relocate placeholder after target.
-    elseif !empty(l:target)
+    " relocate same lines.
+    if !empty(l:target)
       if l:p['range']['start'][0] == l:target['range']['start'][0]
-        let l:p['range']['start'][1] += (l:new_length - l:old_length)
-        let l:p['range']['end'][1] += (l:new_length - l:old_length)
+        let l:p['range']['start'][1] += l:shiftwidth
+        let l:p['range']['end'][1] += l:shiftwidth
+      else
+        break
       endif
+    endif
+
+    " modified placeholder.
+    if snips#utils#range#in(l:p['range'], a:vimdiff['range'])
+      let l:new_text = char2nr(a:vimdiff['text']) == 29 ? l:p['text'][0 : -2] : l:p['text'] . a:vimdiff['text']
+      let l:old_length = l:p['range']['end'][1] - l:p['range']['start'][1]
+      let l:new_length = strlen(l:new_text)
+      let l:shiftwidth = l:new_length - l:old_length
+      let l:new_lines = split(l:new_text, "\n", v:true)
+      let l:p['text'] = l:new_text
+      let l:p['range']['end'][1] += l:shiftwidth
+      let l:target = l:p
+      let l:j = l:i + 1
     endif
 
     let l:i += 1
   endwhile
 
-  " プレースホルダの変更を、同じ tabstop のものに同期する
-  if !empty(l:target)
-    let l:in_sync = {}
-    let l:edits = []
-    let l:i = 0
-    while l:i < len(l:placeholders)
-      let l:p = l:placeholders[l:i]
+  " 編集されたプレースホルダと同一の tabstop のものを同期する
+  let l:in_sync = {}
+  let l:same_lines = 0
+  let l:edits = []
+  while l:j < len(l:placeholders)
+    let l:p = l:placeholders[l:j]
 
-      " ignore reallocated placeholder.
-      if l:p['order'] == l:target['order']
-        let l:i += 1
-        continue
-      endif
+    let l:is_same_line_in_sync = !empty(l:in_sync) && l:p['range']['start'][0] == l:in_sync['range']['start'][0]
 
-      " relocate same tabstop.
-      if l:p['tabstop'] == l:target['tabstop']
-        let l:in_sync = l:p
-        call add(l:edits, {
-              \   'range': deepcopy(l:p['range']),
-              \   'lines': split(l:target['text'], "\n", v:true)
-              \ })
-        let l:p['range']['end'][1] += (l:new_length - l:old_length)
-        let l:p['text'] = l:target['text']
-        let l:i += 1
-        continue
+    if l:p['tabstop'] == l:target['tabstop']
+      call add(l:edits, {
+            \   'range': deepcopy(l:p['range']),
+            \   'lines': l:new_lines
+            \ })
+      let l:p['text'] = l:new_text
+      let l:p['range']['end'][1] += l:shiftwidth
+      let l:in_sync = l:p
+    endif
 
-      " relocate after in_sync.
-      elseif !empty(l:in_sync)
-        if l:p['range']['start'][0] == l:in_sync['range']['start'][0]
-          let l:p['range']['start'][1] += (l:new_length - l:old_length)
-          let l:p['range']['end'][1] += (l:new_length - l:old_length)
-        endif
-      endif
+    if l:is_same_line_in_sync
+      let l:same_lines += 1
+      let l:p['range']['start'][1] += l:shiftwidth * l:same_lines
+      let l:p['range']['end'][1] += l:shiftwidth * l:same_lines
+    else
+      let l:same_lines = 0
+    endif
 
-      let l:i += 1
-    endwhile
+    let l:j += 1
+  endwhile
 
-    " can't modify buffer in `InsertCharPre`.
-    function! s:apply_edits(edits, timer_id)
-      for l:edit in a:edits
-        call snips#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
-      endfor
-    endfunction
-    call timer_start(0, function('s:apply_edits', [l:edits]), { 'repeat': 1 })
-  endif
+  function! s:apply_edits(edits, timer_id)
+    for l:edit in reverse(a:edits)
+      call snips#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
+    endfor
+  endfunction
+  call timer_start(0, function('s:apply_edits', [l:edits]), { 'repeat': 1 })
 
   return a:state
 endfunction
 
+"
+" find next placeholder.
+"
 function! s:find_next_placeholder(current_idx, placeholders)
   if len(a:placeholders) == 0
     return [-1, {}]
