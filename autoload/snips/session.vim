@@ -181,7 +181,6 @@ function! s:sync_state(state, vimdiff)
     " relocate target placeholder.
     if snips#utils#range#in(l:p['range'], a:vimdiff['range'])
       let l:old_length = l:p['range']['end'][1] - l:p['range']['start'][1]
-      echomsg string([char2nr(v:char)])
       let l:p['text'] = char2nr(a:vimdiff['text']) == 29 ? l:p['text'][0 : -2] : l:p['text'] . a:vimdiff['text']
       let l:p['range']['end'] = [l:p['range']['start'][0], l:p['range']['start'][1] + strlen(l:p['text'])]
       let l:new_length = l:p['range']['end'][1] - l:p['range']['start'][1]
