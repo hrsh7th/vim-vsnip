@@ -23,7 +23,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 
 - [x] parse simple case
 - [ ] sync same placeholder
-  - [x] simple case(one-line change, insert-char-pre only)
+  - [x] simple case(one-line change only)
 - [ ] choise
 - [ ] nested
 
@@ -32,11 +32,12 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [x] expand
 - [x] jump
   - [x] skip same tabstop
-- [x] snippet session deactivation
-    - [x] deactivate when above changes
-    - [x] deactivate when bellow changes
+- [] snippet session deactivation
+    - [] deactivate when above changes
+    - [] deactivate when bellow changes
 - [ ] sync placeholder position
-  - [x] simple case(one-line change, insert-char-pre only)
+  - [x] simple case(one-line change)
+- [ ] sync snippet range
 - [ ] session stack
 
 
@@ -54,3 +55,4 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [x] done
 
 4. refactor
+
