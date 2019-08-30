@@ -32,27 +32,17 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [x] expand
 - [x] jump
   - [x] skip same tabstop
-- [] snippet session deactivation
-    - [] deactivate when above changes
-    - [] deactivate when bellow changes
+- [x] snippet session deactivation
+    - [x] deactivate when above changes
+    - [x] deactivate when bellow changes
 - [ ] sync placeholder position
   - [x] simple case(one-line change)
-- [ ] sync snippet range
+- [x] sync snippet range
 - [ ] session stack
+- [ ] support multibyte
 
+# refactor
 
-# priority
-
-1. sync placeholder position
-- [x] support one-line changes
-- [ ] support multi-line changes
-
-2. sync same placeholder
-- [x] support one-line changes
-- [ ] support multi-line changes
-
-3. skip same tabstop
-- [x] done
-
-4. refactor
+- [ ] `relocate placeholder` cut into function
+- [ ] if available, use `listener_add` instead of `TextChanged*`
 
