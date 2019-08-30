@@ -1,0 +1,43 @@
+{
+  "Test Snippet": {
+    "prefix": [
+      "test"
+    ],
+    "body": [
+      "let ${1:dict} = {}",
+      "for [${2:l:k}, ${3:l:v}] in items(${1}) \" ${2:l:k}",
+      "\t${0:write some code}",
+      "endfor$0"
+    ]
+  },
+
+  "Excute printf": {
+    "prefix": ["ex", "exe", "exec", "execute"],
+    "body": "execute printf('${0}')"
+  },
+  "Log": {
+    "prefix": [
+      "log",
+      "echo"
+    ],
+    "body": "echomsg string([$1])${0}"
+  },
+  "If": {
+    "prefix": "if",
+    "body": [
+      "if ${1:expression}",
+      "\t$0",
+      "endif"
+    ]
+  },
+  "While": {
+    "prefix": "while",
+    "body": [
+      "let l:i = 0",
+      "while l:i < ${1:len(list)}",
+      "\t$0",
+      "\tlet l:i += 1",
+      "endwhile"
+    ]
+  }
+}

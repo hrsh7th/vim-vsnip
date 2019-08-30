@@ -3,6 +3,8 @@ if exists('g:loaded_snips')
 endif
 let g:loaded_snips = 1
 
+let g:snips_snippet_dir = get(g:, 'snips_snippet_dir', expand('<sfile>:p:h') . '/../resource/snippets')
+
 inoremap <Plug>(snips-expand-or-jump) <Esc>:<C-u>call snips#expand_or_jump()<CR>
 snoremap <Plug>(snips-expand-or-jump) <Esc>:<C-u>call snips#expand_or_jump()<CR>
 
