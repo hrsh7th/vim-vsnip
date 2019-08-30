@@ -9,6 +9,9 @@ function! snips#expandable_or_jumpable()
 endfunction
 
 function! snips#expand_or_jump()
+  let l:virtualedit = &virtualedit
+  let &virtualedit = 'onemore'
+
   if s:expandable()
     let l:target = snips#snippet#get_snippet_with_prefix_under_cursor(&filetype)
     let s:session = snips#session#new(l:target['prefix'], l:target['snippet'])
@@ -18,6 +21,8 @@ function! snips#expand_or_jump()
   if s:jumpable()
     call s:session.jump()
   endif
+
+  let &virtualedit = l:virtualedit
 endfunction
 
 function! s:expandable()

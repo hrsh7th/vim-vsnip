@@ -21,9 +21,6 @@ endfunction
 " Expand snippet body.
 "
 function! s:Session.expand()
-  let l:saved_vedit = &virtualedit
-  set virtualedit=all
-
   " remove prefix.
   let l:curpos = snips#utils#curpos()
   call snips#utils#edit#replace_buffer({
@@ -41,8 +38,6 @@ function! s:Session.expand()
   " update state.
   let self['state']['running'] = v:true
   let self['state']['buffer'] = getline('^', '$')
-
-  let &virtualedit = l:saved_vedit
 endfunction
 
 "
@@ -61,9 +56,6 @@ endfunction
 " Jump to next pos.
 "
 function! s:Session.jump()
-  let l:save_vedit = &virtualedit
-  set virtualedit=all
-
   " get placeholder.
   if !snips#utils#get(self, ['state', 'running'], v:false)
     return v:false
@@ -78,7 +70,6 @@ function! s:Session.jump()
 
   " move & select.
   call snips#utils#edit#select_or_insert(l:next['range'])
-  let &virtualedit = l:save_vedit
 endfunction
 
 "
