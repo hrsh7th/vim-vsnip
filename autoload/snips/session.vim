@@ -98,23 +98,6 @@ function! s:Session.on_text_changed()
 endfunction
 
 "
-"  Handle text changed.
-"
-function! s:Session.on_insert_char_pre(char)
-  if snips#utils#get(self, ['state', 'running'], v:false)
-    let l:is_backspace = char2nr(a:char) == 29
-    let self['state']['buffer'] = getline('^', '$')
-    let self['state'] = s:sync_state(self['state'], {
-          \   'range': {
-          \     'start': [line('.'), col('.') - (l:is_backspace ? 1 : 0)],
-          \     'end': [line('.'), col('.')]
-          \   },
-          \   'lines': [l:is_backspace ? '' : a:char]
-          \ })
-  endif
-endfunction
-
-"
 " Create state.
 "
 function! s:create_state(snippet)

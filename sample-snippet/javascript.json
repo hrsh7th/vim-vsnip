@@ -1,10 +1,18 @@
 {
-  "Function": {
+  "Arrow Function": {
     "prefix": [
       "f"
     ],
     "body": [
       "() => $0"
+    ]
+  },
+  "Function": {
+    "prefix": "fn",
+    "body": [
+      "function $1($2) {",
+      "\t$0",
+      "}"
     ]
   },
   "Log": {
@@ -15,26 +23,14 @@
       "console.log($0)"
     ]
   },
-  "class": {
-    "prefix": "class",
-    "body": [
-      "class $1 {",
-      "\t$0",
-      "}"
-    ]
+  "const": {
+    "prefix": "const",
+    "body": "const $1 = $2;$0"
   },
-  "get": {
-    "prefix": "get",
+  "If": {
+    "prefix": "if",
     "body": [
-      "get $1() {",
-      "\t$0",
-      "}"
-    ]
-  },
-  "set": {
-    "prefix": "set",
-    "body": [
-      "set $1($1) {",
+      "if ($1) {",
       "\t$0",
       "}"
     ]

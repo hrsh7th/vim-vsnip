@@ -1,11 +1,31 @@
 {
   "Arrow Function": {
-    "prefix": "f",
-    "body": "() => $0"
+    "prefix": [
+      "f"
+    ],
+    "body": [
+      "() => $0"
+    ]
+  },
+  "Function": {
+    "prefix": "fn",
+    "body": [
+      "function $1($2) {",
+      "\t$0",
+      "}"
+    ]
   },
   "Log": {
-    "prefix": "log",
-    "body": "console.log($0);"
+    "prefix": [
+      "log"
+    ],
+    "body": [
+      "console.log($0)"
+    ]
+  },
+  "const": {
+    "prefix": "const",
+    "body": "const $1 = $2;$0"
   },
   "If": {
     "prefix": "if",
@@ -13,30 +33,6 @@
       "if ($1) {",
       "\t$0",
       "}"
-    ]
-  },
-  "class": {
-    "prefix": "class",
-    "body": [
-      "class $1 {",
-      "\t$0",
-      "}"
-    ]
-  },
-  "get": {
-    "prefix": "get",
-    "body": [
-      "get $1() {",
-      "\treturn this.$1;",
-      "}$0"
-    ]
-  },
-  "set": {
-    "prefix": "set",
-    "body": [
-      "set $1($1) {",
-      "\tthis.$1 = $1; // $1",
-      "}$0"
     ]
   },
   "React Function Component Template": {
