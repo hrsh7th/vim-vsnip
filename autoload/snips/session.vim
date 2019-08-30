@@ -85,19 +85,17 @@ endfunction
 "  Handle text changed.
 "  TODO: implement
 "
-" function! s:Session.on_text_changed_i()
-"   if snips#utils#get(self, ['state', 'running'], v:false)
-"     let l:is_backspace = char2nr(a:char) == 29
-"     let self['state'] = s:sync_state(self['state'], {
-"           \   'range': {
-"           \     'start': [line('.'), col('.') - (l:is_backspace ? 1 : 0)],
-"           \     'end': [line('.'), col('.')]
-"           \   },
-"           \   'lines': [l:is_backspace ? '' : a:char]
-"           \ })
-"     let self['state']['buffer'] = getline('^', '$')
-"   endif
-" endfunction
+function! s:Session.on_text_changed()
+  if snips#utils#get(self, ['state', 'running'], v:false)
+    let l:old = self['state']['buffer']
+    let l:new = getline('^', '$')
+    let l:diff = snips#utils#diff#compute(l:old, l:new)
+    if snips#utils#range#has_length(l:diff['range']) || !(len(l:diff['lines']) <= 1 && get(l:diff['lines'], 0, '') == '')
+      let self['state'] = s:sync_state(self['state'], l:diff)
+    endif
+    let self['state']['buffer'] = l:new
+  endif
+endfunction
 
 "
 "  Handle text changed.
@@ -105,6 +103,7 @@ endfunction
 function! s:Session.on_insert_char_pre(char)
   if snips#utils#get(self, ['state', 'running'], v:false)
     let l:is_backspace = char2nr(a:char) == 29
+    let self['state']['buffer'] = getline('^', '$')
     let self['state'] = s:sync_state(self['state'], {
           \   'range': {
           \     'start': [line('.'), col('.') - (l:is_backspace ? 1 : 0)],
@@ -112,7 +111,6 @@ function! s:Session.on_insert_char_pre(char)
           \   },
           \   'lines': [l:is_backspace ? '' : a:char]
           \ })
-    let self['state']['buffer'] = getline('^', '$')
   endif
 endfunction
 
@@ -154,6 +152,24 @@ endfunction
 " - 複数行の変更に対応していない
 "
 function! s:sync_state(state, vimdiff)
+  " check edit is in snippet range.
+  let l:snippet_text = join(a:state['lines'], "\n")
+  let l:snippet_range = {
+        \   'start': a:state['start_position'],
+        \   'end': snips#utils#text_index2buffer_pos(a:state['start_position'], strlen(l:snippet_text), l:snippet_text)
+        \ }
+  if !snips#utils#range#in(l:snippet_range, a:vimdiff['range'])
+    let a:state['running'] = v:false
+    return a:state
+  endif
+
+  " update snippet lines.
+  let a:state['lines'] = snips#utils#edit#replace_text(
+        \   a:state['lines'],
+        \   snips#utils#range#relative(a:state['start_position'], a:vimdiff['range']),
+        \   a:vimdiff['lines']
+        \ )
+
   let l:placeholders = snips#syntax#placeholder#by_order(a:state['placeholders'])
 
   " fix placeholder ranges after already modified placeholder.
@@ -177,7 +193,7 @@ function! s:sync_state(state, vimdiff)
     if snips#utils#range#in(l:p['range'], a:vimdiff['range'])
       let l:new_lines = snips#utils#edit#replace_text(
             \   split(l:p['text'], "\n", v:true),
-            \   snips#utils#range#truncate(l:p['range']['start'], a:vimdiff['range']),
+            \   snips#utils#range#relative(l:p['range']['start'], a:vimdiff['range']),
             \   a:vimdiff['lines']
             \ )
       let l:new_text = join(l:new_lines, "\n")

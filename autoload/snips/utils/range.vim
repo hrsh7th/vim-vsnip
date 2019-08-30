@@ -21,17 +21,25 @@ function! snips#utils#range#after(vim_range1, vim_range2)
 endfunction
 
 function! snips#utils#range#has_length(vim_range)
-  return a:vim_range['start'][0] < a:vim_range['end'][0]
+  return snips#utils#range#valid(a:vim_range)
+        \ && a:vim_range['start'][0] < a:vim_range['end'][0]
         \ || (
         \   a:vim_range['start'][0] <= a:vim_range['end'][0]
         \   && a:vim_range['start'][1] < a:vim_range['end'][1]
         \ )
 endfunction
 
-function! snips#utils#range#truncate(vim_pos, vim_range)
+function! snips#utils#range#relative(vim_pos, vim_range)
   return {
         \   'start': [a:vim_range['start'][0] - a:vim_pos[0] + 1, a:vim_range['start'][1] - a:vim_pos[1] + 1],
         \   'end': [a:vim_range['end'][0] - a:vim_pos[0] + 1, a:vim_range['end'][1] - a:vim_pos[1] + 1],
         \ }
+endfunction
+
+function! snips#utils#range#valid(vim_range)
+  return a:vim_range['start'][0] >= 1
+        \ && a:vim_range['start'][1] >= 1
+        \ && a:vim_range['end'][0] >= 1
+        \ && a:vim_range['end'][1] >= 1
 endfunction
 

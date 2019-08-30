@@ -10,7 +10,9 @@ command! SnipsEdit call s:cmd_snips_edit()
 
 augroup snips
   autocmd!
-  autocmd! snips InsertCharPre * call s:on_insert_char_pre()
+  autocmd! snips TextChanged * call s:on_text_changed()
+  autocmd! snips TextChangedI * call s:on_text_changed()
+  autocmd! snips TextChangedP * call s:on_text_changed()
 augroup END
 
 function! s:cmd_snips_edit()
@@ -21,10 +23,10 @@ function! s:cmd_snips_edit()
   execute printf('tabedit %s', l:filepath)
 endfunction
 
-function! s:on_insert_char_pre()
+function! s:on_text_changed()
   let l:session = snips#get_session()
   if snips#utils#get(l:session, ['state', 'running'], v:false)
-    call l:session.on_insert_char_pre(v:char)
+    call l:session.on_text_changed()
   endif
 endfunction
 
