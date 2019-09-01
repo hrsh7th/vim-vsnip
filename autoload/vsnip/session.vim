@@ -10,9 +10,7 @@ let s:Session = {}
 function! s:Session.new(snippet)
   return extend(deepcopy(s:Session), {
         \   'snippet': a:snippet,
-        \   'state': {
-        \     'running': v:false
-        \   }
+        \   'state': vsnip#state#create(a:snippet)
         \ })
 endfunction
 
@@ -20,9 +18,6 @@ endfunction
 " Expand snippet body.
 "
 function! s:Session.expand()
-  " create state.
-  let self['state'] = vsnip#state#create(self['snippet'])
-
   " expand snippet.
   call vsnip#utils#edit#replace_buffer({
         \   'start': self['state']['start_position'],
