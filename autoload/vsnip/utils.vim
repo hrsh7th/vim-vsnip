@@ -26,8 +26,9 @@ function! vsnip#utils#curpos()
 endfunction
 
 function! vsnip#utils#get(dict, keys, def)
+  let l:keys = type(a:keys) == v:t_string ? [a:keys] : a:keys
   let l:target = a:dict
-  for l:key in a:keys
+  for l:key in l:keys
     if index([v:t_dict, v:t_list], type(l:target)) == -1 | return a:def | endif
     let _ = get(l:target, l:key, v:null)
     unlet! l:target
