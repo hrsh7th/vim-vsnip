@@ -75,13 +75,14 @@ function! s:resolve(symbol, placeholders)
     return {}
   endif
 
-  " tabstop only
-  if l:matches[1] != ''
-    let l:tabstop = str2nr(l:matches[1])
+  " choice
+  if l:matches[4] != ''
+    let l:tabstop = str2nr(l:matches[2])
+    let l:choices = s:choices(l:tabstop, a:placeholders, split(l:matches[4], ","))
     return {
           \   'tabstop': l:tabstop,
-          \   'choices': [],
-          \   'text': ''
+          \   'choices': l:choices,
+          \   'text': l:choices[0],
           \ }
 
   " default
@@ -93,15 +94,24 @@ function! s:resolve(symbol, placeholders)
           \   'text': s:text(l:tabstop, a:placeholders, l:matches[3])
           \ }
 
-  " choice
-  elseif l:matches[4] != ''
+  " tabstop only
+  elseif l:matches[2] != ''
     let l:tabstop = str2nr(l:matches[2])
-    let l:choices = s:choices(l:tabstop, a:placeholders, split(l:matches[4], ","))
     return {
           \   'tabstop': l:tabstop,
-          \   'choices': l:choices,
-          \   'text': l:choices[0],
+          \   'choices': [],
+          \   'text': s:text(l:tabstop, a:placeholders, l:matches[3])
           \ }
+
+  " tabstop only
+  elseif l:matches[1] != ''
+    let l:tabstop = str2nr(l:matches[1])
+    return {
+          \   'tabstop': l:tabstop,
+          \   'choices': [],
+          \   'text': s:text(l:tabstop, a:placeholders, l:matches[3])
+          \ }
+
   endif
 endfunction
 
@@ -109,7 +119,7 @@ endfunction
 " get text
 "
 function! s:text(tabstop, placeholders, text)
-  for l:p in a:placeholders
+  for l:p in copy(a:placeholders)
     if l:p['tabstop'] == a:tabstop
       return l:p['text']
     endif
@@ -121,7 +131,7 @@ endfunction
 " get choices
 "
 function! s:choices(tabstop, placeholders, choices)
-  for l:p in a:placeholders
+  for l:p in copy(a:placeholders)
     if l:p['tabstop'] == a:tabstop
       return l:p['choices']
     endif
