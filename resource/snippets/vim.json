@@ -43,7 +43,15 @@
   "ForItems": {
     "prefix": ["for-items"],
     "body": [
-      "for [l:k, l:v] in items(${TM_SELECTED_TEXT})",
+      "for [${1:key}, ${2:value}] in items(${TM_SELECTED_TEXT})",
+      "\t${0}",
+      "endfor"
+    ]
+  },
+  "ForList": {
+    "prefix": ["for-list"],
+    "body": [
+      "for ${1:element} in ${TM_SELECTED_TEXT}",
       "\t${0}",
       "endfor"
     ]

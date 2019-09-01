@@ -11,6 +11,7 @@ Currently, No supported below features.
 - multiline changes in placeholder.
 
 But I publish this.
+
 This already useful in general case, I think.
 
 # Setting
@@ -34,9 +35,12 @@ vnoremap <CR> :VsnipSelect<CR>
 `vim-vsnip` searches `&filetype.json` in `g:vsnip_snippet_dirs`.
 
 When `&filetype` is `typescript.tsx`, `vim-vsnip` try to load `typescript.tsx.json`, `typescript.json` and `tsx.json`.
+
 If found multiple snippet, those are merged.
 
+
 Snippet format is same of VSCode (or Language Server Protocol).
+
 You can find documentation in [spec](https://code.visualstudio.com/docs/editor/userdefinedsnippets.)
 
 ### How to use this with lexima?
