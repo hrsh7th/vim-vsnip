@@ -2,10 +2,21 @@ let g:_vsnip_external_context = {}
 let g:_vsnip_external_results = v:null
 
 function! vsnip#utils#regex#substitute(expr, ptrn, repl, flag)
+  if executable('node')
+    return s:node(a:expr, a:ptrn, a:repl, a:flag)
+  endif
   if has('python3')
     return s:python(a:expr, a:ptrn, a:repl, a:flag)
   endif
   return a:expr
+endfunction
+
+function! s:node(expr, ptrn, repl, flag)
+  let l:expr = substitute(a:expr, '"', '\\"', 'g')
+  let l:ptrn = substitute(a:ptrn, '"', '\\"', 'g')
+  let l:repl = substitute(a:repl, '"', '\\"', 'g')
+  echomsg "node --eval \"process.stdout.write('" . l:expr . "'.replace(/" . l:ptrn . "/" . a:flag . ", '" . l:repl . "'))\""
+  return system("node --eval \"process.stdout.write('" . l:expr . "'.replace(/" . l:ptrn . "/" . a:flag . ", '" . l:repl . "'))\"")
 endfunction
 
 function! s:python(expr, ptrn, repl, flag)
