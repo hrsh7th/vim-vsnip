@@ -1,6 +1,8 @@
 let s:regex = '\%(\$\(\a\w*\)\|\${\(\a\w*\)\%(:\([^}]\+\)\?\)\?}\)'
 
-function! snips#syntax#variable#resolve(text)
+let g:vsnips#syntax#variable#selected_text = ''
+
+function! vsnips#syntax#variable#resolve(text)
   let l:text = a:text
 
   let l:pos_start = 0
@@ -19,6 +21,11 @@ function! snips#syntax#variable#resolve(text)
   return l:text
 endfunction
 
+let dict = {}
+for [l:k, l:v] in items(dict) " l:k
+  write some code " SELECTED_TEXT: 
+endfor
+
 function! s:resolve(symbol)
   let l:matches = matchlist(a:symbol, s:regex)
   if empty(l:matches)
@@ -34,8 +41,7 @@ function! s:resolve(symbol)
 
   " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
   if l:variable['name'] == 'TM_SELECTED_TEXT'
-    echoerr '$TM_SELECTED_TEXT is not supported.'
-    return ''
+    return g:vsnips#syntax#variable#selected_text
 
   elseif l:variable['name'] == 'TM_CURRENT_LINE'
     return getline('.')

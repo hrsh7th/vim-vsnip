@@ -1,7 +1,14 @@
+function! vsnips#snippet#get_prefixes(filetype)
+  let l:definition = vsnips#snippet#get_definition(a:filetype)
+  if !empty(l:definition)
+    return keys(l:definition['index'])
+  endif
+  return []
+endfunction
 
-function! snips#snippet#get_filepath(filetype)
+function! vsnips#snippet#get_filepath(filetype)
   for l:filetype in split(a:filetype, '\.')
-    let l:filepath = printf('%s/%s.json', g:snips_snippet_dir, l:filetype)
+    let l:filepath = printf('%s/%s.json', g:vsnips_snippet_dir, l:filetype)
     if filereadable(l:filepath)
       return l:filepath
     endif
@@ -9,9 +16,9 @@ function! snips#snippet#get_filepath(filetype)
   return ''
 endfunction
 
-function! snips#snippet#get_definition(filetype)
+function! vsnips#snippet#get_definition(filetype)
   for l:filetype in split(a:filetype, '\.')
-    let l:filepath = printf('%s/%s.json', g:snips_snippet_dir, l:filetype)
+    let l:filepath = printf('%s/%s.json', g:vsnips_snippet_dir, l:filetype)
     if filereadable(l:filepath)
       return s:normalize(json_decode(join(readfile(l:filepath), "\n")))
     endif
@@ -19,13 +26,13 @@ function! snips#snippet#get_definition(filetype)
   return s:normalize({})
 endfunction
 
-function! snips#snippet#get_snippet_with_prefix_under_cursor(filetype)
-  let l:definition = snips#snippet#get_definition(a:filetype)
+function! vsnips#snippet#get_snippet_with_prefix_under_cursor(filetype)
+  let l:definition = vsnips#snippet#get_definition(a:filetype)
   if empty(l:definition)
     return {}
   endif
 
-  let l:pos = snips#utils#curpos()
+  let l:pos = vsnips#utils#curpos()
   let l:line = getline(l:pos[0])
   let l:col = min([l:pos[1] - 1, strlen(l:line) - 1])
   if mode() == 'i' &&  l:pos[1] <= strlen(l:line)
@@ -49,6 +56,7 @@ function! s:normalize(snippets)
   for [l:label, l:snippet] in items(a:snippets)
     let l:snippet['prefix'] = s:to_list(l:snippet['prefix'])
     let l:snippet['body'] = s:to_list(l:snippet['body'])
+    let l:snippet['description'] = vsnips#utils#get(l:snippet, ['description'], l:label)
     for l:prefix in s:prefixes(l:snippet['prefix'])
       let l:normalized['index'][l:prefix] = len(l:normalized['snippets'])
     endfor

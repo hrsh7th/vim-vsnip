@@ -3,7 +3,7 @@ let s:regex = '\%(\$\(\d\+\)\|\${\(\d\+\)\%(:\([^}]\+\)\?\)\?}\)'
 "
 " resolve all placeholders.
 "
-function! snips#syntax#placeholder#resolve(start_position, text)
+function! vsnips#syntax#placeholder#resolve(start_position, text)
   let l:text = a:text
   let l:placeholders = []
 
@@ -25,21 +25,21 @@ function! snips#syntax#placeholder#resolve(start_position, text)
           \   'tabstop': l:placeholder['tabstop'],
           \   'text': l:placeholder['text'],
           \   'range': {
-          \     'start': snips#utils#text_index2buffer_pos(a:start_position, l:start, l:text),
-          \     'end': snips#utils#text_index2buffer_pos(a:start_position, l:start + strlen(l:placeholder['text']), l:text)
+          \     'start': vsnips#utils#text_index2buffer_pos(a:start_position, l:start, l:text),
+          \     'end': vsnips#utils#text_index2buffer_pos(a:start_position, l:start + strlen(l:placeholder['text']), l:text)
           \   }
           \ })
     let l:pos_start = strlen(l:before . l:placeholder['text'])
     let l:order = l:order + 1
   endwhile
 
-  return [l:text, snips#syntax#placeholder#by_tabstop(l:placeholders)]
+  return [l:text, vsnips#syntax#placeholder#by_tabstop(l:placeholders)]
 endfunction
 
 "
 " sort by order.
 "
-function! snips#syntax#placeholder#by_order(placeholders)
+function! vsnips#syntax#placeholder#by_order(placeholders)
   function! s:compare(i1, i2)
     return a:i1['order'] - a:i2['order']
   endfunction
@@ -49,7 +49,7 @@ endfunction
 "
 " sort by tabstop index.
 "
-function! snips#syntax#placeholder#by_tabstop(placeholders)
+function! vsnips#syntax#placeholder#by_tabstop(placeholders)
   function! s:compare(i1, i2)
     if a:i1['tabstop'] != 0 && a:i2['tabstop'] == 0
       return -1

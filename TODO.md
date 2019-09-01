@@ -43,6 +43,6 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 
 # refactor
 
-- [ ] `relocate placeholder` cut into function
+- [x] `relocate placeholder` cut into function
 - [ ] if available, use `listener_add` instead of `TextChanged*`
 

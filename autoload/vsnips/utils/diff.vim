@@ -1,7 +1,7 @@
 "
 " This source code imported from `vim-lsp`.
 "
-function! snips#utils#diff#compute(old, new) abort
+function! vsnips#utils#diff#compute(old, new) abort
   let [l:start_line, l:start_char] = s:first_difference(a:old, a:new)
   let [l:end_line, l:end_char] = s:last_difference(a:old[l:start_line :], a:new[l:start_line :], l:start_char)
   let l:text = s:extract_text(a:new, l:start_line, l:start_char, l:end_line, l:end_char)
