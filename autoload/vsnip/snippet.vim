@@ -1,11 +1,6 @@
-function! vsnip#snippet#complete_prefix(...)
-  return vsnip#snippet#get_prefixes(&filetype)
-endfunction
-
 function! vsnip#snippet#find_by_prefix(prefix)
-  let l:definition = vsnip#snippet#get_definition(&filetype)
-  for l:snippet in l:definition['snippets']
-    if index(l:snippet['prefix'], a:prefix) >= 0
+  for l:snippet in vsnip#snippet#get_snippets(&filetype)
+    if index(l:snippet['prefixes'], a:prefix) >= 0
       return l:snippet
     endif
   endfor
@@ -13,16 +8,16 @@ function! vsnip#snippet#find_by_prefix(prefix)
 endfunction
 
 function! vsnip#snippet#get_prefixes(filetype)
-  let l:definition = vsnip#snippet#get_definition(a:filetype)
-  if !empty(l:definition)
-    return keys(l:definition['index'])
-  endif
-  return []
+  let l:prefixes = []
+  for l:snippet in vsnip#snippet#get_snippets(a:filetype)
+    call extend(l:prefixes, l:snippet['prefixes'])
+  endfor
+  return l:prefixes
 endfunction
 
 function! vsnip#snippet#get_filepaths(filetype)
   let l:filepaths = []
-  for l:filetype in split(a:filetype, '\.')
+  for l:filetype in uniq([a:filetype] + split(a:filetype, '\.'))
     for l:dir in g:vsnip_snippet_dirs
       let l:filepath = printf('%s/%s.json', l:dir, l:filetype)
       if filereadable(l:filepath)
@@ -30,19 +25,20 @@ function! vsnip#snippet#get_filepaths(filetype)
       endif
     endfor
   endfor
-  return l:filepaths
+  return reverse(l:filepaths)
 endfunction
 
-function! vsnip#snippet#get_definition(filetype)
+function! vsnip#snippet#get_snippets(filetype)
+  let l:snippets = []
   for l:filepath in vsnip#snippet#get_filepaths(a:filetype)
-    return s:normalize(json_decode(join(readfile(l:filepath), "\n")))
+    call extend(l:snippets, s:normalize(json_decode(join(readfile(l:filepath), "\n"))))
   endfor
-  return s:normalize({})
+  return l:snippets
 endfunction
 
 function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype)
-  let l:definition = vsnip#snippet#get_definition(a:filetype)
-  if empty(l:definition)
+  let l:snippets = vsnip#snippet#get_snippets(a:filetype)
+  if empty(l:snippets)
     return {}
   endif
 
@@ -54,31 +50,31 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype)
   endif
 
   let l:text = l:line[0 : l:col]
-  for [l:prefix, l:idx] in items(l:definition['index'])
-    if strlen(l:text) < strlen(l:prefix)
-      continue
-    endif
-    if l:text =~# '\<' . l:prefix . '\>$'
-      return { 'prefix': l:prefix, 'snippet': l:definition['snippets'][l:idx] }
-    endif
+  for l:snippet in l:snippets
+    for l:prefix in l:snippet['prefixes']
+      if strlen(l:text) < strlen(l:prefix)
+        continue
+      endif
+      if l:text =~# '\<' . l:prefix . '\>$'
+        return { 'prefix': l:prefix, 'snippet': l:snippet }
+      endif
+    endfor
   endfor
   return {}
 endfunction
 
 function! s:normalize(snippets)
-  let l:normalized = { 'index': {}, 'snippets': [] }
+  let l:snippets = []
   for [l:label, l:snippet] in items(a:snippets)
     let l:snippet['label'] = l:label
     let l:snippet['prefix'] = s:to_list(l:snippet['prefix'])
+    let l:snippet['prefixes'] = s:prefixes(l:snippet['prefix'])
     let l:snippet['body'] = s:to_list(l:snippet['body'])
     let l:snippet['description'] = vsnip#utils#get(l:snippet, 'description', l:label)
     let l:snippet['name'] = l:snippet['label'] . ': ' . l:snippet['description']
-    for l:prefix in s:prefixes(l:snippet['prefix'])
-      let l:normalized['index'][l:prefix] = len(l:normalized['snippets'])
-    endfor
-    call add(l:normalized['snippets'], l:snippet)
+    call add(l:snippets, l:snippet)
   endfor
-  return l:normalized
+  return l:snippets
 endfunction
 
 function! s:to_list(v)

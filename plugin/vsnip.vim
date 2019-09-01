@@ -6,8 +6,8 @@ let g:loaded_snips = 1
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [expand('<sfile>:p:h') . '/../resource/snippets'])
 let g:vsnip_verbose = get(g:, 'vsnip_verbose', v:false)
 
-inoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
-snoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
+inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
+snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 
 command! VsnipEdit call s:cmd_edit()
 command! -range=% VsnipSelect call s:cmd_select(<range>)
@@ -54,6 +54,7 @@ function! s:on_text_changed()
 endfunction
 
 function! s:on_insert_leave()
-  call vsnip#select('')
+  " Avoid <Plug>(vsnip-expand-or-jump)'s `<Esc>`.
+  call timer_start(200, { -> vsnip#select('') }, { 'repeat': 1 })
 endfunction
 

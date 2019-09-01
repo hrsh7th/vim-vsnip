@@ -1,0 +1,142 @@
+*vsnip* *vim-vsnip*
+
+(v)scode (snip)pet
+
+The plugin aims to VSCode's snippet feature.
+
+
+
+==============================================================================
+CONTENTS                                                      *vsnip-contents*
+
+INTRODUCTION                                                     |vsnip-intro|
+INSTALL                                                        |vsnip-install|
+COMMAND                                                        |vsnip-command|
+VARIABLE                                                      |vsnip-variable|
+FUNCTION                                                      |vsnip-function|
+USAGE                                                            |vsnip-usage|
+CHANGELOG                                                    |vsnip-changelog|
+
+
+
+==============================================================================
+INTRODUCTION                                                     *vsnip-intro*
+
+`vsnip` is snippet plugin that aims to Visual Studio Code's snippet feature.
+
+Currently implementations are not supported features below.
+
+- variable/placeholder transform.
+- nested placeholder.
+- multiline changes in placeholder.
+
+
+
+==============================================================================
+INSTALL                                                        *vsnip-install*
+
+>
+  call dein#add('hrsh7th/vim-vsnip')
+
+  or
+
+  Plug 'hrsh7th/vim-vsnip'
+<
+
+Can use any plugin managers to install.
+
+
+
+==============================================================================
+COMMAND                                                        *vsnip-command*
+
+>
+  :VsnipEdit
+<
+  Edit snippet for current filetype.
+
+>
+  :VsnipSelect
+<
+  Select text for snippet expansion, it supports visual selection.
+  If omit visual selection, vsnip selects `<cword>`.
+
+
+
+==============================================================================
+VARIABLE                                                         *vsnip-usage*
+
+>
+  g:vsnip_snippet_dirs (string[])
+<
+  Default['/path/to/default-snippet-dir']
+  Specify snippets dir.
+
+
+==============================================================================
+MAPPING                                                        *vsnip-mapping*
+
+>
+  inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
+  snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
+<
+
+You should use above mappings like below.
+
+>
+  imap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+  smap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+<
+
+
+
+==============================================================================
+FUNCTION                                                      *vsnip-function*
+
+!!! It's not stable interfaces. !!!
+
+>
+  vsnip#select(v:t_string) ()
+<
+  Select specified text. It uses in expanding snippet.
+  See https://code.visualstudio.com/docs/editor/userdefinedsnippets.
+
+>
+  vsnip#expandable() (v:true | v:false)
+<
+  Check expandable in current cursor position.
+
+
+>
+  vsnip#jumpable() (v:true | v:false)
+<
+  Check jumpable in current cursor position.
+
+
+>
+  vsnip#expandable_or_jumpable() (v:true | v:false)
+<
+  Check jumpable in current cursor position.
+
+>
+  vsnip#expand_or_jump() ()
+<
+  Invoke expand or jump (prefer expand).
+
+
+
+==============================================================================
+TODO                                                              *vsnip-todo*
+
+- easy snippet creation.
+- multibytes support.
+- regex for variable/placeholder.
+- performance up.
+
+==============================================================================
+CHANGELOG                                                    *vsnip-changelog*
+
+2019/09/02
+- Initial release.
+
+

@@ -15,6 +15,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 ## variables
 
 - [x] parse
+- [x] pre-defined variables
 - [ ] regexp
 - [ ] doc comment
 - [ ] inline comment
@@ -37,17 +38,20 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
   - [x] sync placeholder(one-line change)
   - [x] sync snippet-range(one-line change)
 - [ ] session stack
-- [ ] support multibytes
+- [ ] multibytes
 
 
 # additional features
 
-- [ ] one-time snippet
 - [ ] dot repeatable
 - [ ] easy snippet creation
-- [ ] handle visual selected
+- [x] handle visual selected
 
 # performance
 
 - [ ] if available, use `listener_add` instead of `TextChanged*`
+
+
+# other
+- [ ] write tests
 

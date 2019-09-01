@@ -25,7 +25,6 @@ function! vsnip#jumpable()
   return s:jumpable()
 endfunction
 
-
 "
 " Check jumpable.
 "
