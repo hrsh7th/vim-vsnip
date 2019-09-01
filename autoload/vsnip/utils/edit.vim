@@ -52,7 +52,7 @@ function! vsnip#utils#edit#replace_text(target, vim_range, lines)
   let l:start_line = l:target[a:vim_range['start'][0] - 1]
   let l:start_line_before = a:vim_range['start'][1] > 1 ? l:start_line[0 : a:vim_range['start'][1] - 2] : ''
   let l:end_line = l:target[a:vim_range['end'][0] - 1]
-  let l:end_line_after = a:vim_range['end'][1] < strlen(l:end_line) ? l:end_line[a:vim_range['end'][1] - 1 : -1] : ''
+  let l:end_line_after = a:vim_range['end'][1] <= strlen(l:end_line) ? l:end_line[a:vim_range['end'][1] - 1 : -1] : ''
 
   let l:i = 0
   while l:i < l:lines_len

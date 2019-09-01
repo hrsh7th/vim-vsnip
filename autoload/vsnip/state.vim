@@ -29,11 +29,11 @@ endfunction
 
 function! vsnip#state#sync(state, diff)
   if !s:is_valid_diff(a:diff)
-    return a:state
+    return [a:state, []]
   endif
   if !s:is_diff_in_snippet_range(a:state, a:diff)
     let a:state['running'] = v:false
-    return a:state
+    return [a:state, []]
   endif
 
   " update snippet lines.
@@ -114,14 +114,7 @@ function! vsnip#state#sync(state, diff)
     let l:j += 1
   endwhile
 
-  function! s:apply_edits(edits, timer_id)
-    for l:edit in reverse(a:edits)
-      call vsnip#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
-    endfor
-  endfunction
-  call timer_start(0, function('s:apply_edits', [l:edits]))
-
-  return a:state
+  return [a:state, l:edits]
 endfunction
 
 function! s:is_valid_diff(diff)

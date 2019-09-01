@@ -68,15 +68,21 @@ endfunction
 "
 "  Handle text changed.
 "
+let s:timer_id = -1
 function! s:Session.on_text_changed()
   if vsnip#utils#get(self, ['state', 'running'], v:false)
     let l:old = self['state']['buffer']
     let l:new = getline('^', '$')
     let l:diff = vsnip#utils#diff#compute(l:old, l:new)
-    let self['state'] = vsnip#state#sync(self['state'], l:diff)
-    let self['state']['buffer'] = l:new
+    let [l:state, l:edits] = vsnip#state#sync(self['state'], l:diff)
+
+    for l:edit in reverse(l:edits)
+      call vsnip#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
+    endfor
+    let l:state['buffer'] = getline('^', '$')
   endif
 endfunction
+
 
 "
 " find next placeholder.
