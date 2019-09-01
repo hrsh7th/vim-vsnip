@@ -16,13 +16,9 @@ function! vsnip#utils#edit#replace_buffer(vim_range, lines)
   while l:i < l:lines_len
     " create text.
     let l:text = ''
-    if l:i == 0
-      let l:text .= l:start_line_before
-    endif
+    if l:i == 0 | let l:text .= l:start_line_before | endif
     let l:text .= a:lines[l:i]
-    if l:i == l:lines_len - 1
-      let l:text .= l:end_line_after
-    endif
+    if l:i == l:lines_len - 1 | let l:text .= l:end_line_after | endif
 
     " change or append.
     let l:lnum = a:vim_range['start'][0] + l:i
@@ -62,13 +58,9 @@ function! vsnip#utils#edit#replace_text(target, vim_range, lines)
   while l:i < l:lines_len
     " create text.
     let l:text = ''
-    if l:i == 0
-      let l:text .= l:start_line_before
-    endif
+    if l:i == 0 | let l:text .= l:start_line_before | endif
     let l:text .= a:lines[l:i]
-    if l:i == l:lines_len - 1
-      let l:text .= l:end_line_after
-    endif
+    if l:i == l:lines_len - 1 | let l:text .= l:end_line_after | endif
 
     " change or append.
     let l:lnum = a:vim_range['start'][0] + l:i

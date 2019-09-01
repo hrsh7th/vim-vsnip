@@ -45,6 +45,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [ ] one-time snippet
 - [ ] dot repeatable
 - [ ] easy snippet creation
+- [ ] handle visual selected
 
 # performance
 

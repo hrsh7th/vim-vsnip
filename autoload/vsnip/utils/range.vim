@@ -43,3 +43,17 @@ function! vsnip#utils#range#valid(vim_range)
         \ && a:vim_range['end'][1] >= 1
 endfunction
 
+function! vsnip#utils#range#get_lines(vim_range)
+  let l:lines = []
+  for l:lnum in range(a:vim_range['start'][0], a:vim_range['end'][0])
+    if l:lnum == a:vim_range['start'][0]
+      call add(l:lines, getline(l:lnum)[a:vim_range['start'][1] : -1])
+    elseif l:lnum == a:vim_range['end'][0]
+      call add(l:lines, getline(l:lnum)[0 : a:vim_range['end'][1] - 1])
+    else
+      call ad(l:lines, getline(l:lnum))
+    endif
+  endfor
+  return l:lines
+endfunction
+

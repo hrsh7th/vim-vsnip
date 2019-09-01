@@ -1,5 +1,5 @@
-function! vsnip#session#new(snippet)
-  return s:Session.new(a:snippet)
+function! vsnip#session#new(snippet, lines)
+  return s:Session.new(a:snippet, a:lines)
 endfunction
 
 let s:Session = {}
@@ -7,9 +7,10 @@ let s:Session = {}
 "
 " Create session instance.
 "
-function! s:Session.new(snippet)
+function! s:Session.new(snippet, lines)
   return extend(deepcopy(s:Session), {
         \   'snippet': a:snippet,
+        \   'lines': a:lines,
         \   'state': vsnip#state#create(a:snippet)
         \ })
 endfunction
@@ -26,6 +27,11 @@ function! s:Session.expand()
         \   'start': self['state']['start_position'],
         \   'end': self['state']['start_position']
         \ }, self['state']['lines'])
+
+  if len(self['state']['placeholders']) > 0
+    call vsnip#utils#edit#replace_buffer(self['state']['placeholders'][-1]['range'], self['lines'])
+  endif
+
 
   " update state.
   let self['state']['running'] = v:true
@@ -61,7 +67,6 @@ function! s:Session.jump()
   let self['state']['current_idx'] = l:idx
 
   " move & select.
-  echomsg string([l:next])
   if len(l:next['choices']) > 0
     call vsnip#utils#edit#choice(l:next['range'], l:next['choices'])
   else

@@ -1,3 +1,18 @@
+function! vsnip#snippet#by_name_completion(...)
+  let l:definition = vsnip#snippet#get_definition(&filetype)
+  return map(l:definition['snippets'], { k, v -> v['name'] })
+endfunction
+
+function! vsnip#snippet#find_by_name(name)
+  let l:definition = vsnip#snippet#get_definition(&filetype)
+  for l:snippet in l:definition['snippets']
+    if l:snippet['name'] == a:name
+      return l:snippet
+    endif
+  endfor
+  return {}
+endfunction
+
 function! vsnip#snippet#get_prefixes(filetype)
   let l:definition = vsnip#snippet#get_definition(a:filetype)
   if !empty(l:definition)
@@ -54,9 +69,11 @@ endfunction
 function! s:normalize(snippets)
   let l:normalized = { 'index': {}, 'snippets': [] }
   for [l:label, l:snippet] in items(a:snippets)
+    let l:snippet['label'] = l:label
     let l:snippet['prefix'] = s:to_list(l:snippet['prefix'])
     let l:snippet['body'] = s:to_list(l:snippet['body'])
     let l:snippet['description'] = vsnip#utils#get(l:snippet, 'description', l:label)
+    let l:snippet['name'] = l:snippet['label'] . ': ' . l:snippet['description']
     for l:prefix in s:prefixes(l:snippet['prefix'])
       let l:normalized['index'][l:prefix] = len(l:normalized['snippets'])
     endfor
