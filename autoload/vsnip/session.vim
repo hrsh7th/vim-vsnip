@@ -24,7 +24,6 @@ function! s:Session.expand()
         \   'end': self['state']['start_position']
         \ }, self['state']['lines'])
 
-
   " update state.
   let self['state']['running'] = v:true
   let self['state']['buffer'] = getline('^', '$')

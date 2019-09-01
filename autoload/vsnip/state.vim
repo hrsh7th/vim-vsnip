@@ -119,7 +119,7 @@ function! vsnip#state#sync(state, diff)
       call vsnip#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
     endfor
   endfunction
-  call timer_start(0, function('s:apply_edits', [l:edits]), { 'repeat': 1 })
+  call timer_start(0, function('s:apply_edits', [l:edits]))
 
   return a:state
 endfunction
