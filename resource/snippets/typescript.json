@@ -20,7 +20,7 @@
       "log"
     ],
     "body": [
-      "console.log($0)"
+      "console.${1|log,warn,error|}($0)"
     ]
   },
   "const": {

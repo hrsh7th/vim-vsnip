@@ -18,6 +18,9 @@ endfunction
 " Expand snippet body.
 "
 function! s:Session.expand()
+  " remove selected text.
+  let g:vsnip#syntax#variable#selected_text = ''
+
   " expand snippet.
   call vsnip#utils#edit#replace_buffer({
         \   'start': self['state']['start_position'],
@@ -58,7 +61,12 @@ function! s:Session.jump()
   let self['state']['current_idx'] = l:idx
 
   " move & select.
-  call vsnip#utils#edit#select_or_insert(l:next['range'])
+  echomsg string([l:next])
+  if len(l:next['choices']) > 0
+    call vsnip#utils#edit#choice(l:next['range'], l:next['choices'])
+  else
+    call vsnip#utils#edit#select_or_insert(l:next['range'])
+  endif
 endfunction
 
 "

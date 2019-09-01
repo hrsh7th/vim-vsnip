@@ -4,6 +4,7 @@ endif
 let g:loaded_snips = 1
 
 let g:vsnip_snippet_dir = get(g:, 'vsnip_snippet_dir', expand('<sfile>:p:h') . '/../resource/snippets')
+let g:vsnip_verbose = get(g:, 'vsnip_verbose', v:false)
 
 inoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 snoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>

@@ -1,4 +1,4 @@
-let s:regex = '\%(\$\(\d\+\)\|\${\(\d\+\)\%(:\([^}]\+\)\?\)\?}\)'
+let s:regex = '\%(\$\(\d\+\)\|\${\(\d\+\)\%(:\([^}]\+\)\?\||\([^|]\+\)|\)\?}\)'
 
 "
 " resolve all placeholders.
@@ -24,6 +24,7 @@ function! vsnip#syntax#placeholder#resolve(start_position, text)
           \   'order': l:order,
           \   'tabstop': l:placeholder['tabstop'],
           \   'text': l:placeholder['text'],
+          \   'choices': l:placeholder['choices'],
           \   'range': {
           \     'start': vsnip#utils#text_index2buffer_pos(a:start_position, l:start, l:text),
           \     'end': vsnip#utils#text_index2buffer_pos(a:start_position, l:start + strlen(l:placeholder['text']), l:text)
@@ -74,29 +75,57 @@ function! s:resolve(symbol, placeholders)
     return {}
   endif
 
-  " normalize text.
+  " tabstop only
   if l:matches[1] != ''
     let l:tabstop = str2nr(l:matches[1])
     return {
-          \ 'tabstop': l:tabstop,
-          \ 'text': s:text(l:tabstop, a:placeholders, '') }
-  else
+          \   'tabstop': l:tabstop,
+          \   'choices': [],
+          \   'text': ''
+          \ }
+
+  " default
+  elseif l:matches[3] != ''
     let l:tabstop = str2nr(l:matches[2])
     return {
-          \ 'tabstop': l:tabstop,
-          \ 'text': s:text(l:tabstop, a:placeholders, l:matches[3]) }
+          \   'tabstop': l:tabstop,
+          \   'choices': [],
+          \   'text': s:text(l:tabstop, a:placeholders, l:matches[3])
+          \ }
+
+  " choice
+  elseif l:matches[4] != ''
+    let l:tabstop = str2nr(l:matches[2])
+    let l:choices = s:choices(l:tabstop, a:placeholders, split(l:matches[4], ","))
+    return {
+          \   'tabstop': l:tabstop,
+          \   'choices': l:choices,
+          \   'text': l:choices[0],
+          \ }
   endif
 endfunction
 
 "
 " get text
 "
-function! s:text(tabstop, placeholders, default)
+function! s:text(tabstop, placeholders, text)
   for l:p in a:placeholders
     if l:p['tabstop'] == a:tabstop
       return l:p['text']
     endif
   endfor
-  return a:default
+  return a:text
+endfunction
+
+"
+" get choices
+"
+function! s:choices(tabstop, placeholders, choices)
+  for l:p in a:placeholders
+    if l:p['tabstop'] == a:tabstop
+      return l:p['choices']
+    endif
+  endfor
+  return a:choices
 endfunction
 

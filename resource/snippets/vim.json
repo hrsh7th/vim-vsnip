@@ -5,7 +5,7 @@
     ],
     "body": [
       "let ${1:dict} = {}",
-      "for [${2:l:k}, ${3:l:v}] in items(${1}) \" ${2:l:k}",
+      "for [l:${2|k,key,name|}, ${3:l:v}] in items(${1}) \" ${2:l:k}",
       "\t${4:write some code} \" SELECTED_TEXT: ${TM_SELECTED_TEXT}",
       "endfor$0"
     ]
@@ -20,7 +20,7 @@
       "log",
       "echo"
     ],
-    "body": "echomsg string([$TM_SELECTED_TEXT$1])${0}"
+    "body": "echomsg string([$TM_SELECTED_TEXT$TM_CURRENT_WORD$1])${0}"
   },
   "If": {
     "prefix": "if",

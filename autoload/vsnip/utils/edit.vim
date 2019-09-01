@@ -107,3 +107,21 @@ function! vsnip#utils#edit#select_or_insert(vim_range)
   endif
 endfunction
 
+"
+" Choise.
+"
+function! vsnip#utils#edit#choice(vim_range, choices)
+  function! s:start_complete(vim_range, choices, timer_id)
+    if mode() ==# 'i'
+      call complete(a:vim_range['start'][1], a:choices)
+      call timer_start(0, { -> timer_stop(a:timer_id) }, { 'repeat': 1 })
+    endif
+  endfunction
+
+  call cursor(a:vim_range['end'])
+  startinsert
+
+  " TODO: Sometimes, pupupmenu was close unexpectedly. Probably caused by auto-completion plugins.
+  call timer_start(&updatetime, function('s:start_complete', [a:vim_range, a:choices]), { 'repeat': -1 })
+endfunction
+

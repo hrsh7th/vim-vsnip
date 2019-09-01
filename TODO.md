@@ -22,7 +22,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 ## placeholder
 
 - [x] parse
-- [ ] choice
+- [x] choice
 - [ ] nested
 
 ## behavior

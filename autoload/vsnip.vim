@@ -9,7 +9,6 @@ endfunction
 "
 function! vsnip#select(text)
   let g:vsnip#syntax#variable#selected_text = a:text
-  echomsg string([g:vsnip#syntax#variable#selected_text])
 endfunction
 
 "
