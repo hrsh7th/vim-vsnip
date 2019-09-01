@@ -1,12 +1,11 @@
-function! vsnip#snippet#by_name_completion(...)
-  let l:definition = vsnip#snippet#get_definition(&filetype)
-  return map(l:definition['snippets'], { k, v -> v['name'] })
+function! vsnip#snippet#complete_prefix(...)
+  return vsnip#snippet#get_prefixes(&filetype)
 endfunction
 
-function! vsnip#snippet#find_by_name(name)
+function! vsnip#snippet#find_by_prefix(prefix)
   let l:definition = vsnip#snippet#get_definition(&filetype)
   for l:snippet in l:definition['snippets']
-    if l:snippet['name'] == a:name
+    if index(l:snippet['prefix'], a:prefix) >= 0
       return l:snippet
     endif
   endfor
@@ -21,22 +20,22 @@ function! vsnip#snippet#get_prefixes(filetype)
   return []
 endfunction
 
-function! vsnip#snippet#get_filepath(filetype)
+function! vsnip#snippet#get_filepaths(filetype)
+  let l:filepaths = []
   for l:filetype in split(a:filetype, '\.')
-    let l:filepath = printf('%s/%s.json', g:vsnip_snippet_dir, l:filetype)
-    if filereadable(l:filepath)
-      return l:filepath
-    endif
+    for l:dir in g:vsnip_snippet_dirs
+      let l:filepath = printf('%s/%s.json', l:dir, l:filetype)
+      if filereadable(l:filepath)
+        call add(l:filepaths, l:filepath)
+      endif
+    endfor
   endfor
-  return ''
+  return l:filepaths
 endfunction
 
 function! vsnip#snippet#get_definition(filetype)
-  for l:filetype in split(a:filetype, '\.')
-    let l:filepath = printf('%s/%s.json', g:vsnip_snippet_dir, l:filetype)
-    if filereadable(l:filepath)
-      return s:normalize(json_decode(join(readfile(l:filepath), "\n")))
-    endif
+  for l:filepath in vsnip#snippet#get_filepaths(a:filetype)
+    return s:normalize(json_decode(join(readfile(l:filepath), "\n")))
   endfor
   return s:normalize({})
 endfunction

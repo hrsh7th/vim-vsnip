@@ -25,6 +25,7 @@ function! vsnip#jumpable()
   return s:jumpable()
 endfunction
 
+
 "
 " Check jumpable.
 "
@@ -37,7 +38,9 @@ endfunction
 "
 function! vsnip#expand_or_jump()
   let l:virtualedit = &virtualedit
+  let l:lazyredraw = &lazyredraw
   let &virtualedit = 'onemore'
+  let &lazyredraw = 1
 
   if s:expandable()
     " remove prefix.
@@ -51,6 +54,9 @@ function! vsnip#expand_or_jump()
     " start & expand snippet.
     let s:session = vsnip#session#new(l:target['snippet'])
     call s:session.expand()
+
+    " remove selected text.
+    call vsnip#select('')
   endif
 
   if s:jumpable()
@@ -58,16 +64,7 @@ function! vsnip#expand_or_jump()
   endif
 
   let &virtualedit = l:virtualedit
-endfunction
-
-"
-" Expand force.
-"
-function! vsnip#expand_force(range, snippet)
-  let l:wrap = vsnip#utils#range#get_lines(a:range)
-  call vsnip#utils#edit#replace_buffer(a:range, [''])
-  let s:session = vsnip#session#new(a:snippet, l:wrap)
-  call s:session.expand()
+  let &lazyredraw = l:lazyredraw
 endfunction
 
 function! s:expandable()

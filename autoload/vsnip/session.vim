@@ -1,5 +1,5 @@
-function! vsnip#session#new(snippet, lines)
-  return s:Session.new(a:snippet, a:lines)
+function! vsnip#session#new(snippet)
+  return s:Session.new(a:snippet)
 endfunction
 
 let s:Session = {}
@@ -7,10 +7,9 @@ let s:Session = {}
 "
 " Create session instance.
 "
-function! s:Session.new(snippet, lines)
+function! s:Session.new(snippet)
   return extend(deepcopy(s:Session), {
         \   'snippet': a:snippet,
-        \   'lines': a:lines,
         \   'state': vsnip#state#create(a:snippet)
         \ })
 endfunction
@@ -19,18 +18,11 @@ endfunction
 " Expand snippet body.
 "
 function! s:Session.expand()
-  " remove selected text.
-  let g:vsnip#syntax#variable#selected_text = ''
-
   " expand snippet.
   call vsnip#utils#edit#replace_buffer({
         \   'start': self['state']['start_position'],
         \   'end': self['state']['start_position']
         \ }, self['state']['lines'])
-
-  if len(self['state']['placeholders']) > 0
-    call vsnip#utils#edit#replace_buffer(self['state']['placeholders'][-1]['range'], self['lines'])
-  endif
 
 
   " update state.
@@ -59,11 +51,11 @@ function! s:Session.jump()
     return v:false
   endif
 
+  " get next placeholder.
   let [l:idx, l:next] = s:find_next_placeholder(self['state']['current_idx'], self['state']['placeholders'])
   if empty(l:next)
     return
   endif
-
   let self['state']['current_idx'] = l:idx
 
   " move & select.
@@ -76,7 +68,6 @@ endfunction
 
 "
 "  Handle text changed.
-"  TODO: implement
 "
 function! s:Session.on_text_changed()
   if vsnip#utils#get(self, ['state', 'running'], v:false)

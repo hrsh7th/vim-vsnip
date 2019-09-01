@@ -47,5 +47,13 @@
       "\t${0}",
       "endfor"
     ]
+  },
+  "Autoload Function": {
+    "prefix": ["fn"],
+    "body": [
+      "function! $1($2)",
+      "\t$0",
+      "endfunction"
+    ]
   }
 }

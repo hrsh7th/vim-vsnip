@@ -1,0 +1,22 @@
+{
+  "React Function Component Template": {
+    "prefix": [
+      "react-fc"
+    ],
+    "body": [
+      "import React from 'react';",
+      "",
+      "type Props = {",
+      "\t${1}",
+      "};",
+      "",
+      "export const ${TM_FILENAME_BASE} = ({ ${2} }: Props) => {",
+      "\treturn (",
+      "\t\t<div>",
+      "\t\t\t$0",
+      "\t\t</div>",
+      "\t);",
+      "};"
+    ]
+  }
+}
