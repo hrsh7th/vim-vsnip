@@ -4,27 +4,25 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 
 ## snippet
 
-- [x] prefix simple case
+- [x] prefix
 - [x] body
 - [x] prefix abbr
-- [ ] description
-- [ ] label
+- [x] description
+- [x] label
 - [ ] scope
-- [ ] multiple filetype
+- [ ] multiple filetypes
 
 ## variables
 
-- [x] parse simple case
+- [x] parse
 - [ ] regexp
 - [ ] doc comment
 - [ ] inline comment
 
 ## placeholder
 
-- [x] parse simple case
-- [ ] sync same placeholder
-  - [x] simple case(one-line change only)
-- [ ] choise
+- [x] parse
+- [ ] choice
 - [ ] nested
 
 ## behavior
@@ -34,15 +32,21 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
   - [x] skip same tabstop
 - [x] snippet session deactivation
     - [x] deactivate when above changes
-    - [x] deactivate when bellow changes
-- [ ] sync placeholder position
-  - [x] simple case(one-line change)
-- [x] sync snippet range
+    - [x] deactivate when below changes
+- [x] sync
+  - [x] sync placeholder(one-line change)
+  - [x] sync snippet-range(one-line change)
 - [ ] session stack
-- [ ] support multibyte
+- [ ] support multibytes
 
-# refactor
 
-- [x] `relocate placeholder` cut into function
+# additional features
+
+- [ ] one-time snippet
+- [ ] dot repeatable
+- [ ] easy snippet creation
+
+# performance
+
 - [ ] if available, use `listener_add` instead of `TextChanged*`
 
