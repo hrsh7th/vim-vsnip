@@ -1,4 +1,4 @@
-function! vsnips#utils#get_indent()
+function! vsnip#utils#get_indent()
   if !&expandtab
     return "\t"
   endif
@@ -8,7 +8,7 @@ function! vsnips#utils#get_indent()
   return repeat(' ', &tabstop)
 endfunction
 
-function! vsnips#utils#text_index2buffer_pos(text_start_pos, index_in_text, text)
+function! vsnip#utils#text_index2buffer_pos(text_start_pos, index_in_text, text)
   let l:lines = split(strpart(a:text, 0, a:index_in_text), "\n", v:true)
 
   let l:lnum_in_text = len(l:lines) - 1
@@ -20,12 +20,12 @@ function! vsnips#utils#text_index2buffer_pos(text_start_pos, index_in_text, text
   return [l:lnum, l:col]
 endfunction
 
-function! vsnips#utils#curpos()
+function! vsnip#utils#curpos()
   let l:pos = getcurpos()
   return [l:pos[1], l:pos[2]]
 endfunction
 
-function! vsnips#utils#get(dict, keys, def)
+function! vsnip#utils#get(dict, keys, def)
   let l:target = a:dict
   for l:key in a:keys
     if index([v:t_dict, v:t_list], type(l:target)) == -1 | return a:def | endif

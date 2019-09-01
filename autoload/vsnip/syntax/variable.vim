@@ -1,8 +1,8 @@
 let s:regex = '\%(\$\(\a\w*\)\|\${\(\a\w*\)\%(:\([^}]\+\)\?\)\?}\)'
 
-let g:vsnips#syntax#variable#selected_text = ''
+let g:vsnip#syntax#variable#selected_text = get(g:, 'vsnip#syntax#variable#selected_text', '')
 
-function! vsnips#syntax#variable#resolve(text)
+function! vsnip#syntax#variable#resolve(text)
   let l:text = a:text
 
   let l:pos_start = 0
@@ -41,7 +41,7 @@ function! s:resolve(symbol)
 
   " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
   if l:variable['name'] == 'TM_SELECTED_TEXT'
-    return g:vsnips#syntax#variable#selected_text
+    return g:vsnip#syntax#variable#selected_text
 
   elseif l:variable['name'] == 'TM_CURRENT_LINE'
     return getline('.')

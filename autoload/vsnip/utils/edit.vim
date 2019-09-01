@@ -3,7 +3,7 @@
 "
 " @param vim_range - start: inclusive, end: exclusive
 "
-function! vsnips#utils#edit#replace_buffer(vim_range, lines)
+function! vsnip#utils#edit#replace_buffer(vim_range, lines)
   let l:range_len = a:vim_range['end'][0] - a:vim_range['start'][0] + 1
   let l:lines_len = len(a:lines)
 
@@ -48,7 +48,7 @@ endfunction
 "
 " @param vim_range - start: inclusive, end: exclusive
 "
-function! vsnips#utils#edit#replace_text(target, vim_range, lines)
+function! vsnip#utils#edit#replace_text(target, vim_range, lines)
   let l:target = a:target
   let l:range_len = a:vim_range['end'][0] - a:vim_range['start'][0] + 1
   let l:lines_len = len(a:lines)
@@ -96,8 +96,8 @@ endfunction
 "
 " @param vim_range - start: inclusive, end: exclusive
 "
-function! vsnips#utils#edit#select_or_insert(vim_range)
-  if vsnips#utils#range#has_length(a:vim_range)
+function! vsnip#utils#edit#select_or_insert(vim_range)
+  if vsnip#utils#range#has_length(a:vim_range)
     call cursor(a:vim_range['end'])
     normal! hgh
     call cursor(a:vim_range['start'])

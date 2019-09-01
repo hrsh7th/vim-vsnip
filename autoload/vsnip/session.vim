@@ -1,4 +1,4 @@
-function! vsnips#session#new(snippet)
+function! vsnip#session#new(snippet)
   return s:Session.new(a:snippet)
 endfunction
 
@@ -21,10 +21,10 @@ endfunction
 "
 function! s:Session.expand()
   " create state.
-  let self['state'] = vsnips#state#create(self['snippet'])
+  let self['state'] = vsnip#state#create(self['snippet'])
 
   " expand snippet.
-  call vsnips#utils#edit#replace_buffer({
+  call vsnip#utils#edit#replace_buffer({
         \   'start': self['state']['start_position'],
         \   'end': self['state']['start_position']
         \ }, self['state']['lines'])
@@ -38,7 +38,7 @@ endfunction
 " Check jump marker enabled.
 "
 function! s:Session.jumpable()
-  if !vsnips#utils#get(self, ['state', 'running'], v:false)
+  if !vsnip#utils#get(self, ['state', 'running'], v:false)
     return v:false
   endif
 
@@ -51,7 +51,7 @@ endfunction
 "
 function! s:Session.jump()
   " get placeholder.
-  if !vsnips#utils#get(self, ['state', 'running'], v:false)
+  if !vsnip#utils#get(self, ['state', 'running'], v:false)
     return v:false
   endif
 
@@ -63,7 +63,7 @@ function! s:Session.jump()
   let self['state']['current_idx'] = l:idx
 
   " move & select.
-  call vsnips#utils#edit#select_or_insert(l:next['range'])
+  call vsnip#utils#edit#select_or_insert(l:next['range'])
 endfunction
 
 "
@@ -71,11 +71,11 @@ endfunction
 "  TODO: implement
 "
 function! s:Session.on_text_changed()
-  if vsnips#utils#get(self, ['state', 'running'], v:false)
+  if vsnip#utils#get(self, ['state', 'running'], v:false)
     let l:old = self['state']['buffer']
     let l:new = getline('^', '$')
-    let l:diff = vsnips#utils#diff#compute(l:old, l:new)
-    let self['state'] = vsnips#state#sync(self['state'], l:diff)
+    let l:diff = vsnip#utils#diff#compute(l:old, l:new)
+    let self['state'] = vsnip#state#sync(self['state'], l:diff)
     let self['state']['buffer'] = l:new
   endif
 endfunction
