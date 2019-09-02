@@ -86,7 +86,6 @@ function! vsnip#state#sync(state, diff)
 
   " sync same tabstop placeholder.
   let l:in_sync = {}
-  let l:same_lines = 0
   let l:edits = []
   while l:j < len(l:placeholders)
     let l:p = l:placeholders[l:j]
@@ -104,11 +103,8 @@ function! vsnip#state#sync(state, diff)
     endif
 
     if l:is_same_line_in_sync
-      let l:same_lines += 1
-      let l:p['range']['start'][1] += l:shiftwidth * l:same_lines
-      let l:p['range']['end'][1] += l:shiftwidth * l:same_lines
-    else
-      let l:same_lines = 0
+      let l:p['range']['start'][1] += l:shiftwidth
+      let l:p['range']['end'][1] += l:shiftwidth
     endif
 
     let l:j += 1

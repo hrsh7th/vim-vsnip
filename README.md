@@ -63,7 +63,3 @@ smap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)'
 
 If you can use `deoplete.nvim`, use `deoplete-vsnip`.
 
-# Known bugs
-
-- Sometimes broken when sync same line placeholders.
-  - Help wanted.

@@ -68,6 +68,7 @@ function! s:Session.jump()
   endif
 endfunction
 
+
 "
 "  Handle text changed.
 "
