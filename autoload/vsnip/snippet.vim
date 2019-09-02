@@ -92,6 +92,13 @@ function! s:prefixes(prefixes)
       call add(l:prefixes, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
     endif
   endfor
+
+  if strlen(g:vsnip_prefix_shortcut) > 0
+    for l:prefix in copy(l:prefixes)
+      call add(l:prefixes, g:vsnip_prefix_shortcut . l:prefix)
+    endfor
+  endif
+
   return l:prefixes
 endfunction
 
