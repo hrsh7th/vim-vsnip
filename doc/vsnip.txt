@@ -102,6 +102,15 @@ VARIABLE                                                         *vsnip-usage*
     Milliseconds to delay of sync same placeholder.
 
 
+>
+  g:vsnip_prefix_shortcut (string) (experimental)
+<
+    Default: 'snip_'
+
+    This value will be prepend to snippet-prefix.
+    Will be useful to auto-completion.
+
+
 
 ==============================================================================
 FUNCTION                                                      *vsnip-function*
@@ -165,6 +174,7 @@ TODO                                                              *vsnip-todo*
 CHANGELOG                                                    *vsnip-changelog*
 
 2019/09/02
+- Add `g:vsnip_prefix_shortcut` (experimental).
 - Add `g:vsnip_sync_delay`
 - Update README.md
 - Initial release.
