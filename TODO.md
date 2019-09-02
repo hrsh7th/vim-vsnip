@@ -40,8 +40,8 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
     - [x] deactivate when below changes
 - [ ] placeholder deactivation
 - [x] sync
-  - [x] sync placeholder(one-line change)
-  - [x] sync snippet-range(one-line change)
+  - [x] sync placeholder
+  - [x] sync snippet-range
 - [ ] session stack
 - [ ] multibytes
 

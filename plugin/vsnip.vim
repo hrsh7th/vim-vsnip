@@ -13,7 +13,6 @@ inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_j
 snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 
 command! VsnipEdit call s:cmd_edit()
-command! -range=% VsnipSelect call s:cmd_select(<range>)
 
 augroup vsnip
   autocmd!
@@ -21,6 +20,7 @@ augroup vsnip
   autocmd! vsnip TextChangedI * call s:on_text_changed()
   autocmd! vsnip TextChangedP * call s:on_text_changed()
   autocmd! vsnip InsertLeave * call s:on_insert_leave()
+  autocmd! vsnip TextYankPost * call s:on_text_yank_post()
   autocmd! vsnip BufWritePre * call s:on_buf_write_pre()
 augroup END
 
@@ -44,16 +44,16 @@ function! s:cmd_edit()
   execute printf('tabedit %s', l:filepath)
 endfunction
 
-function! s:cmd_select(cmd_range)
-  let l:range = vsnip#utils#range#get_range_under_cursor(a:cmd_range)
-  let l:lines = vsnip#utils#range#get_lines(l:range)
-  call vsnip#select(join(l:lines, "\n"))
-endfunction
-
 function! s:on_text_changed()
   let l:session = vsnip#get_session()
   if vsnip#utils#get(l:session, ['state', 'running'], v:false)
     call l:session.on_text_changed()
+  endif
+endfunction
+
+function! s:on_text_yank_post()
+  if v:operator == 'y'
+    call vsnip#select(getreg(v:register))
   endif
 endfunction
 

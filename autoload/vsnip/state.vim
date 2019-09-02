@@ -31,6 +31,7 @@ function! vsnip#state#sync(state, diff)
   if !s:is_valid_diff(a:diff)
     return [a:state, []]
   endif
+
   if !s:is_diff_in_snippet_range(a:state, a:diff)
     let a:state['running'] = v:false
     return [a:state, []]
@@ -116,7 +117,7 @@ endfunction
 function! s:is_valid_diff(diff)
   let l:has_range_length = vsnip#utils#range#has_length(a:diff['range'])
   let l:has_new_text = len(a:diff['lines']) > 1 || get(a:diff['lines'], 0, '') != ''
-  return l:has_range_length || l:has_new_text
+  return vsnip#utils#range#valid(a:diff['range']) && l:has_range_length || l:has_new_text
 endfunction
 
 function! s:is_diff_in_snippet_range(state, diff)
