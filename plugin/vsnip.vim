@@ -4,10 +4,10 @@ endif
 let g:loaded_snips = 1
 
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [expand('<sfile>:p:h') . '/../resource/snippets'])
+let g:vsnip_snippet_dirs = map(g:vsnip_snippet_dirs, { i, v -> resolve(v) })
 let g:vsnip_sync_delay = 100
 let g:vsnip_namespace = 'snip_'
 let g:vsnip_verbose = get(g:, 'snip_verbose', v:false)
-
 
 inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
@@ -21,6 +21,7 @@ augroup vsnip
   autocmd! vsnip TextChangedI * call s:on_text_changed()
   autocmd! vsnip TextChangedP * call s:on_text_changed()
   autocmd! vsnip InsertLeave * call s:on_insert_leave()
+  autocmd! vsnip BufWritePre * call s:on_buf_write_pre()
 augroup END
 
 function! s:cmd_edit()
@@ -59,5 +60,14 @@ endfunction
 function! s:on_insert_leave()
   " Avoid <Plug>(vsnip-expand-or-jump)'s `<Esc>`.
   call timer_start(200, { -> vsnip#select('') }, { 'repeat': 1 })
+endfunction
+
+function! s:on_buf_write_pre()
+  let l:filepath = fnamemodify(bufname('%'), ':p')
+  for l:dir in g:vsnip_snippet_dirs
+    if stridx(l:filepath, l:dir) >= 0
+      call vsnip#snippet#invalidate(l:filepath)
+    endif
+  endfor
 endfunction
 

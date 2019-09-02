@@ -38,3 +38,9 @@ function! vsnip#utils#get(dict, keys, def)
   return l:target
 endfunction
 
+function! vsnip#utils#to_list(v)
+  if type(a:v) ==# v:t_list
+    return a:v
+  endif
+  return [a:v]
+endfunction

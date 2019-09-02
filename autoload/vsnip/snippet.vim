@@ -1,3 +1,5 @@
+let s:cache = {}
+
 function! vsnip#snippet#find_by_prefix(prefix)
   for l:snippet in vsnip#snippet#get_snippets(&filetype)
     if index(l:snippet['prefixes'], a:prefix) >= 0
@@ -5,6 +7,12 @@ function! vsnip#snippet#find_by_prefix(prefix)
     endif
   endfor
   return {}
+endfunction
+
+function! vsnip#snippet#invalidate(filepath)
+  if has_key(s:cache, a:filepath)
+    unlet s:cache[a:filepath]
+  endif
 endfunction
 
 function! vsnip#snippet#get_prefixes(filetype)
@@ -31,7 +39,10 @@ endfunction
 function! vsnip#snippet#get_snippets(filetype)
   let l:snippets = []
   for l:filepath in vsnip#snippet#get_filepaths(a:filetype)
-    call extend(l:snippets, s:normalize(json_decode(join(readfile(l:filepath), "\n"))))
+    if !has_key(s:cache, l:filepath)
+      let s:cache[l:filepath] = s:normalize(vsnip#utils#json#read(l:filepath))
+    endif
+    call extend(l:snippets, s:cache[l:filepath])
   endfor
   return l:snippets
 endfunction
@@ -63,25 +74,18 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype)
   return {}
 endfunction
 
-function! s:normalize(snippets)
+function! s:normalize(snippet_map)
   let l:snippets = []
-  for [l:label, l:snippet] in items(a:snippets)
+  for [l:label, l:snippet] in items(a:snippet_map)
     let l:snippet['label'] = l:label
-    let l:snippet['prefix'] = s:to_list(l:snippet['prefix'])
+    let l:snippet['prefix'] = vsnip#utils#to_list(l:snippet['prefix'])
     let l:snippet['prefixes'] = s:prefixes(l:snippet['prefix'])
-    let l:snippet['body'] = s:to_list(l:snippet['body'])
+    let l:snippet['body'] = vsnip#utils#to_list(l:snippet['body'])
     let l:snippet['description'] = vsnip#utils#get(l:snippet, 'description', l:label)
     let l:snippet['name'] = l:snippet['label'] . ': ' . l:snippet['description']
     call add(l:snippets, l:snippet)
   endfor
   return l:snippets
-endfunction
-
-function! s:to_list(v)
-  if type(a:v) ==# v:t_list
-    return a:v
-  endif
-  return [a:v]
 endfunction
 
 function! s:prefixes(prefixes)

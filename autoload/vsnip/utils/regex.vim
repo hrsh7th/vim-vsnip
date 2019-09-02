@@ -6,7 +6,7 @@ function! vsnip#utils#regex#substitute(expr, ptrn, repl, flag)
     return s:node(a:expr, a:ptrn, a:repl, a:flag)
   endif
   if has('python3')
-    return s:python(a:expr, a:ptrn, a:repl, a:flag)
+    return s:python3(a:expr, a:ptrn, a:repl, a:flag)
   endif
   return a:expr
 endfunction
@@ -19,7 +19,7 @@ function! s:node(expr, ptrn, repl, flag)
   return system("node --eval \"process.stdout.write('" . l:expr . "'.replace(/" . l:ptrn . "/" . a:flag . ", '" . l:repl . "'))\"")
 endfunction
 
-function! s:python(expr, ptrn, repl, flag)
+function! s:python3(expr, ptrn, repl, flag)
   let g:_vsnip_external_context = {}
   let g:_vsnip_external_context['expr'] = a:expr
   let g:_vsnip_external_context['ptrn'] = a:ptrn
