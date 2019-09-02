@@ -74,6 +74,7 @@ COMMAND                                                        *vsnip-command*
 <
   Edit snippet for current filetype.
 
+
 >
   :VsnipSelect
 <
@@ -88,8 +89,17 @@ VARIABLE                                                         *vsnip-usage*
 >
   g:vsnip_snippet_dirs (string[])
 <
-  Default['/path/to/default-snippet-dir']
-  Specify snippets dir.
+    Default: ['/path/to/default-snippet-dir']
+
+    Specify snippets dir.
+
+
+>
+  g:vsnip_sync_delay (number)
+<
+    Default: 100
+
+    Milliseconds to delay of sync same placeholder.
 
 
 
@@ -99,32 +109,34 @@ FUNCTION                                                      *vsnip-function*
 !!! It's not stable interfaces. !!!
 
 >
-  vsnip#select(v:t_string) ()
+  vsnip#select(text) -> ()
 <
-  Select specified text. It uses in expanding snippet.
-  See https://code.visualstudio.com/docs/editor/userdefinedsnippets.
-
->
-  vsnip#expandable() (v:true | v:false)
-<
-  Check expandable in current cursor position.
+    Select specified text. It uses in expanding snippet.
+    See https://code.visualstudio.com/docs/editor/userdefinedsnippets.
 
 
 >
-  vsnip#jumpable() (v:true | v:false)
+  vsnip#expandable() -> (v:true | v:false)
 <
-  Check jumpable in current cursor position.
+    Check expandable in current cursor position.
 
 
 >
-  vsnip#expandable_or_jumpable() (v:true | v:false)
+  vsnip#jumpable() -> (v:true | v:false)
 <
-  Check jumpable in current cursor position.
+    Check jumpable in current cursor position.
+
 
 >
-  vsnip#expand_or_jump() ()
+  vsnip#expandable_or_jumpable() -> (v:true | v:false)
 <
-  Invoke expand or jump (prefer expand).
+    Check jumpable in current cursor position.
+
+
+>
+  vsnip#expand_or_jump() -> ()
+<
+    Invoke expand or jump (prefer expand).
 
 
 
@@ -153,6 +165,7 @@ TODO                                                              *vsnip-todo*
 CHANGELOG                                                    *vsnip-changelog*
 
 2019/09/02
+- Add `g:vsnip_sync_delay`
 - Update README.md
 - Initial release.
 

@@ -10,6 +10,9 @@ let s:Session = {}
 function! s:Session.new(snippet)
   return extend(deepcopy(s:Session), {
         \   'snippet': a:snippet,
+        \   'timer_ids': {
+        \     'sync': -1
+        \   },
         \   'state': vsnip#state#create(a:snippet)
         \ })
 endfunction
@@ -68,21 +71,23 @@ endfunction
 "
 "  Handle text changed.
 "
-let s:timer_id = -1
 function! s:Session.on_text_changed()
   if vsnip#utils#get(self, ['state', 'running'], v:false)
-    let l:old = self['state']['buffer']
-    let l:new = getline('^', '$')
-    let l:diff = vsnip#utils#diff#compute(l:old, l:new)
-    let [l:state, l:edits] = vsnip#state#sync(self['state'], l:diff)
+    function! s:sync(self, timer_id)
+      let l:old = a:self['state']['buffer']
+      let l:new = getline('^', '$')
+      let l:diff = vsnip#utils#diff#compute(l:old, l:new)
+      let [l:state, l:edits] = vsnip#state#sync(a:self['state'], l:diff)
 
-    for l:edit in reverse(l:edits)
-      call vsnip#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
-    endfor
-    let l:state['buffer'] = getline('^', '$')
+      for l:edit in reverse(l:edits)
+        call vsnip#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
+      endfor
+      let l:state['buffer'] = getline('^', '$')
+    endfunction
+    call timer_stop(self['timer_ids']['sync'])
+    let self['timer_ids']['sync'] = timer_start(g:vsnip_sync_delay, function('s:sync', [self]), { 'repeat': 1 })
   endif
 endfunction
-
 
 "
 " find next placeholder.

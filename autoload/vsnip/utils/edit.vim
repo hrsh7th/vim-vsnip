@@ -105,7 +105,11 @@ endfunction
 function! vsnip#utils#edit#choice(vim_range, choices)
   function! s:start_complete(vim_range, choices, timer_id)
     if mode() ==# 'i'
-      call complete(a:vim_range['start'][1], a:choices)
+      call complete(a:vim_range['start'][1], map(copy(a:choices), { i, v -> {
+            \   'word': v,
+            \   'abbr': v,
+            \   'menu': '[choice]'
+            \ }}))
       call timer_start(0, { -> timer_stop(a:timer_id) }, { 'repeat': 1 })
     endif
   endfunction
