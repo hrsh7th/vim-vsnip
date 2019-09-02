@@ -52,3 +52,7 @@ imap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)'
 smap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : lexima#expand('<LT>Tab>', 'i')
 ```
 
+### How to enable snippets auto-completion?
+
+If you can use `deoplete.nvim`, use `deoplete-vsnip`.
+
