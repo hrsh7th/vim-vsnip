@@ -66,3 +66,4 @@ If you can use `deoplete.nvim`, use `deoplete-vsnip`.
 # Known bugs
 
 - Sometimes broken when sync same line placeholders.
+  - Help wanted.
