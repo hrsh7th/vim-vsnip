@@ -2,6 +2,7 @@
 
 https://code.visualstudio.com/docs/editor/userdefinedsnippets
 
+
 ## snippet
 
 - [x] prefix
@@ -10,7 +11,8 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [x] description
 - [x] label
 - [ ] scope
-- [ ] multiple filetypes
+- [x] multiple filetypes
+
 
 ## variables
 
@@ -20,11 +22,13 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [ ] doc comment
 - [ ] inline comment
 
+
 ## placeholder
 
 - [x] parse
 - [x] choice
 - [ ] nested
+
 
 ## behavior
 
@@ -34,6 +38,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [x] snippet session deactivation
     - [x] deactivate when above changes
     - [x] deactivate when below changes
+- [ ] placeholder deactivation
 - [x] sync
   - [x] sync placeholder(one-line change)
   - [x] sync snippet-range(one-line change)
@@ -46,6 +51,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [ ] dot repeatable
 - [ ] easy snippet creation
 - [x] handle visual selected
+
 
 # performance
 
