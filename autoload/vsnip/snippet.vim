@@ -87,18 +87,19 @@ endfunction
 function! s:prefixes(prefixes)
   let l:prefixes = []
   for l:prefix in a:prefixes
+    " user defined prefix.
     call add(l:prefixes, l:prefix)
+
+    " namespace prefix.
+    if strlen(g:vsnip_namespace) > 0
+      call add(l:prefixes, g:vsnip_namespace . l:prefix)
+    endif
+
+    " prefix abbr.
     if l:prefix =~# '^\a\w\+\%(-\w\+\)\+$'
       call add(l:prefixes, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
     endif
   endfor
-
-  " resolve namespace.
-  if strlen(g:vsnip_namespace) > 0
-    for l:prefix in copy(l:prefixes)
-      call add(l:prefixes, g:vsnip_namespace . l:prefix)
-    endfor
-  endif
 
   return l:prefixes
 endfunction
