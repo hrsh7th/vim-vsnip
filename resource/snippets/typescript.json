@@ -20,7 +20,7 @@
       "log"
     ],
     "body": [
-      "console.${1|log,warn,error|}($0)"
+      "console.${1|log,warn,error|}($TM_SELECTED_TEXT)"
     ]
   },
   "const": {

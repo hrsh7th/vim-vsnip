@@ -103,11 +103,11 @@ VARIABLE                                                         *vsnip-usage*
 
 
 >
-  g:vsnip_prefix_shortcut (string) (experimental)
+  g:vsnip_namespace (string)
 <
     Default: 'snip_'
 
-    This value will be prepend to snippet-prefix.
+    This value will be prepend to all prefixes.
     Will be useful to auto-completion.
 
 
@@ -174,9 +174,9 @@ TODO                                                              *vsnip-todo*
 CHANGELOG                                                    *vsnip-changelog*
 
 2019/09/02
-- Add `g:vsnip_prefix_shortcut` (experimental).
+- Add `g:vsnip_namespace`
 - Add `g:vsnip_sync_delay`
 - Update README.md
-- Initial release.
+- Initial release
 
 

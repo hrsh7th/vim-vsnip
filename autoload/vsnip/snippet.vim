@@ -93,9 +93,10 @@ function! s:prefixes(prefixes)
     endif
   endfor
 
-  if strlen(g:vsnip_prefix_shortcut) > 0
+  " resolve namespace.
+  if strlen(g:vsnip_namespace) > 0
     for l:prefix in copy(l:prefixes)
-      call add(l:prefixes, g:vsnip_prefix_shortcut . l:prefix)
+      call add(l:prefixes, g:vsnip_namespace . l:prefix)
     endfor
   endif
 

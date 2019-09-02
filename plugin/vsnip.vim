@@ -5,8 +5,9 @@ let g:loaded_snips = 1
 
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [expand('<sfile>:p:h') . '/../resource/snippets'])
 let g:vsnip_sync_delay = 100
-let g:vsnip_prefix_shortcut = 'snip_'
+let g:vsnip_namespace = 'snip_'
 let g:vsnip_verbose = get(g:, 'snip_verbose', v:false)
+
 
 inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
