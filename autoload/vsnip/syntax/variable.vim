@@ -15,7 +15,7 @@ function! vsnip#syntax#variable#resolve(text)
     let l:before = strpart(l:text, 0, l:start)
     let l:after = strpart(l:text, l:end, strlen(l:text))
     let l:text = l:before . l:variable . l:after
-    let l:match_start = strlen(l:before . l:variable)
+    let l:pos_start = strlen(l:before . l:variable)
   endwhile
 
   return l:text

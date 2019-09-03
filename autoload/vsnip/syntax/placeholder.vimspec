@@ -1,0 +1,32 @@
+let s:expect = themis#helper('expect')
+
+Describe vsnip#syntax#placeholder
+
+  Describe #resolve
+
+    It Should resolve tabstop
+      let l:text = join([
+            \ 'console.log($0$1)'
+            \ ], "\n")
+      let [l:text, l:placeholders] = vsnip#syntax#placeholder#resolve([1, 1], l:text)
+      call s:expect('console.log()').to_equal(l:text)
+
+      call s:expect(l:placeholders[0]['order']).to_equal(1)
+      call s:expect(l:placeholders[0]['tabstop']).to_equal(1)
+      call s:expect(l:placeholders[0]['text']).to_equal('')
+      call s:expect(l:placeholders[0]['choices']).to_equal([])
+      call s:expect(l:placeholders[0]['range']['start']).to_equal([1, 13])
+      call s:expect(l:placeholders[0]['range']['end']).to_equal([1, 13])
+
+      call s:expect(l:placeholders[1]['order']).to_equal(0)
+      call s:expect(l:placeholders[1]['tabstop']).to_equal(0)
+      call s:expect(l:placeholders[1]['text']).to_equal('')
+      call s:expect(l:placeholders[1]['choices']).to_equal([])
+      call s:expect(l:placeholders[1]['range']['start']).to_equal([1, 13])
+      call s:expect(l:placeholders[1]['range']['end']).to_equal([1, 13])
+    End
+
+  End
+
+End
+
