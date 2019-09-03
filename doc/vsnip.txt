@@ -213,6 +213,8 @@ CHANGELOG                                                    *vsnip-changelog*
 - Change behavior `:VsnipEdit`.
   - `:VsnipEdit` will open snippet file in under `g:vsnip_snippet_dir`.
 - Add `:VsnipAdd` command (unstable/experimental).
+- Add `g:vsnip_auto_select_trigger`
+- Add `g:vsnip_auto_select_pattern`
 
 2019/09/02~
 - Remove `VsnipSelect` experimental.
@@ -220,5 +222,6 @@ CHANGELOG                                                    *vsnip-changelog*
 - Add `g:vsnip_sync_delay`
 - Update README.md
 - Initial release
+
 
 

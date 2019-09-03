@@ -1,4 +1,9 @@
-function! vsnip#command#add#call(filetype)
+function! vsnip#command#add#call(filetype, cmd_range)
+  if a:cmd_range != 2
+    echomsg 'Please specify lines.'
+    return
+  endif
+
   let l:body = s:body()
   if empty(l:body)
     echomsg 'Canceld.'
@@ -25,7 +30,7 @@ function! s:body()
   let l:lines = getline("'<", "'>")
 
   let l:indent = vsnip#utils#get_indent()
-  let l:indent_level = vsnip#utils#get_indent_level(l:lines[0], l:indent)
+  let l:indent_level = vsnip#utils#get_indent_level(get(l:lines, 0, ''), l:indent)
   let l:i = 0
   while l:i < len(l:lines)
     let l:line = l:lines[l:i]

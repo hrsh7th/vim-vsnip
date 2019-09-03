@@ -66,7 +66,17 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype)
       if strlen(l:text) < strlen(l:prefix)
         continue
       endif
+
+      " check prefix matching.
       if l:text =~# '\<' . l:prefix . '\>$'
+
+        " auto select.
+        let l:matches = matchlist(l:text, '\(' . g:vsnip_auto_select_pattern . '\)' . g:vsnip_auto_select_trigger . l:prefix . '$')
+        if get(l:matches, 1, '') != ''
+          call vsnip#select(l:matches[1])
+          let l:prefix = l:matches[1] . g:vsnip_auto_select_trigger . l:prefix
+        endif
+
         return { 'prefix': l:prefix, 'snippet': l:snippet }
       endif
     endfor

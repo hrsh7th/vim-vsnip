@@ -13,9 +13,3 @@ This aims to plugin like Visual Studio Code's Snippet feature.
 See `./doc/vsnip.txt`
 
 
-# Memo
-
-- Should resolve `$TM_SELECTED_TEXT` vim's way.
-    - Currently use `recently yanked text` for `$TM_SELECTED_TEXT`.
-    - But I'm not sure if this is correct.
-
