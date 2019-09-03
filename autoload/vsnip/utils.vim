@@ -44,3 +44,16 @@ function! vsnip#utils#to_list(v)
   endif
   return [a:v]
 endfunction
+
+function! vsnip#utils#inputlist(prompt, candidates)
+  if len(a:candidates) <= 1
+    return get(a:candidates, 0, v:null)
+  endif
+
+  let l:idx = inputlist([a:prompt] + map(a:candidates, { i, v -> printf('  %s: %s', i + 1, v) }))
+  if l:idx <= 0
+    return v:null
+  endif
+  return a:candidates[l:idx - 1]
+endfunction
+

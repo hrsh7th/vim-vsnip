@@ -11,11 +11,11 @@ CONTENTS                                                      *vsnip-contents*
 
 INTRODUCTION                                                     |vsnip-intro|
 INSTALL                                                        |vsnip-install|
+SETTING                                                        |vsnip-setting|
 MAPPING                                                        |vsnip-mapping|
 COMMAND                                                        |vsnip-command|
 VARIABLE                                                      |vsnip-variable|
 FUNCTION                                                      |vsnip-function|
-EXAMPLE                                                        |vsnip-example|
 FAQ                                                                |vsnip-faq|
 TODO                                                              |vsnip-todo|
 CHANGELOG                                                    |vsnip-changelog|
@@ -51,18 +51,23 @@ Can use any plugin managers to install.
 
 
 ==============================================================================
+SETTING                                                        *vsnip-setting*
+>
+  let g:vsnip_snippet_dir = expand('~/.vsnip')
+  imap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+  smap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+<
+
+
+
+==============================================================================
 MAPPING                                                        *vsnip-mapping*
+
+`vsnip` provides these `Plug` mapping.
 
 >
   inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
   snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
-<
-
-You should use above mappings like below.
-
->
-  imap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
-  smap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
 <
 
 
@@ -81,11 +86,11 @@ COMMAND                                                        *vsnip-command*
 VARIABLE                                                         *vsnip-usage*
 
 >
-  g:vsnip_snippet_dirs (string[])
+  g:vsnip_snippet_dir (string)
 <
-    Default: ['/path/to/default-snippet-dir']
+    Default: '~/.vsnip'
 
-    Specify snippets dir.
+    Specify user snippet dir.
 
 
 >
@@ -103,6 +108,14 @@ VARIABLE                                                         *vsnip-usage*
 
     This value will be prepend to all prefixes.
     Will be useful to auto-completion.
+
+
+>
+  g:vsnip_snippet_dirs (string[])
+<
+    Default: ['/path/to/default-snippet-dir']
+
+    Specify snippets dir.
 
 
 
@@ -144,22 +157,13 @@ FUNCTION                                                      *vsnip-function*
 
 
 ==============================================================================
-EXAMPLE                                                        *vsnip-example*
->
-  let g:vsnip_snippets_dirs = [expand('~/.vsnip')]
-  imap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
-  smap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
-<
-
-
-==============================================================================
 FAQ                                                                *vsnip-faq*
 
 ------------------------------------------------------------------------------
 How to define snippets?~
 
-  `vim-vsnip` searches `&filetype.json` in `g:vsnip_snippet_dirs`.
-  When `&filetype` is `typescript.tsx`, `vim-vsnip` try to load `typescript.tsx.json`, `typescript.json` and `tsx.json`.
+  `vsnip` searches `&filetype.json` in `g:vsnip_snippet_dirs`.
+  When `&filetype` is `typescript.tsx`, `vsnip` try to load `typescript.tsx.json`, `typescript.json` and `tsx.json`.
 
   If found multiple snippet, those are merged.
 
@@ -197,7 +201,12 @@ TODO                                                              *vsnip-todo*
 ==============================================================================
 CHANGELOG                                                    *vsnip-changelog*
 
-2019/09/02
+2019/09/03~
+- Add `g:vsnip_snippet_dir` for manage user snippets.
+- Change behavior `:VsnipEdit`.
+  - `:VsnipEdit` will open snippet file in under `g:vsnip_snippet_dir`.
+
+2019/09/02~
 - Remove `VsnipSelect` experimental.
 - Add `g:vsnip_namespace`
 - Add `g:vsnip_sync_delay`

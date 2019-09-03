@@ -1,7 +1,11 @@
 function! vsnip#utils#json#read(filepath)
   let l:lines = vsnip#utils#to_list(readfile(a:filepath))
   let l:lines = vsnip#utils#to_list(vsnip#utils#json#format(l:lines))
-  return json_decode(join(l:lines, "\n"))
+  try
+    return json_decode(join(l:lines, "\n"))
+  catch /.*/
+  endtry
+  return {}
 endfunction
 
 function! vsnip#utils#json#format(lines)
@@ -12,6 +16,10 @@ function! vsnip#utils#json#format(lines)
 endfunction
 
 function! s:python(lines)
-  return system('python -m json.tool', a:lines)
+  let l:output = system('python -m json.tool', a:lines)
+  if type(l:output) == v:t_string
+    return split(l:output, "\n")
+  endif
+  return l:output
 endfunction
 

@@ -26,7 +26,7 @@ endfunction
 function! vsnip#snippet#get_filepaths(filetype)
   let l:filepaths = []
   for l:filetype in uniq([a:filetype] + split(a:filetype, '\.'))
-    for l:dir in g:vsnip_snippet_dirs
+    for l:dir in uniq(g:vsnip_snippet_dirs + [g:vsnip_snippet_dir])
       let l:filepath = printf('%s/%s.json', l:dir, l:filetype)
       if filereadable(l:filepath)
         call add(l:filepaths, l:filepath)
