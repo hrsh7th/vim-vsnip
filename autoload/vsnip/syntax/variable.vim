@@ -21,11 +21,6 @@ function! vsnip#syntax#variable#resolve(text)
   return l:text
 endfunction
 
-let dict = {}
-for [l:k, l:v] in items(dict) " l:k
-  write some code " SELECTED_TEXT: 
-endfor
-
 function! s:resolve(symbol)
   let l:matches = matchlist(a:symbol, s:regex)
   if empty(l:matches)

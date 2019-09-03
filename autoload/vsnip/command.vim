@@ -10,7 +10,7 @@ let s:default = [
       \   '}',
       \ ]
 
-function! vsnip#command#prepare_user_snippet(filetype)
+function! vsnip#command#prepare_for_edit(filetype)
   if empty(a:filetype)
     echomsg 'Please specify filetype.'
     return ''
