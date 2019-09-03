@@ -1,5 +1,8 @@
 let s:session = {}
 
+"
+" Get current session.
+"
 function! vsnip#get_session()
   return s:session
 endfunction
@@ -15,21 +18,21 @@ endfunction
 " Check expandable.
 "
 function! vsnip#expandable()
-  return s:expandable()
+  return !empty(vsnip#snippet#get_snippet_with_prefix_under_cursor(&filetype))
 endfunction
 
 "
 " Check jumpable.
 "
 function! vsnip#jumpable()
-  return s:jumpable()
+  return !empty(s:session) && s:session.jumpable()
 endfunction
 
 "
 " Check jumpable.
 "
 function! vsnip#expandable_or_jumpable()
-  return s:expandable() || s:jumpable()
+  return vsnip#expandable() || vsnip#jumpable()
 endfunction
 
 "
@@ -41,7 +44,7 @@ function! vsnip#expand_or_jump()
   let &virtualedit = 'onemore'
   let &lazyredraw = 1
 
-  if s:expandable()
+  if vsnip#expandable()
     " remove prefix.
     let l:curpos = vsnip#utils#curpos()
     let l:target = vsnip#snippet#get_snippet_with_prefix_under_cursor(&filetype)
@@ -58,19 +61,11 @@ function! vsnip#expand_or_jump()
     call vsnip#select('')
   endif
 
-  if s:jumpable()
+  if vsnip#jumpable()
     call s:session.jump()
   endif
 
   let &virtualedit = l:virtualedit
   let &lazyredraw = l:lazyredraw
-endfunction
-
-function! s:expandable()
-  return !empty(vsnip#snippet#get_snippet_with_prefix_under_cursor(&filetype))
-endfunction
-
-function! s:jumpable()
-  return !empty(s:session) && s:session.jumpable()
 endfunction
 

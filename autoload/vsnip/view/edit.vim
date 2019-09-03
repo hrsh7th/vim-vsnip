@@ -11,6 +11,11 @@ let s:default = [
       \ ]
 
 function! vsnip#view#edit#call(filetype)
+  if empty(a:filetype)
+    echomsg 'Please specify filetype.'
+    return
+  endif
+
   let l:filetype = vsnip#utils#inputlist('Select new snippet target: ', split(a:filetype, '\.'))
   if empty(l:filetype)
     echomsg 'Cenceled.'

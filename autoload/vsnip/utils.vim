@@ -54,6 +54,6 @@ function! vsnip#utils#inputlist(prompt, candidates)
   if l:idx <= 0
     return v:null
   endif
-  return a:candidates[l:idx - 1]
+  return substitute(a:candidates[l:idx - 1], '^\s\+\d\+: ', '', 'g')
 endfunction
 
