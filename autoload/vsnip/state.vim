@@ -10,10 +10,10 @@ function! vsnip#state#create(snippet)
 
   " create body
   let l:indent = vsnip#utils#get_indent()
-  let l:level = strchars(substitute(matchstr(getline('.'), '^\s*'), l:indent, '_', 'g'))
+  let l:indent_level = vsnip#utils#get_indent_level(getline('.'), l:indent)
   let l:body = join(a:snippet['body'], "\n")
   let l:body = substitute(l:body, "\t", l:indent, 'g')
-  let l:body = substitute(l:body, "\n", "\n" . repeat(l:indent, l:level), 'g')
+  let l:body = substitute(l:body, "\n", "\n" . repeat(l:indent, l:indent_level), 'g')
   let l:body = substitute(l:body, "\n\\s\\+\\ze\n", "\n", 'g')
 
   " resolve variables.

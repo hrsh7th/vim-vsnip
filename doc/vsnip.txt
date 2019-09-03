@@ -81,6 +81,13 @@ COMMAND                                                        *vsnip-command*
   Edit snippet for current filetype.
 
 
+>
+  :VsnipAdd
+<
+  Status: UNSTABLE
+  Add snippet from visual selection.
+
+
 
 ==============================================================================
 VARIABLE                                                         *vsnip-usage*
@@ -205,6 +212,7 @@ CHANGELOG                                                    *vsnip-changelog*
 - Add `g:vsnip_snippet_dir` for manage user snippets.
 - Change behavior `:VsnipEdit`.
   - `:VsnipEdit` will open snippet file in under `g:vsnip_snippet_dir`.
+- Add `:VsnipAdd` command (unstable/experimental).
 
 2019/09/02~
 - Remove `VsnipSelect` experimental.

@@ -12,7 +12,10 @@ let g:vsnip_verbose = get(g:, 'snip_verbose', v:false)
 inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 
-command! VsnipEdit call s:cmd_edit()
+command! VsnipEdit
+      \ call vsnip#command#edit#call(&filetype)
+command! -range=% VsnipAdd
+      \ call vsnip#command#add#call(&filetype)
 
 augroup vsnip
   autocmd!
@@ -23,10 +26,6 @@ augroup vsnip
   autocmd! vsnip TextYankPost * call s:on_text_yank_post()
   autocmd! vsnip BufWritePre * call s:on_buf_write_pre()
 augroup END
-
-function! s:cmd_edit()
-  call vsnip#view#edit#call(&filetype)
-endfunction
 
 function! s:on_text_changed()
   let l:session = vsnip#get_session()
@@ -62,11 +61,6 @@ function! s:on_insert_leave()
 endfunction
 
 function! s:on_buf_write_pre()
-  let l:filepath = fnamemodify(bufname('%'), ':p')
-  for l:dir in g:vsnip_snippet_dirs + [g:vsnip_snippet_dir]
-    if stridx(l:filepath, resolve(l:dir)) >= 0
-      call vsnip#snippet#invalidate(l:filepath)
-    endif
-  endfor
+  call vsnip#snippet#invalidate(fnamemodify(bufname('%'), ':p'))
 endfunction
 

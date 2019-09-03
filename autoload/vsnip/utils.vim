@@ -8,6 +8,10 @@ function! vsnip#utils#get_indent()
   return repeat(' ', &tabstop)
 endfunction
 
+function! vsnip#utils#get_indent_level(line, indent)
+  return strlen(substitute(matchstr(a:line, '^\s*'), a:indent, '_', 'g'))
+endfunction
+
 function! vsnip#utils#text_index2buffer_pos(text_start_pos, index_in_text, text)
   let l:lines = split(strpart(a:text, 0, a:index_in_text), "\n", v:true)
 
