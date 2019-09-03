@@ -47,7 +47,7 @@ if flag.find('m') > -1:
 if flag.find('S') > -1:
   flags = flags | re.S
 
-vim.vars['vsnip_python_response'] = re.sub(re.compile(ptrn, flags), repl, expr)
+vim.vars['_vsnip_external_results'] = re.sub(re.compile(ptrn, flags), repl, expr)
 EOF
 
   return g:_vsnip_external_results
