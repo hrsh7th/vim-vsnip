@@ -31,7 +31,7 @@ Currently implementations are not supported features below.
 
 - variable/placeholder transform.
 - nested placeholder.
-- multiline changes in placeholder.
+- multiline changes.
 
 
 
@@ -63,7 +63,7 @@ SETTING                                                        *vsnip-setting*
 ==============================================================================
 MAPPING                                                        *vsnip-mapping*
 
-`vsnip` provides these `Plug` mapping.
+`vsnip` provides these `<Plug>` mapping.
 
 >
   inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
@@ -126,15 +126,15 @@ VARIABLE                                                         *vsnip-usage*
 
 
 >
-  g:vsnip_auto_select_trigger (string)
+  g:vsnip_auto_select_trigger (regex-string)
 <
-    Default: ';'
+    Default: '.'
 
-    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `prefix;replacement`.
+    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `prefix.replacement`.
 
 
 >
-  g:vsnip_auto_select_pattern (string)
+  g:vsnip_auto_select_pattern (regex-string)
 <
     Default: '\w\+'
 
@@ -183,7 +183,7 @@ FAQ                                                                *vsnip-faq*
 ------------------------------------------------------------------------------
 How to define snippets?~
 
-  `vsnip` searches `&filetype.json` in `g:vsnip_snippet_dirs`.
+  `vsnip` searches `&filetype.json` in `g:vsnip_snippet_dir` and `g:vsnip_snippet_dirs`.
   When `&filetype` is `typescript.tsx`, `vsnip` try to load `typescript.tsx.json`, `typescript.json` and `tsx.json`.
 
   If found multiple snippet, those are merged.
@@ -191,6 +191,9 @@ How to define snippets?~
 
   Snippet format is same of VSCode (or Language Server Protocol).
   You can find documentation in [spec](https://code.visualstudio.com/docs/editor/userdefinedsnippets.)
+
+  You can use `:VsnipEdit` to open (or create) user snippet file.
+  You can use `:VsnipAdd` to add new snippet via visual selected lines.
 
 
 ------------------------------------------------------------------------------
@@ -222,8 +225,8 @@ TODO                                                              *vsnip-todo*
 ==============================================================================
 CHANGELOG                                                    *vsnip-changelog*
 
-2019/09/04
-- Refactor
+2019/09/04~
+- Change `auto_select` behavior.
 
 2019/09/03~
 - Add `g:vsnip_snippet_dir` for manage user snippets.

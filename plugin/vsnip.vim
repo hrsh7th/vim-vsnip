@@ -7,7 +7,7 @@ let g:vsnip_snippet_dir = expand('~/.vsnip')
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])
 let g:vsnip_sync_delay = 100
 let g:vsnip_namespace = 'snip_'
-let g:vsnip_auto_select_trigger = ';'
+let g:vsnip_auto_select_trigger = '.'
 let g:vsnip_auto_select_pattern = '\w\+'
 
 inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
