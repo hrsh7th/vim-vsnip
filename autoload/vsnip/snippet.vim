@@ -1,21 +1,12 @@
 let s:cache = {}
 
-function! vsnip#snippet#find_by_prefix(prefix)
-  for l:snippet in vsnip#snippet#get_snippets(&filetype)
-    if index(l:snippet['prefixes'], a:prefix) >= 0
-      return l:snippet
-    endif
-  endfor
-  return {}
-endfunction
-
-function! vsnip#snippet#invalidate(filepath)
+function! vsnip#snippet#invalidate(filepath) abort
   if has_key(s:cache, a:filepath)
     unlet s:cache[a:filepath]
   endif
 endfunction
 
-function! vsnip#snippet#get_prefixes(filetype)
+function! vsnip#snippet#get_prefixes(filetype) abort
   let l:prefixes = []
   for l:snippet in vsnip#snippet#get_snippets(a:filetype)
     call extend(l:prefixes, l:snippet['prefixes'])
@@ -23,7 +14,7 @@ function! vsnip#snippet#get_prefixes(filetype)
   return l:prefixes
 endfunction
 
-function! vsnip#snippet#get_filepaths(filetype)
+function! vsnip#snippet#get_filepaths(filetype) abort
   let l:filepaths = []
   for l:filetype in uniq([a:filetype] + split(a:filetype, '\.'))
     for l:dir in uniq(g:vsnip_snippet_dirs + [g:vsnip_snippet_dir])
@@ -36,7 +27,7 @@ function! vsnip#snippet#get_filepaths(filetype)
   return reverse(l:filepaths)
 endfunction
 
-function! vsnip#snippet#get_snippets(filetype)
+function! vsnip#snippet#get_snippets(filetype) abort
   let l:snippets = []
   for l:filepath in vsnip#snippet#get_filepaths(a:filetype)
     if !has_key(s:cache, l:filepath)
@@ -47,7 +38,7 @@ function! vsnip#snippet#get_snippets(filetype)
   return l:snippets
 endfunction
 
-function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype)
+function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype) abort
   let l:snippets = vsnip#snippet#get_snippets(a:filetype)
   if empty(l:snippets)
     return {}
@@ -56,7 +47,7 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype)
   let l:pos = vsnip#utils#curpos()
   let l:line = getline(l:pos[0])
   let l:col = min([l:pos[1] - 1, strlen(l:line) - 1])
-  if mode() == 'i' &&  l:pos[1] <= strlen(l:line)
+  if mode() ==# 'i' &&  l:pos[1] <= strlen(l:line)
     let l:col = l:col - 1
   endif
 
@@ -72,7 +63,7 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype)
 
         " auto select.
         let l:matches = matchlist(l:text, '\(' . g:vsnip_auto_select_pattern . '\)' . g:vsnip_auto_select_trigger . l:prefix . '$')
-        if get(l:matches, 1, '') != ''
+        if get(l:matches, 1, '') !=# ''
           call vsnip#select(l:matches[1])
           let l:prefix = l:matches[1] . g:vsnip_auto_select_trigger . l:prefix
         endif
@@ -84,7 +75,7 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype)
   return {}
 endfunction
 
-function! s:normalize(snippet_map)
+function! s:normalize(snippet_map) abort
   let l:snippets = []
   for [l:label, l:snippet] in items(a:snippet_map)
     let l:snippet['label'] = l:label
@@ -98,7 +89,7 @@ function! s:normalize(snippet_map)
   return l:snippets
 endfunction
 
-function! s:prefixes(prefixes)
+function! s:prefixes(prefixes) abort
   let l:prefixes = []
   for l:prefix in a:prefixes
     " user defined prefix.

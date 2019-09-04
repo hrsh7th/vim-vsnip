@@ -1,4 +1,4 @@
-function! vsnip#utils#range#in(vim_range1, vim_range2)
+function! vsnip#utils#range#in(vim_range1, vim_range2) abort
   let l:in_start = a:vim_range1['start'][0] < a:vim_range2['start'][0]
         \ || (
         \   a:vim_range1['start'][0] == a:vim_range2['start'][0]
@@ -12,7 +12,7 @@ function! vsnip#utils#range#in(vim_range1, vim_range2)
   return l:in_start && l:in_end
 endfunction
 
-function! vsnip#utils#range#after(vim_pos1, vim_pos2)
+function! vsnip#utils#range#after(vim_pos1, vim_pos2) abort
   return a:vim_pos1[0] < a:vim_pos2[0]
         \ || (
         \   a:vim_pos1[0] == a:vim_pos2[0]
@@ -20,7 +20,7 @@ function! vsnip#utils#range#after(vim_pos1, vim_pos2)
         \ )
 endfunction
 
-function! vsnip#utils#range#has_length(vim_range)
+function! vsnip#utils#range#has_length(vim_range) abort
   return vsnip#utils#range#valid(a:vim_range)
         \ && a:vim_range['start'][0] < a:vim_range['end'][0]
         \ || (
@@ -29,14 +29,14 @@ function! vsnip#utils#range#has_length(vim_range)
         \ )
 endfunction
 
-function! vsnip#utils#range#relative(vim_pos, vim_range)
+function! vsnip#utils#range#relative(vim_pos, vim_range) abort
   return {
         \   'start': [a:vim_range['start'][0] - a:vim_pos[0] + 1, a:vim_range['start'][1] - a:vim_pos[1] + 1],
         \   'end': [a:vim_range['end'][0] - a:vim_pos[0] + 1, a:vim_range['end'][1] - a:vim_pos[1] + 1],
         \ }
 endfunction
 
-function! vsnip#utils#range#valid(vim_range)
+function! vsnip#utils#range#valid(vim_range) abort
   return vsnip#utils#range#after(a:vim_range['start'], a:vim_range['end'])
         \ && a:vim_range['start'][0] >= 1
         \ && a:vim_range['start'][1] >= 1
@@ -44,7 +44,7 @@ function! vsnip#utils#range#valid(vim_range)
         \ && a:vim_range['end'][1] >= 1
 endfunction
 
-function! vsnip#utils#range#get_range_under_cursor(cmd_range)
+function! vsnip#utils#range#get_range_under_cursor(cmd_range) abort
   " range specified in visual mode.
   if a:cmd_range == 2
     let l:start = getpos("'<")
@@ -78,7 +78,7 @@ function! vsnip#utils#range#get_range_under_cursor(cmd_range)
   return ''
 endfunction
 
-function! vsnip#utils#range#get_lines(vim_range)
+function! vsnip#utils#range#get_lines(vim_range) abort
   let l:lines = []
   for l:lnum in range(a:vim_range['start'][0], a:vim_range['end'][0])
     if a:vim_range['start'][0] == a:vim_range['end'][0]

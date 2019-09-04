@@ -1,4 +1,4 @@
-function! vsnip#session#new(snippet)
+function! vsnip#session#new(snippet) abort
   return s:Session.new(a:snippet)
 endfunction
 
@@ -7,7 +7,7 @@ let s:Session = {}
 "
 " Create session instance.
 "
-function! s:Session.new(snippet)
+function! s:Session.new(snippet) abort
   return extend(deepcopy(s:Session), {
         \   'snippet': a:snippet,
         \   'timer_ids': {
@@ -20,7 +20,7 @@ endfunction
 "
 " Expand snippet body.
 "
-function! s:Session.expand()
+function! s:Session.expand() abort
   " expand snippet.
   call vsnip#utils#edit#replace_buffer({
         \   'start': self['state']['start_position'],
@@ -35,7 +35,7 @@ endfunction
 "
 " Check jump marker enabled.
 "
-function! s:Session.jumpable()
+function! s:Session.jumpable() abort
   if !vsnip#utils#get(self, ['state', 'running'], v:false)
     return v:false
   endif
@@ -47,7 +47,7 @@ endfunction
 "
 " Jump to next pos.
 "
-function! s:Session.jump()
+function! s:Session.jump() abort
   " get placeholder.
   if !vsnip#utils#get(self, ['state', 'running'], v:false)
     return v:false
@@ -72,9 +72,9 @@ endfunction
 "
 "  Handle text changed.
 "
-function! s:Session.on_text_changed()
+function! s:Session.on_text_changed() abort
   if vsnip#utils#get(self, ['state', 'running'], v:false)
-    function! s:sync(self, timer_id)
+    function! s:sync(self, timer_id) abort
       let l:old = a:self['state']['buffer']
       let l:new = getline('^', '$')
       let l:diff = vsnip#utils#diff#compute(l:old, l:new)
@@ -83,6 +83,7 @@ function! s:Session.on_text_changed()
       for l:edit in reverse(l:edits)
         call vsnip#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
       endfor
+
       let l:state['buffer'] = getline('^', '$')
     endfunction
     call timer_stop(self['timer_ids']['sync'])
@@ -93,7 +94,7 @@ endfunction
 "
 " find next placeholder.
 "
-function! s:find_next_placeholder(current_idx, placeholders)
+function! s:find_next_placeholder(current_idx, placeholders) abort
   if len(a:placeholders) == 0
     return [-1, {}]
   endif

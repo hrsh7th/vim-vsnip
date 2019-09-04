@@ -1,4 +1,4 @@
-function! vsnip#utils#get_indent()
+function! vsnip#utils#get_indent() abort
   if !&expandtab
     return "\t"
   endif
@@ -8,11 +8,11 @@ function! vsnip#utils#get_indent()
   return repeat(' ', &tabstop)
 endfunction
 
-function! vsnip#utils#get_indent_level(line, indent)
+function! vsnip#utils#get_indent_level(line, indent) abort
   return strlen(substitute(matchstr(a:line, '^\s*'), a:indent, '_', 'g'))
 endfunction
 
-function! vsnip#utils#text_index2buffer_pos(text_start_pos, index_in_text, text)
+function! vsnip#utils#text_index2buffer_pos(text_start_pos, index_in_text, text) abort
   let l:lines = split(strpart(a:text, 0, a:index_in_text), "\n", v:true)
 
   let l:lnum_in_text = len(l:lines) - 1
@@ -24,12 +24,12 @@ function! vsnip#utils#text_index2buffer_pos(text_start_pos, index_in_text, text)
   return [l:lnum, l:col]
 endfunction
 
-function! vsnip#utils#curpos()
+function! vsnip#utils#curpos() abort
   let l:pos = getcurpos()
   return [l:pos[1], l:pos[2]]
 endfunction
 
-function! vsnip#utils#get(dict, keys, def)
+function! vsnip#utils#get(dict, keys, def) abort
   let l:keys = type(a:keys) == v:t_string ? [a:keys] : a:keys
   let l:target = a:dict
   for l:key in l:keys
@@ -42,14 +42,14 @@ function! vsnip#utils#get(dict, keys, def)
   return l:target
 endfunction
 
-function! vsnip#utils#to_list(v)
+function! vsnip#utils#to_list(v) abort
   if type(a:v) ==# v:t_list
     return a:v
   endif
   return [a:v]
 endfunction
 
-function! vsnip#utils#inputlist(prompt, candidates)
+function! vsnip#utils#inputlist(prompt, candidates) abort
   if len(a:candidates) <= 1
     return get(a:candidates, 0, v:null)
   endif

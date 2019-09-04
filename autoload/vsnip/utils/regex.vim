@@ -1,7 +1,9 @@
+let s:plugin_dir = expand('<sfile>:p:h:h:h:h')
+
 let g:_vsnip_external_context = {}
 let g:_vsnip_external_results = v:null
 
-function! vsnip#utils#regex#substitute(expr, ptrn, repl, flag)
+function! vsnip#utils#regex#substitute(expr, ptrn, repl, flag) abort
   if executable('node')
     return s:node(a:expr, a:ptrn, a:repl, a:flag)
   endif
@@ -11,15 +13,16 @@ function! vsnip#utils#regex#substitute(expr, ptrn, repl, flag)
   return a:expr
 endfunction
 
-function! s:node(expr, ptrn, repl, flag)
-  let l:expr = substitute(a:expr, '"', '\\"', 'g')
-  let l:ptrn = substitute(a:ptrn, '"', '\\"', 'g')
-  let l:repl = substitute(a:repl, '"', '\\"', 'g')
-  echomsg "node --eval \"process.stdout.write('" . l:expr . "'.replace(/" . l:ptrn . "/" . a:flag . ", '" . l:repl . "'))\""
-  return system("node --eval \"process.stdout.write('" . l:expr . "'.replace(/" . l:ptrn . "/" . a:flag . ", '" . l:repl . "'))\"")
+function! s:node(expr, ptrn, repl, flag) abort
+  let l:stdin = {}
+  let l:stdin['expr'] = a:expr
+  let l:stdin['ptrn'] = a:ptrn
+  let l:stdin['repl'] = a:repl
+  let l:stdin['flag'] = a:flag
+  return system(printf('node %s', s:plugin_dir . '/bin/regex.js'), vsnip#utils#to_list(json_encode(l:stdin)))
 endfunction
 
-function! s:python3(expr, ptrn, repl, flag)
+function! s:python3(expr, ptrn, repl, flag) abort
   let g:_vsnip_external_context = {}
   let g:_vsnip_external_context['expr'] = a:expr
   let g:_vsnip_external_context['ptrn'] = a:ptrn

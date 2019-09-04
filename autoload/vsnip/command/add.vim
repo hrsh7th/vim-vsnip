@@ -1,4 +1,4 @@
-function! vsnip#command#add#call(filetype, cmd_range)
+function! vsnip#command#add#call(filetype, cmd_range) abort
   if a:cmd_range != 2
     echomsg 'Please specify lines.'
     return
@@ -26,7 +26,7 @@ function! vsnip#command#add#call(filetype, cmd_range)
   call vsnip#snippet#invalidate(l:filepath)
 endfunction
 
-function! s:body()
+function! s:body() abort
   let l:lines = getline("'<", "'>")
 
   let l:indent = vsnip#utils#get_indent()

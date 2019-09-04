@@ -27,28 +27,28 @@ augroup vsnip
   autocmd! vsnip BufWritePre * call s:on_buf_write_pre()
 augroup END
 
-function! s:on_text_changed()
+function! s:on_text_changed() abort
   let l:session = vsnip#get_session()
   if vsnip#utils#get(l:session, ['state', 'running'], v:false)
     call l:session.on_text_changed()
   endif
 endfunction
 
-function! s:on_text_changed_i()
+function! s:on_text_changed_i() abort
   let l:session = vsnip#get_session()
   if vsnip#utils#get(l:session, ['state', 'running'], v:false)
     call l:session.on_text_changed()
   endif
 endfunction
 
-function! s:on_text_changed_p()
+function! s:on_text_changed_p() abort
   let l:session = vsnip#get_session()
   if vsnip#utils#get(l:session, ['state', 'running'], v:false)
     call l:session.on_text_changed()
   endif
 endfunction
 
-function! s:on_buf_write_pre()
+function! s:on_buf_write_pre() abort
   call vsnip#snippet#invalidate(fnamemodify(bufname('%'), ':p'))
 endfunction
 

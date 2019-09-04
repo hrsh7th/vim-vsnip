@@ -1,4 +1,4 @@
-function! vsnip#state#create(snippet)
+function! vsnip#state#create(snippet) abort
   let l:state = {
         \ 'running': v:false,
         \ 'buffer': [],
@@ -27,7 +27,7 @@ function! vsnip#state#create(snippet)
   return l:state
 endfunction
 
-function! vsnip#state#sync(state, diff)
+function! vsnip#state#sync(state, diff) abort
   if !s:is_valid_diff(a:diff)
     return [a:state, []]
   endif
@@ -114,13 +114,13 @@ function! vsnip#state#sync(state, diff)
   return [a:state, l:edits]
 endfunction
 
-function! s:is_valid_diff(diff)
+function! s:is_valid_diff(diff) abort
   let l:has_range_length = vsnip#utils#range#has_length(a:diff['range'])
-  let l:has_new_text = len(a:diff['lines']) > 1 || get(a:diff['lines'], 0, '') != ''
+  let l:has_new_text = len(a:diff['lines']) > 1 || get(a:diff['lines'], 0, '') !=# ''
   return vsnip#utils#range#valid(a:diff['range']) && l:has_range_length || l:has_new_text
 endfunction
 
-function! s:is_diff_in_snippet_range(state, diff)
+function! s:is_diff_in_snippet_range(state, diff) abort
   let l:snippet_text = join(a:state['lines'], "\n")
   let l:snippet_range = {
         \   'start': a:state['start_position'],

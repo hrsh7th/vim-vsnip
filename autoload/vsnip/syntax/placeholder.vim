@@ -3,7 +3,7 @@ let s:regex = '\%(\$\(\d\+\)\|\${\(\d\+\)\%(:\([^}]\+\)\?\||\([^|]\+\)|\)\?}\)'
 "
 " resolve all placeholders.
 "
-function! vsnip#syntax#placeholder#resolve(start_position, text)
+function! vsnip#syntax#placeholder#resolve(start_position, text) abort
   let l:text = a:text
   let l:placeholders = []
 
@@ -40,8 +40,8 @@ endfunction
 "
 " sort by order.
 "
-function! vsnip#syntax#placeholder#by_order(placeholders)
-  function! s:compare(i1, i2)
+function! vsnip#syntax#placeholder#by_order(placeholders) abort
+  function! s:compare(i1, i2) abort
     return a:i1['order'] - a:i2['order']
   endfunction
   return sort(copy(a:placeholders), function('s:compare'))
@@ -50,8 +50,8 @@ endfunction
 "
 " sort by tabstop index.
 "
-function! vsnip#syntax#placeholder#by_tabstop(placeholders)
-  function! s:compare(i1, i2)
+function! vsnip#syntax#placeholder#by_tabstop(placeholders) abort
+  function! s:compare(i1, i2) abort
     if a:i1['tabstop'] != 0 && a:i2['tabstop'] == 0
       return -1
     endif
@@ -69,16 +69,16 @@ endfunction
 "
 " resolve placeholder.
 "
-function! s:resolve(symbol, placeholders)
+function! s:resolve(symbol, placeholders) abort
   let l:matches = matchlist(a:symbol, s:regex)
   if empty(l:matches)
     return {}
   endif
 
   " choice
-  if l:matches[4] != ''
+  if l:matches[4] !=# ''
     let l:tabstop = str2nr(l:matches[2])
-    let l:choices = s:choices(l:tabstop, a:placeholders, split(l:matches[4], ","))
+    let l:choices = s:choices(l:tabstop, a:placeholders, split(l:matches[4], ','))
     return {
           \   'tabstop': l:tabstop,
           \   'choices': l:choices,
@@ -86,7 +86,7 @@ function! s:resolve(symbol, placeholders)
           \ }
 
   " default
-  elseif l:matches[3] != ''
+  elseif l:matches[3] !=# ''
     let l:tabstop = str2nr(l:matches[2])
     return {
           \   'tabstop': l:tabstop,
@@ -95,7 +95,7 @@ function! s:resolve(symbol, placeholders)
           \ }
 
   " tabstop only
-  elseif l:matches[2] != ''
+  elseif l:matches[2] !=# ''
     let l:tabstop = str2nr(l:matches[2])
     return {
           \   'tabstop': l:tabstop,
@@ -104,7 +104,7 @@ function! s:resolve(symbol, placeholders)
           \ }
 
   " tabstop only
-  elseif l:matches[1] != ''
+  elseif l:matches[1] !=# ''
     let l:tabstop = str2nr(l:matches[1])
     return {
           \   'tabstop': l:tabstop,
@@ -118,7 +118,7 @@ endfunction
 "
 " get text
 "
-function! s:text(tabstop, placeholders, text)
+function! s:text(tabstop, placeholders, text) abort
   for l:p in copy(a:placeholders)
     if l:p['tabstop'] == a:tabstop
       return l:p['text']
@@ -130,7 +130,7 @@ endfunction
 "
 " get choices
 "
-function! s:choices(tabstop, placeholders, choices)
+function! s:choices(tabstop, placeholders, choices) abort
   for l:p in copy(a:placeholders)
     if l:p['tabstop'] == a:tabstop
       return l:p['choices']

@@ -1,4 +1,4 @@
-function! vsnip#command#edit#call(filetype)
+function! vsnip#command#edit#call(filetype) abort
   let l:filepath = vsnip#command#prepare_for_edit(a:filetype)
   if empty(l:filepath)
     return

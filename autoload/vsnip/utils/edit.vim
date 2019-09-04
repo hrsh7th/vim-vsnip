@@ -3,7 +3,7 @@
 "
 " @param vim_range - start: inclusive, end: exclusive
 "
-function! vsnip#utils#edit#replace_buffer(vim_range, lines)
+function! vsnip#utils#edit#replace_buffer(vim_range, lines) abort
   let l:range_len = a:vim_range['end'][0] - a:vim_range['start'][0] + 1
   let l:lines_len = len(a:lines)
 
@@ -44,7 +44,7 @@ endfunction
 "
 " @param vim_range - start: inclusive, end: exclusive
 "
-function! vsnip#utils#edit#replace_text(target, vim_range, lines)
+function! vsnip#utils#edit#replace_text(target, vim_range, lines) abort
   let l:target = a:target
   let l:range_len = a:vim_range['end'][0] - a:vim_range['start'][0] + 1
   let l:lines_len = len(a:lines)
@@ -88,7 +88,7 @@ endfunction
 "
 " @param vim_range - start: inclusive, end: exclusive
 "
-function! vsnip#utils#edit#select_or_insert(vim_range)
+function! vsnip#utils#edit#select_or_insert(vim_range) abort
   if vsnip#utils#range#has_length(a:vim_range)
     call cursor(a:vim_range['end'])
     normal! hgh
@@ -102,8 +102,8 @@ endfunction
 "
 " Choise.
 "
-function! vsnip#utils#edit#choice(vim_range, choices)
-  function! s:start_complete(vim_range, choices, timer_id)
+function! vsnip#utils#edit#choice(vim_range, choices) abort
+  function! s:start_complete(vim_range, choices, timer_id) abort
     if mode() ==# 'i'
       call complete(a:vim_range['start'][1], map(copy(a:choices), { i, v -> {
             \   'word': v,
