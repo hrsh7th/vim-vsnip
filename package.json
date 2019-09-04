@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "This aims to plugin like Visual Studio Code's Snippet feature.",
   "scripts": {
-    "test": "themis ."
+    "test": "themis .",
+    "watch": "watch 'npm run test' . --wait=1"
   },
   "husky": {
     "hooks": {
@@ -21,6 +22,7 @@
   },
   "homepage": "https://github.com/hrsh7th/vim-test-snips#readme",
   "devDependencies": {
-    "husky": "^3.0.5"
+    "husky": "^3.0.5",
+    "watch": "^1.0.2"
   }
 }
