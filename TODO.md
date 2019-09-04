@@ -49,7 +49,8 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 # additional features
 
 - [ ] dot repeatable
-- [ ] easy snippet creation
+- [x] auto select
+- [x] easy snippet creation
 - [x] handle visual selected
 
 
