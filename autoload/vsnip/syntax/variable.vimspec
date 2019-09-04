@@ -26,6 +26,15 @@ Describe vsnip#syntax#variable
       call s:expect("console.log(YANKED)\nSELECTED").to_equal(l:text)
     End
 
+    It Should resolve with brackets
+      let l:text = join([
+            \ 'console.log(${CLIPBOARD})',
+            \ '${TM_SELECTED_TEXT}'
+            \ ], "\n")
+      let l:text = vsnip#syntax#variable#resolve(l:text)
+      call s:expect("console.log(YANKED)\nSELECTED").to_equal(l:text)
+    End
+
   End
 
 End
