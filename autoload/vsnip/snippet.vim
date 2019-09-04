@@ -54,22 +54,22 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype) abort
   let l:text = l:line[0 : l:col]
   for l:snippet in l:snippets
     for l:prefix in l:snippet['prefixes']
-      if strlen(l:text) < strlen(l:prefix)
+
+      let l:pattern = '\(\<' . l:prefix . '\>\)' . '\(' . g:vsnip_auto_select_trigger . '\)' . '\(' . g:vsnip_auto_select_pattern . '\)$'
+      let l:matches = matchlist(l:text, l:pattern)
+
+      if empty(get(l:matches, 1, ''))
         continue
       endif
+      let l:prefix = l:matches[1]
+      let l:prefix .= get(l:matches, 2, '')
+      let l:prefix .= get(l:matches, 3, '')
 
-      " check prefix matching.
-      if l:text =~# '\<' . l:prefix . '\>$'
-
-        " auto select.
-        let l:matches = matchlist(l:text, '\(' . g:vsnip_auto_select_pattern . '\)' . g:vsnip_auto_select_trigger . l:prefix . '$')
-        if get(l:matches, 1, '') !=# ''
-          call vsnip#select(l:matches[1])
-          let l:prefix = l:matches[1] . g:vsnip_auto_select_trigger . l:prefix
-        endif
-
-        return { 'prefix': l:prefix, 'snippet': l:snippet }
+      if !empty(get(l:matches, 3, ''))
+        call vsnip#select(l:matches[3])
       endif
+
+      return { 'prefix': l:prefix, 'snippet': l:snippet }
     endfor
   endfor
   return {}

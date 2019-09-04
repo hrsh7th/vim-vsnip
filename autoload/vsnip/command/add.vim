@@ -16,7 +16,7 @@ function! vsnip#command#add#call(filetype, cmd_range) abort
   endif
 
   let l:prefix = input('Prefix: ')
-  if empty(l:label)
+  if empty(l:prefix)
     return
   endif
 

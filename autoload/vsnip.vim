@@ -8,6 +8,13 @@ function! vsnip#get_session() abort
 endfunction
 
 "
+" Deactivate session.
+"
+function! vsnip#deactivate() abort
+  let s:session = {}
+endfunction
+
+"
 " Select text.
 "
 function! vsnip#select(text) abort

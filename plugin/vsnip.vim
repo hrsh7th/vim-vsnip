@@ -23,6 +23,7 @@ augroup vsnip
   autocmd! vsnip TextChanged * call s:on_text_changed()
   autocmd! vsnip TextChangedI * call s:on_text_changed_i()
   autocmd! vsnip TextChangedP * call s:on_text_changed_p()
+  autocmd! vsnip WinLeave * call s:on_win_leave()
   autocmd! vsnip BufWritePre * call s:on_buf_write_pre()
 augroup END
 
@@ -47,8 +48,11 @@ function! s:on_text_changed_p() abort
   endif
 endfunction
 
+function! s:on_win_leave() abort
+  call vsnip#deactivate()
+endfunction
+
 function! s:on_buf_write_pre() abort
   call vsnip#snippet#invalidate(fnamemodify(bufname('%'), ':p'))
 endfunction
-
 
