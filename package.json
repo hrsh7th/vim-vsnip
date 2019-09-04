@@ -1,0 +1,26 @@
+{
+  "name": "vim-vsnip",
+  "version": "1.0.0",
+  "description": "This aims to plugin like Visual Studio Code's Snippet feature.",
+  "scripts": {
+    "test": "themis ."
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run test"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hrsh7th/vim-test-snips.git"
+  },
+  "author": "hrsh7th",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hrsh7th/vim-test-snips/issues"
+  },
+  "homepage": "https://github.com/hrsh7th/vim-test-snips#readme",
+  "devDependencies": {
+    "husky": "^3.0.5"
+  }
+}
