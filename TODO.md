@@ -1,3 +1,9 @@
+# next
+- [ ] parse placeholders more strictly
+- [ ] support some edge case of sync placeholders
+  - [ ] same range placeholder
+  - [ ] multi-line changes
+
 # spec
 
 https://code.visualstudio.com/docs/editor/userdefinedsnippets
