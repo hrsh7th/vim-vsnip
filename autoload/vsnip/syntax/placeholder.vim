@@ -119,7 +119,7 @@ endfunction
 " get text
 "
 function! s:text(tabstop, placeholders, text) abort
-  for l:p in copy(a:placeholders)
+  for l:p in a:placeholders
     if l:p['tabstop'] == a:tabstop
       return l:p['text']
     endif
@@ -131,7 +131,7 @@ endfunction
 " get choices
 "
 function! s:choices(tabstop, placeholders, choices) abort
-  for l:p in copy(a:placeholders)
+  for l:p in a:placeholders
     if l:p['tabstop'] == a:tabstop
       return l:p['choices']
     endif

@@ -42,9 +42,6 @@ function! s:resolve(symbol) abort
     return getline('.')
 
   elseif l:variable['name'] ==# 'TM_CURRENT_WORD'
-    if g:vsnip_verbose
-      echoerr '$TM_CURRENT_WORD is not supported.'
-    endif
     return ''
 
   elseif l:variable['name'] ==# 'TM_LINE_INDEX'

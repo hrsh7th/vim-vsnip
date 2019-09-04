@@ -101,6 +101,14 @@ VARIABLE                                                         *vsnip-usage*
 
 
 >
+  g:vsnip_snippet_dirs (string[])
+<
+    Default: ['/path/to/default-snippet-dir']
+
+    Specify snippets dir.
+
+
+>
   g:vsnip_sync_delay (number)
 <
     Default: 100
@@ -118,18 +126,24 @@ VARIABLE                                                         *vsnip-usage*
 
 
 >
-  g:vsnip_snippet_dirs (string[])
+  g:vsnip_auto_select_trigger (string)
 <
-    Default: ['/path/to/default-snippet-dir']
+    Default: ';'
 
-    Specify snippets dir.
+    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `replacement;prefix`.
+
+
+>
+  g:vsnip_auto_select_pattern (string)
+<
+    Default: '\w\+'
+
+    To use capture $TM_SELECTED_TEXT.
 
 
 
 ==============================================================================
 FUNCTION                                                      *vsnip-function*
-
-!!! It's not stable interfaces. !!!
 
 >
   vsnip#select(text) -> ()
@@ -207,6 +221,9 @@ TODO                                                              *vsnip-todo*
 
 ==============================================================================
 CHANGELOG                                                    *vsnip-changelog*
+
+2019/09/04
+- Refactor
 
 2019/09/03~
 - Add `g:vsnip_snippet_dir` for manage user snippets.
