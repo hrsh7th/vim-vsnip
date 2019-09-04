@@ -15,15 +15,26 @@ function! vsnip#command#add#call(filetype, cmd_range) abort
     return
   endif
 
-  let l:label = input('Label: ')
   let l:prefix = input('Prefix: ')
+  if empty(l:label)
+    return
+  endif
+
+  let l:label = input('Label: ')
+  if empty(l:label)
+    return
+  endif
+
   let l:json = vsnip#utils#json#read(l:filepath)
   let l:json[l:label] = {
         \  'prefix': split(l:prefix, ' '),
         \  'body': l:body
         \ }
-  call vsnip#utils#json#write(l:filepath, l:json)
-  call vsnip#snippet#invalidate(l:filepath)
+
+  if s:preview(l:json[l:label])
+    call vsnip#utils#json#write(l:filepath, l:json)
+    call vsnip#snippet#invalidate(l:filepath)
+  endif
 endfunction
 
 function! s:body() abort
@@ -41,5 +52,15 @@ function! s:body() abort
   endwhile
 
   return l:lines
+endfunction
+
+function! s:preview(snippet) abort
+  let l:lines = vsnip#utils#json#format(json_encode(a:snippet))
+  echomsg ' '
+  for l:line in l:lines
+    echomsg l:line
+  endfor
+  let l:yesno = input('yes/no: ')
+  return index(['y', 'ye', 'yes'], l:yesno) >= 0
 endfunction
 
