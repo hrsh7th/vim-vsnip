@@ -52,24 +52,28 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype) abort
   endif
 
   let l:text = l:line[0 : l:col]
-  for l:snippet in l:snippets
-    for l:prefix in l:snippet['prefixes']
+  for l:pattern in [
+        \   '\%(\(' . g:vsnip_auto_select_trigger . '\)' . '\(' . g:vsnip_auto_select_pattern . '\)\)$',
+        \   '\%(\(' . g:vsnip_auto_select_trigger . '\)' . '\(' . g:vsnip_auto_select_pattern . '\)\)\?$',
+        \ ]
+    for l:snippet in l:snippets
+      for l:prefix in l:snippet['prefixes']
 
-      let l:pattern = '\(\<' . l:prefix . '\>\)' . '\(' . g:vsnip_auto_select_trigger . '\)' . '\(' . g:vsnip_auto_select_pattern . '\)$'
-      let l:matches = matchlist(l:text, l:pattern)
+        let l:matches = matchlist(l:text, '\(\<' . l:prefix . '\>\)' . l:pattern)
+        if empty(get(l:matches, 1, ''))
+          continue
+        endif
 
-      if empty(get(l:matches, 1, ''))
-        continue
-      endif
-      let l:prefix = l:matches[1]
-      let l:prefix .= get(l:matches, 2, '')
-      let l:prefix .= get(l:matches, 3, '')
+        let l:prefix = l:matches[1]
+        let l:prefix .= get(l:matches, 2, '')
+        let l:prefix .= get(l:matches, 3, '')
 
-      if !empty(get(l:matches, 3, ''))
-        call vsnip#select(l:matches[3])
-      endif
+        if !empty(get(l:matches, 3, ''))
+          call vsnip#select(l:matches[3])
+        endif
 
-      return { 'prefix': l:prefix, 'snippet': l:snippet }
+        return { 'prefix': l:prefix, 'snippet': l:snippet }
+      endfor
     endfor
   endfor
   return {}
