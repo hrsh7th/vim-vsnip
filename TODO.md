@@ -63,7 +63,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 
 # performance
 
-- [ ] if available, use `listener_add` instead of `TextChanged*`
+- [ ] If available, use `listener_add` instead of `TextChanged*`
 
 
 # other
