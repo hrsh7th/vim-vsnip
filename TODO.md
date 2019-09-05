@@ -1,5 +1,5 @@
 # next
-- [ ] improve new snippet creation
+- [x] improve new snippet creation
 - [ ] parse placeholders more strictly
 - [ ] support some edge case of sync placeholders
   - [ ] same range placeholder
