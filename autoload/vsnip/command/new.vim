@@ -137,13 +137,10 @@ function! s:format_body(text) abort
     let l:i += 1
   endwhile
 
-  while 1
-    if l:lines[-1] ==# ''
-      call remove(l:lines, -1)
-    else
-      break
-    endif
-  endwhile
+  " remove last empty line once.
+  if l:lines[-1] ==# ''
+    call remove(l:lines, -1)
+  endif
 
   return l:lines
 endfunction
