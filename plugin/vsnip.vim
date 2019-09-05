@@ -15,8 +15,8 @@ snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_j
 
 command! VsnipEdit
       \ call vsnip#command#edit#call(&filetype)
-command! -range=% VsnipAdd
-      \ call vsnip#command#add#call(&filetype, <range>)
+command! -range=% VsnipNew
+      \ call vsnip#command#new#call(&filetype, <range>)
 
 augroup vsnip
   autocmd!

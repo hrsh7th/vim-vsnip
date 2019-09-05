@@ -82,10 +82,10 @@ COMMAND                                                        *vsnip-command*
 
 
 >
-  :VsnipAdd
+  :VsnipNew
+  :'<,'>VsnipNew
 <
-  Status: UNSTABLE
-  Add snippet from visual selection.
+  Open new snippet edit buffer.
 
 
 
@@ -173,7 +173,7 @@ FUNCTION                                                      *vsnip-function*
 >
   vsnip#expand_or_jump() -> ()
 <
-    Invoke expand or jump (prefer expand).
+    Invoke expand or jump.
 
 
 
@@ -193,7 +193,7 @@ How to define snippets?~
   You can find documentation in [spec](https://code.visualstudio.com/docs/editor/userdefinedsnippets.)
 
   You can use `:VsnipEdit` to open (or create) user snippet file.
-  You can use `:VsnipAdd` to add new snippet via visual selected lines.
+  You can use `:VsnipNew` to create new snippet via visual selected lines.
 
 
 ------------------------------------------------------------------------------
@@ -215,7 +215,6 @@ How to enable snippets auto-completion?~
 ==============================================================================
 TODO                                                              *vsnip-todo*
 
-- easy snippet creation.
 - multibytes support.
 - regex for variable/placeholder.
 - performance up.
@@ -225,6 +224,9 @@ TODO                                                              *vsnip-todo*
 ==============================================================================
 CHANGELOG                                                    *vsnip-changelog*
 
+2019/09/05~
+- Improve snippet creation
+
 2019/09/04~
 - Change `auto_select` behavior.
 
@@ -232,7 +234,7 @@ CHANGELOG                                                    *vsnip-changelog*
 - Add `g:vsnip_snippet_dir` for manage user snippets.
 - Change behavior `:VsnipEdit`.
   - `:VsnipEdit` will open snippet file in under `g:vsnip_snippet_dir`.
-- Add `:VsnipAdd` command (unstable/experimental).
+- Add `:VsnipNew` command (unstable/experimental).
 - Add `g:vsnip_auto_select_trigger`
 - Add `g:vsnip_auto_select_pattern`
 

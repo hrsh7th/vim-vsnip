@@ -61,3 +61,7 @@ function! vsnip#utils#inputlist(prompt, candidates) abort
   return substitute(a:candidates[l:idx - 1], '^\s\+\d\+: ', '', 'g')
 endfunction
 
+function! vsnip#utils#yesno(prompt) abort
+  return index(['y', 'ye', 'yes'], input(a:prompt . '(yes/no): '))
+endfunction
+

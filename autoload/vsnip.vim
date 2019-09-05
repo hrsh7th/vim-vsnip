@@ -51,7 +51,9 @@ function! vsnip#expand_or_jump() abort
   let &virtualedit = 'onemore'
   let &lazyredraw = 1
 
-  if vsnip#expandable()
+  if vsnip#jumpable()
+    call s:session.jump()
+  elseif vsnip#expandable()
     " remove prefix.
     let l:curpos = vsnip#utils#curpos()
     let l:target = vsnip#snippet#get_snippet_with_prefix_under_cursor(&filetype)
@@ -63,13 +65,10 @@ function! vsnip#expand_or_jump() abort
     " start & expand snippet.
     let s:session = vsnip#session#new(l:target['snippet'])
     call s:session.expand()
+    call s:session.jump()
 
     " remove selected text.
     call vsnip#select('')
-  endif
-
-  if vsnip#jumpable()
-    call s:session.jump()
   endif
 
   let &virtualedit = l:virtualedit
