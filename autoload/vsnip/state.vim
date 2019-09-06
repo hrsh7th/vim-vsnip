@@ -27,6 +27,12 @@ function! vsnip#state#create(snippet) abort
   return l:state
 endfunction
 
+"
+" Sync on physical buffer edits.
+"
+" 1. Sync position and text states to modified physical buffer.
+" 2. Create edits for sync same tabstop, and update position and text states.
+"
 function! vsnip#state#sync(session, diff) abort
   if !s:is_valid_diff(a:diff)
     return []
@@ -37,7 +43,7 @@ function! vsnip#state#sync(session, diff) abort
     return []
   endif
 
-  " update snippet lines.
+  " Update snippet lines.
   let a:session['state']['lines'] = vsnip#utils#edit#replace_text(
         \   a:session['state']['lines'],
         \   vsnip#utils#range#relative(a:session['state']['start_position'], a:diff['range']),
@@ -46,14 +52,14 @@ function! vsnip#state#sync(session, diff) abort
 
   let l:placeholders = vsnip#syntax#placeholder#by_order(a:session['state']['placeholders'])
 
-  " fix placeholder ranges after already modified placeholder.
+  " Fix already modified & moved placeholders.
   let l:target = {}
   let l:i = 0
   let l:j = len(l:placeholders)
   while l:i < len(l:placeholders)
     let l:p = l:placeholders[l:i]
 
-    " relocate same lines.
+    " Detects already moved placeholders.
     if !empty(l:target)
       if l:p['range']['start'][0] == l:target['range']['start'][0]
         let l:p['range']['start'][1] += l:shiftwidth
@@ -63,7 +69,7 @@ function! vsnip#state#sync(session, diff) abort
       endif
     endif
 
-    " modified placeholder.
+    " If detect already modified placeholder, sync text & position in state.
     if vsnip#utils#range#in(l:p['range'], a:diff['range'])
       let l:new_lines = vsnip#utils#edit#replace_text(
             \   split(l:p['text'], "\n", v:true),
@@ -72,7 +78,7 @@ function! vsnip#state#sync(session, diff) abort
             \ )
       let l:new_text = join(l:new_lines, "\n")
 
-      " TODO: support multi-line.
+      " TODO: Truncate multi-line changes to one-line changes.
       let l:old_length = l:p['range']['end'][1] - l:p['range']['start'][1]
       let l:new_length = strlen(l:new_text)
       let l:shiftwidth = l:new_length - l:old_length
@@ -85,7 +91,7 @@ function! vsnip#state#sync(session, diff) abort
     let l:i += 1
   endwhile
 
-  " sync same tabstop placeholder.
+  " Sync same tabstop placeholders and create those edits.
   let l:in_sync = {}
   let l:same_line = 0
   let l:edits = []
