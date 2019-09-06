@@ -23,6 +23,7 @@ augroup vsnip
   autocmd! vsnip TextChanged * call s:on_text_changed()
   autocmd! vsnip TextChangedI * call s:on_text_changed_i()
   autocmd! vsnip TextChangedP * call s:on_text_changed_p()
+  autocmd! vsnip InsertEnter * call s:on_insert_enter()
   autocmd! vsnip WinLeave * call s:on_win_leave()
   autocmd! vsnip BufWritePre * call s:on_buf_write_pre()
 augroup END
@@ -45,6 +46,13 @@ function! s:on_text_changed_p() abort
   let l:session = vsnip#get_session()
   if vsnip#utils#get(l:session, ['state', 'running'], v:false)
     call l:session.on_text_changed()
+  endif
+endfunction
+
+function! s:on_insert_enter() abort
+  let l:session = vsnip#get_session()
+  if vsnip#utils#get(l:session, ['state', 'running'], v:false)
+    call l:session.on_insert_enter()
   endif
 endfunction
 
