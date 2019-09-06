@@ -27,24 +27,24 @@ function! vsnip#state#create(snippet) abort
   return l:state
 endfunction
 
-function! vsnip#state#sync(state, diff) abort
+function! vsnip#state#sync(session, diff) abort
   if !s:is_valid_diff(a:diff)
-    return [a:state, []]
+    return []
   endif
 
-  if !s:is_diff_in_snippet_range(a:state, a:diff)
-    let a:state['running'] = v:false
-    return [a:state, []]
+  if !vsnip#utils#range#in(a:session.get_snippet_range(), a:diff['range'])
+    let a:session['state']['running'] = v:false
+    return []
   endif
 
   " update snippet lines.
-  let a:state['lines'] = vsnip#utils#edit#replace_text(
-        \   a:state['lines'],
-        \   vsnip#utils#range#relative(a:state['start_position'], a:diff['range']),
+  let a:session['state']['lines'] = vsnip#utils#edit#replace_text(
+        \   a:session['state']['lines'],
+        \   vsnip#utils#range#relative(a:session['state']['start_position'], a:diff['range']),
         \   a:diff['lines']
         \ )
 
-  let l:placeholders = vsnip#syntax#placeholder#by_order(a:state['placeholders'])
+  let l:placeholders = vsnip#syntax#placeholder#by_order(a:session['state']['placeholders'])
 
   " fix placeholder ranges after already modified placeholder.
   let l:target = {}
@@ -115,21 +115,12 @@ function! vsnip#state#sync(state, diff) abort
     let l:j += 1
   endwhile
 
-  return [a:state, l:edits]
+  return l:edits
 endfunction
 
 function! s:is_valid_diff(diff) abort
   let l:has_range_length = vsnip#utils#range#has_length(a:diff['range'])
   let l:has_new_text = len(a:diff['lines']) > 1 || get(a:diff['lines'], 0, '') !=# ''
   return vsnip#utils#range#valid(a:diff['range']) && l:has_range_length || l:has_new_text
-endfunction
-
-function! s:is_diff_in_snippet_range(state, diff) abort
-  let l:snippet_text = join(a:state['lines'], "\n")
-  let l:snippet_range = {
-        \   'start': a:state['start_position'],
-        \   'end': vsnip#utils#text_index2buffer_pos(a:state['start_position'], strlen(l:snippet_text), l:snippet_text)
-        \ }
-  return vsnip#utils#range#in(l:snippet_range, a:diff['range'])
 endfunction
 

@@ -69,6 +69,17 @@ function! s:Session.jump() abort
 endfunction
 
 "
+" Get snippet range.
+"
+function! s:Session.get_snippet_range() abort
+  let l:snippet_text = join(self['state']['lines'], "\n")
+  return {
+        \   'start': self['state']['start_position'],
+        \   'end': vsnip#utils#text_index2buffer_pos(self['state']['start_position'], strlen(l:snippet_text), l:snippet_text)
+        \ }
+endfunction
+
+"
 "  Handle text changed.
 "
 function! s:Session.on_text_changed() abort
@@ -77,13 +88,13 @@ function! s:Session.on_text_changed() abort
       let l:old = a:self['state']['buffer']
       let l:new = getline('^', '$')
       let l:diff = vsnip#utils#diff#compute(l:old, l:new)
-      let [l:state, l:edits] = vsnip#state#sync(a:self['state'], l:diff)
+      let l:edits = vsnip#state#sync(a:self, l:diff)
 
       for l:edit in reverse(l:edits)
         call vsnip#utils#edit#replace_buffer(l:edit['range'], l:edit['lines'])
       endfor
 
-      let l:state['buffer'] = getline('^', '$')
+      let a:self['state']['buffer'] = getline('^', '$')
     endfunction
     call timer_stop(self['timer_ids']['sync'])
     let self['timer_ids']['sync'] = timer_start(g:vsnip_sync_delay, function('s:sync', [self]), { 'repeat': 1 })
@@ -95,12 +106,7 @@ endfunction
 "
 function! s:Session.on_insert_enter() abort
   let l:curpos = vsnip#utils#curpos()
-  let l:snippet_text = join(self['state']['lines'], "\n")
-  let l:snippet_range = {
-        \   'start': self['state']['start_position'],
-        \   'end': vsnip#utils#text_index2buffer_pos(self['state']['start_position'], strlen(l:snippet_text), l:snippet_text)
-        \ }
-  if !vsnip#utils#range#in(l:snippet_range, { 'start': l:curpos, 'end': l:curpos })
+  if !vsnip#utils#range#in(self.get_snippet_range(), { 'start': l:curpos, 'end': l:curpos })
     let self['state']['running'] = v:false
   endif
 endfunction
