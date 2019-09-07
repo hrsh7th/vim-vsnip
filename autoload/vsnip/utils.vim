@@ -62,6 +62,6 @@ function! vsnip#utils#inputlist(prompt, candidates) abort
 endfunction
 
 function! vsnip#utils#yesno(prompt) abort
-  return index(['y', 'ye', 'yes'], input(a:prompt . '(yes/no): '))
+  return index(['y', 'ye', 'yes'], input(a:prompt . '(yes/no): ')) >= 0
 endfunction
 

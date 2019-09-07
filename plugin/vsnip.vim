@@ -14,7 +14,7 @@ inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_j
 snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 
 command! VsnipOpen
-      \ call vsnip#command#edit#call(&filetype)
+      \ call vsnip#command#open#call(&filetype)
 command! -nargs=? -complete=customlist,vsnip#command#edit#complete VsnipEdit
       \ call vsnip#command#edit#call(&filetype, '<args>')
 

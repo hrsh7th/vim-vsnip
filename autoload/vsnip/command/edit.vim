@@ -51,6 +51,7 @@ function! vsnip#command#edit#call(filetype, prefix) abort
 
   setlocal buftype=acwrite
   setlocal bufhidden=wipe
+  setlocal nomodified
 
   let b:vsnip_command_new_filetype = a:filetype
   augroup vsnip-new
@@ -124,10 +125,9 @@ function! s:on_buf_write_cmd() abort
     let l:json[l:key] = l:snippet
     call vsnip#utils#json#write(l:filepath, l:json)
     call vsnip#snippet#invalidate(l:filepath)
+    setlocal buftype=nofile
+    quit
   endif
-
-  setlocal buftype=nofile
-  quit
 endfunction
 
 function! s:format_key(text) abort
