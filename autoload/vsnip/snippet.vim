@@ -53,8 +53,8 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype) abort
 
   let l:text = l:line[0 : l:col]
   for l:pattern in [
-        \   '\%(\(' . g:vsnip_auto_select_trigger . '\)' . '\(' . g:vsnip_auto_select_pattern . '\)\)$',
-        \   '\%(\(' . g:vsnip_auto_select_trigger . '\)' . '\(' . g:vsnip_auto_select_pattern . '\)\)\?$',
+        \   '\%(\(' . g:vsnip_select_trigger . '\)' . '\(' . g:vsnip_select_pattern . '\)\)$',
+        \   '\%(\(' . g:vsnip_select_trigger . '\)' . '\(' . g:vsnip_select_pattern . '\)\)\?$',
         \ ]
     for l:snippet in l:snippets
       for l:prefix in l:snippet['prefixes']
@@ -81,13 +81,13 @@ endfunction
 
 function! s:normalize(snippet_map) abort
   let l:snippets = []
-  for [l:label, l:snippet] in items(a:snippet_map)
-    let l:snippet['label'] = l:label
+  for [l:key, l:snippet] in items(a:snippet_map)
+    let l:snippet['key'] = l:key
     let l:snippet['prefix'] = vsnip#utils#to_list(l:snippet['prefix'])
     let l:snippet['prefixes'] = s:prefixes(l:snippet['prefix'])
     let l:snippet['body'] = vsnip#utils#to_list(l:snippet['body'])
-    let l:snippet['description'] = vsnip#utils#get(l:snippet, 'description', l:label)
-    let l:snippet['name'] = l:snippet['label'] . ': ' . l:snippet['description']
+    let l:snippet['description'] = vsnip#utils#get(l:snippet, 'description', l:key)
+    let l:snippet['name'] = l:snippet['key'] . ': ' . l:snippet['description']
     call add(l:snippets, l:snippet)
   endfor
   return l:snippets

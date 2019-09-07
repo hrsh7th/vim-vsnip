@@ -76,16 +76,15 @@ MAPPING                                                        *vsnip-mapping*
 COMMAND                                                        *vsnip-command*
 
 >
-  :VsnipEdit
+  :VsnipOpen
 <
-  Edit snippet for current filetype.
+  Open snippet file for current filetype.
 
 
 >
-  :VsnipNew
-  :'<,'>VsnipNew
+  :VsnipEdit %snippet_prefix%
 <
-  Open new snippet edit buffer.
+  Open snippet edit buffer.
 
 
 
@@ -126,7 +125,7 @@ VARIABLE                                                         *vsnip-usage*
 
 
 >
-  g:vsnip_auto_select_trigger (regex-string)
+  g:vsnip_select_trigger (regex-string)
 <
     Default: '.'
 
@@ -134,7 +133,7 @@ VARIABLE                                                         *vsnip-usage*
 
 
 >
-  g:vsnip_auto_select_pattern (regex-string)
+  g:vsnip_select_pattern (regex-string)
 <
     Default: '\w\+'
 
@@ -228,15 +227,15 @@ CHANGELOG                                                    *vsnip-changelog*
 - Improve snippet creation
 
 2019/09/04~
-- Change `auto_select` behavior.
+- Change `select` behavior.
 
 2019/09/03~
 - Add `g:vsnip_snippet_dir` for manage user snippets.
 - Change behavior `:VsnipEdit`.
   - `:VsnipEdit` will open snippet file in under `g:vsnip_snippet_dir`.
 - Add `:VsnipNew` command (unstable/experimental).
-- Add `g:vsnip_auto_select_trigger`
-- Add `g:vsnip_auto_select_pattern`
+- Add `g:vsnip_select_trigger`
+- Add `g:vsnip_select_pattern`
 
 2019/09/02~
 - Remove `VsnipSelect` experimental.

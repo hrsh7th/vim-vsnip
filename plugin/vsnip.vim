@@ -7,16 +7,16 @@ let g:vsnip_snippet_dir = expand('~/.vsnip')
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])
 let g:vsnip_sync_delay = 100
 let g:vsnip_namespace = 'snip_'
-let g:vsnip_auto_select_trigger = '.'
-let g:vsnip_auto_select_pattern = '\w\+'
+let g:vsnip_select_trigger = '.'
+let g:vsnip_select_pattern = '\w\+'
 
 inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 
-command! VsnipEdit
+command! VsnipOpen
       \ call vsnip#command#edit#call(&filetype)
-command! -range=% VsnipNew
-      \ call vsnip#command#new#call(&filetype, <range>)
+command! -nargs=? -complete=customlist,vsnip#command#edit#complete VsnipEdit
+      \ call vsnip#command#edit#call(&filetype, '<args>')
 
 augroup vsnip
   autocmd!

@@ -16,7 +16,7 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 - [x] body
 - [x] prefix abbr
 - [x] description
-- [x] label
+- [x] key
 - [ ] scope
 - [x] multiple filetypes
 
