@@ -127,9 +127,9 @@ VARIABLE                                                         *vsnip-usage*
 >
   g:vsnip_select_trigger (regex-string)
 <
-    Default: '.'
+    Default: ' '
 
-    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `prefix.replacement` or `prefix replacement` or `prefix;replacement`.
+    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `prefix replacement`.
 
 
 >
