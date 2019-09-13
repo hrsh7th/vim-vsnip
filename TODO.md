@@ -1,9 +1,9 @@
 # next
 - [x] improve new snippet creation
-- [ ] parse placeholders more strictly
 - [ ] support some edge case of sync placeholders
-  - [ ] same range placeholder
   - [ ] multi-line changes
+  - [ ] same range placeholder
+- [ ] parse placeholders more strictly
 
 # spec
 
