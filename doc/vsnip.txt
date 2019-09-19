@@ -223,6 +223,9 @@ TODO                                                              *vsnip-todo*
 ==============================================================================
 CHANGELOG                                                    *vsnip-changelog*
 
+2019/09/19~
+- `_.json` to load default snippet.
+
 2019/09/05~
 - Improve snippet creation
 

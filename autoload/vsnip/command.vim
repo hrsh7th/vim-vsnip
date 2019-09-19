@@ -4,8 +4,8 @@ let s:default = [
       \   '    "body": [',
       \   '      ""',
       \   '    ],',
-      \   '    "description": ""',
-      \   '    "prefix": [""],',
+      \   '    "description": "",',
+      \   '    "prefix": [""]',
       \   '  }',
       \   '}',
       \ ]
@@ -16,7 +16,8 @@ function! vsnip#command#prepare_for_edit(filetype) abort
     return ''
   endif
 
-  let l:filetype = vsnip#utils#inputlist('Select new snippet target: ', split(a:filetype, '\.'))
+  let l:filepaths = vsnip#snippet#get_filepaths(a:filetype)
+  let l:filetype = vsnip#utils#inputlist('Select snippet file: ', split(a:filetype, '\.') + ['_'])
   if empty(l:filetype)
     echomsg 'Cenceled.'
     return ''
