@@ -17,7 +17,7 @@ function! vsnip#command#prepare_for_edit(filetype) abort
   endif
 
   let l:filepaths = vsnip#snippet#get_filepaths(a:filetype)
-  let l:filetype = vsnip#utils#inputlist('Select snippet file: ', split(a:filetype, '\.') + ['_'])
+  let l:filetype = vsnip#utils#inputlist('Select snippet file: ', split(a:filetype, '\.') + ['global'])
   if empty(l:filetype)
     echomsg 'Cenceled.'
     return ''

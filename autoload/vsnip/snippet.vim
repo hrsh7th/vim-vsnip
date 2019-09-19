@@ -25,8 +25,8 @@ function! vsnip#snippet#get_filepaths(filetype) abort
     endfor
   endfor
   let l:filepaths = reverse(l:filepaths)
-  if filereadable(printf('%s/%s.json', g:vsnip_snippet_dir, '_'))
-    call add(l:filepaths, printf('%s/%s.json', g:vsnip_snippet_dir, '_'))
+  if filereadable(printf('%s/%s.json', g:vsnip_snippet_dir, 'global'))
+    call add(l:filepaths, printf('%s/%s.json', g:vsnip_snippet_dir, 'global'))
   endif
   return l:filepaths
 endfunction
