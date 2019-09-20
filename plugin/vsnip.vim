@@ -1,5 +1,5 @@
 if exists('g:loaded_vsnip')
-  exit
+  finish
 endif
 let g:loaded_vsnip = 1
 
@@ -9,6 +9,10 @@ let g:vsnip_sync_delay = 100
 let g:vsnip_namespace = 'snip_'
 let g:vsnip_select_trigger = ' '
 let g:vsnip_select_pattern = '\w\+'
+
+let s:timer_ids = {
+      \   'on_win_leave': -1
+      \ }
 
 inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
 snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
@@ -57,7 +61,16 @@ function! s:on_insert_enter() abort
 endfunction
 
 function! s:on_win_leave() abort
-  call vsnip#deactivate()
+  let l:session = vsnip#get_session()
+  if vsnip#utils#get(l:session, ['state', 'running'], v:false)
+    function! s:on_tick(session, id)
+      if a:session['bufnr'] != bufnr('%')
+        call vsnip#deactivate()
+      endif
+    endfunction
+    call timer_stop(s:timer_ids['on_win_leave'])
+    let s:timer_ids['on_win_leave'] = timer_start(500, function('s:on_tick', [l:session]), { 'repeat': 1 })
+  endif
 endfunction
 
 function! s:on_buf_write_pre() abort

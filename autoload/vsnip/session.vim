@@ -9,6 +9,7 @@ let s:Session = {}
 "
 function! s:Session.new(snippet) abort
   return extend(deepcopy(s:Session), {
+        \   'bufnr': bufnr('%'),
         \   'snippet': a:snippet,
         \   'timer_ids': {
         \     'sync': -1

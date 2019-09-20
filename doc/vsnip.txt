@@ -223,6 +223,9 @@ TODO                                                              *vsnip-todo*
 ==============================================================================
 CHANGELOG                                                    *vsnip-changelog*
 
+2019/09/20~
+- Fix for signature help.
+
 2019/09/19~
 - `_.json` to load default snippet.
 
