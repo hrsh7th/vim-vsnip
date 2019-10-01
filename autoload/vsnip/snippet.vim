@@ -56,28 +56,33 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype) abort
   endif
 
   let l:text = l:line[0 : l:col]
-  for l:pattern in [
-        \   '\%(\(' . g:vsnip_select_trigger . '\)' . '\(' . g:vsnip_select_pattern . '\)\)$',
-        \   '\%(\(' . g:vsnip_select_trigger . '\)' . '\(' . g:vsnip_select_pattern . '\)\)\?$',
-        \ ]
-    for l:snippet in l:snippets
-      for l:prefix in l:snippet['prefixes']
 
-        let l:matches = matchlist(l:text, '\(\<' . l:prefix . '\>\)' . l:pattern)
+  let l:select_trigger = '\(' . g:vsnip_select_trigger . '\)'
+  let l:select_pattern = '\(\<' . g:vsnip_select_pattern . '\>\)'
+
+  for l:snippet in l:snippets
+    for l:prefix in l:snippet['prefixes']
+
+      let l:matches = matchlist(l:text, '\(\<' . l:prefix . '\>\)' . l:select_trigger . l:select_pattern . '$')
+      if empty(get(l:matches, 1, ''))
+        let l:matches = matchlist(l:text, l:select_pattern . l:select_trigger . '\(\<' . l:prefix . '\>\)$')
         if empty(get(l:matches, 1, ''))
-          continue
+          let l:matches = matchlist(l:text, '\(\<' . l:prefix . '\>\)$')
+          if empty(get(l:matches, 1, ''))
+            continue
+          endif
+        else
+          call vsnip#select(l:matches[1])
         endif
-
-        let l:prefix = l:matches[1]
-        let l:prefix .= get(l:matches, 2, '')
-        let l:prefix .= get(l:matches, 3, '')
-
-        if !empty(get(l:matches, 3, ''))
+      else
           call vsnip#select(l:matches[3])
-        endif
+      endif
 
-        return { 'prefix': l:prefix, 'snippet': l:snippet }
-      endfor
+      let l:prefix = get(l:matches, 1, '')
+      let l:prefix .= get(l:matches, 2, '')
+      let l:prefix .= get(l:matches, 3, '')
+
+      return { 'prefix': l:prefix, 'snippet': l:snippet }
     endfor
   endfor
   return {}

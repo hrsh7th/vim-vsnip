@@ -42,6 +42,12 @@ endfunction
 "
 function! vsnip#syntax#placeholder#by_order(placeholders) abort
   function! s:compare(i1, i2) abort
+    if a:i1['tabstop'] != 0 && a:i2['tabstop'] == 0
+      return -1
+    endif
+    if a:i1['tabstop'] == 0 && a:i2['tabstop'] != 0
+      return 1
+    endif
     return a:i1['order'] - a:i2['order']
   endfunction
   return sort(copy(a:placeholders), function('s:compare'))

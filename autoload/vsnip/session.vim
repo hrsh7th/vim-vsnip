@@ -81,7 +81,9 @@ function! s:Session.get_snippet_range() abort
 endfunction
 
 "
-"  Handle text changed.
+" Handle text changed.
+"
+" - Sync buffer edit to snippet state.
 "
 function! s:Session.on_text_changed() abort
   if vsnip#utils#get(self, ['state', 'running'], v:false)
@@ -104,6 +106,8 @@ endfunction
 
 "
 " Handle insert enter.
+"
+" - Deactivate sinppet when insert enter position is out of range.
 "
 function! s:Session.on_insert_enter() abort
   let l:curpos = vsnip#utils#curpos()

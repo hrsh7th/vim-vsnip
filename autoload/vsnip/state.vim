@@ -67,6 +67,8 @@ function! vsnip#state#sync(session, diff) abort
       else
         break
       endif
+      let l:i += 1
+      continue
     endif
 
     " If detect already modified placeholder, sync text & position in state.

@@ -15,7 +15,6 @@ SETTING                                                        |vsnip-setting|
 MAPPING                                                        |vsnip-mapping|
 COMMAND                                                        |vsnip-command|
 VARIABLE                                                      |vsnip-variable|
-FUNCTION                                                      |vsnip-function|
 FAQ                                                                |vsnip-faq|
 TODO                                                              |vsnip-todo|
 CHANGELOG                                                    |vsnip-changelog|
@@ -105,6 +104,8 @@ VARIABLE                                                         *vsnip-usage*
     Default: ['/path/to/default-snippet-dir']
 
     Specify snippets dir.
+    Probably you don't need this value.
+    This is reserved variable for other snippet plugin.
 
 
 >
@@ -121,7 +122,7 @@ VARIABLE                                                         *vsnip-usage*
     Default: 'snip_'
 
     This value will be prepend to all prefixes.
-    Will be useful to auto-completion.
+    Will be useful for auto-completion.
 
 
 >
@@ -129,7 +130,7 @@ VARIABLE                                                         *vsnip-usage*
 <
     Default: ' '
 
-    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `prefix replacement`.
+    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `prefix replacement` or `replacement prefix` .
 
 
 >
@@ -142,47 +143,12 @@ VARIABLE                                                         *vsnip-usage*
 
 
 ==============================================================================
-FUNCTION                                                      *vsnip-function*
-
->
-  vsnip#select(text) -> ()
-<
-    Select specified text. It uses in expanding snippet.
-    See https://code.visualstudio.com/docs/editor/userdefinedsnippets.
-
-
->
-  vsnip#expandable() -> (v:true | v:false)
-<
-    Check expandable in current cursor position.
-
-
->
-  vsnip#jumpable() -> (v:true | v:false)
-<
-    Check jumpable in current cursor position.
-
-
->
-  vsnip#expandable_or_jumpable() -> (v:true | v:false)
-<
-    Check jumpable in current cursor position.
-
-
->
-  vsnip#expand_or_jump() -> ()
-<
-    Invoke expand or jump.
-
-
-
-==============================================================================
 FAQ                                                                *vsnip-faq*
 
 ------------------------------------------------------------------------------
 How to define snippets?~
 
-  `vsnip` searches `&filetype.json` in `g:vsnip_snippet_dir` and `g:vsnip_snippet_dirs`.
+  `vsnip` searches `&filetype.json` and 'global.json' in `g:vsnip_snippet_dir` and `g:vsnip_snippet_dirs`.
   When `&filetype` is `typescript.tsx`, `vsnip` try to load `typescript.tsx.json`, `typescript.json` and `tsx.json`.
 
   If found multiple snippet, those are merged.
@@ -191,8 +157,8 @@ How to define snippets?~
   Snippet format is same of VSCode (or Language Server Protocol).
   You can find documentation in [spec](https://code.visualstudio.com/docs/editor/userdefinedsnippets.)
 
-  You can use `:VsnipEdit` to open (or create) user snippet file.
-  You can use `:VsnipNew` to create new snippet via visual selected lines.
+  You can use `:VsnipOpen` to open (or create) user snippet file.
+  You can use `:VsnipEdit` to create new snippet via visual selected lines.
 
 
 ------------------------------------------------------------------------------
@@ -222,6 +188,9 @@ TODO                                                              *vsnip-todo*
 
 ==============================================================================
 CHANGELOG                                                    *vsnip-changelog*
+
+2019/10/01~
+- Allow select pattern at postfix/prefix both around prefix.
 
 2019/09/20~
 - Fix for signature help.
