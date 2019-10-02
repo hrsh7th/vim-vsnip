@@ -69,3 +69,5 @@ https://code.visualstudio.com/docs/editor/userdefinedsnippets
 # other
 - [ ] write tests
 
+# memo
+- https://wandbox.org/permlink/OuoF59seCdb7ZxF9
