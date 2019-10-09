@@ -57,13 +57,16 @@ function! vsnip#expand_or_jump() abort
     " remove prefix.
     let l:curpos = vsnip#utils#curpos()
     let l:target = vsnip#snippet#get_snippet_with_prefix_under_cursor(&filetype)
+
+    let l:start_position = [l:curpos[0], l:curpos[1] - strlen(l:target['prefix']) + 1]
+    let l:end_position = [l:curpos[0], l:curpos[1] + 1]
     call vsnip#utils#edit#replace_buffer({
-          \   'start': [l:curpos[0], l:curpos[1] - strlen(l:target['prefix']) + 1],
-          \   'end': [l:curpos[0], l:curpos[1] + 1]
+          \   'start': l:start_position,
+          \   'end': l:end_position
           \ }, [''])
 
     " start & expand snippet.
-    let s:session = vsnip#session#new(l:target['snippet'])
+    let s:session = vsnip#session#new(l:start_position, l:target['snippet'])
     call s:session.expand()
     call s:session.jump()
 

@@ -1,5 +1,5 @@
-function! vsnip#session#new(snippet) abort
-  return s:Session.new(a:snippet)
+function! vsnip#session#new(start_position, snippet) abort
+  return s:Session.new(a:start_position, a:snippet)
 endfunction
 
 let s:Session = {}
@@ -7,14 +7,14 @@ let s:Session = {}
 "
 " Create session instance.
 "
-function! s:Session.new(snippet) abort
+function! s:Session.new(start_position, snippet) abort
   return extend(deepcopy(s:Session), {
         \   'bufnr': bufnr('%'),
         \   'snippet': a:snippet,
         \   'timer_ids': {
         \     'sync': -1
         \   },
-        \   'state': vsnip#state#create(a:snippet)
+        \   'state': vsnip#state#create(a:start_position, a:snippet)
         \ })
 endfunction
 

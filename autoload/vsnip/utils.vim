@@ -26,7 +26,12 @@ endfunction
 
 function! vsnip#utils#curpos() abort
   let l:pos = getcurpos()
-  return [l:pos[1], l:pos[2]]
+  let l:line = getline(l:pos[1])
+  let l:col = min([l:pos[2], strlen(l:line)])
+  if index(['i', 'ic', 'ix'], mode()) >= 0 && l:pos[2] <= strlen(l:line)
+    let l:col = l:col - 1
+  endif
+  return [l:pos[1], l:col]
 endfunction
 
 function! vsnip#utils#get(dict, keys, def) abort

@@ -49,13 +49,7 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype) abort
   endif
 
   let l:pos = vsnip#utils#curpos()
-  let l:line = getline(l:pos[0])
-  let l:col = min([l:pos[1] - 1, strlen(l:line) - 1])
-  if mode() ==# 'i' &&  l:pos[1] <= strlen(l:line)
-    let l:col = l:col - 1
-  endif
-
-  let l:text = l:line[0 : l:col]
+  let l:text = getline(l:pos[0])[0 : l:pos[1] - 1]
 
   let l:select_trigger = '\(' . g:vsnip_select_trigger . '\)'
   let l:select_pattern = '\(\<' . g:vsnip_select_pattern . '\>\)'

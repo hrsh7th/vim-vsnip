@@ -1,8 +1,8 @@
-function! vsnip#state#create(snippet) abort
+function! vsnip#state#create(start_position, snippet) abort
   let l:state = {
         \ 'running': v:false,
         \ 'buffer': [],
-        \ 'start_position': vsnip#utils#curpos(),
+        \ 'start_position': a:start_position,
         \ 'lines': [],
         \ 'current_idx': -1,
         \ 'placeholders': [],
