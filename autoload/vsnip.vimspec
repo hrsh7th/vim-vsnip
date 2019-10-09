@@ -1,0 +1,37 @@
+let s:expect = themis#helper('expect')
+
+Describe vsnip
+
+  Before each
+    %delete _
+    put!='123456789'
+
+    set virtualedit=onemore
+
+    let g:vsnip_snippet_dir = printf('%s/misc', expand('<sfile>:p:h'))
+    imap <buffer><expr>Expand vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+    smap <buffer><expr>Expand vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+
+    call vsnip#deactivate()
+  End
+
+  Describe #expand_or_jump
+
+    It Should expand prefix in the middle of line
+      normal gg05li:test
+      call s:expect('12345:test6789').to_equal(getline(1))
+      call vsnip#expand_or_jump()
+      call s:expect('12345:echomsg string()6789').to_equal(getline(1))
+    End
+
+    It Should expand prefix in the end of line
+      normal gg$a:test
+      call s:expect('123456789:test').to_equal(getline(1))
+      call vsnip#expand_or_jump()
+      call s:expect('123456789:echomsg string()').to_equal(getline(1))
+    End
+
+  End
+
+End
+

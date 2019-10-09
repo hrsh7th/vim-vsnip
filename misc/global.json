@@ -1,0 +1,8 @@
+{
+  "Test Snippet": {
+    "prefix": ["test"],
+    "body": [
+      "echomsg string($TM_SELECTED_TEXT$1)$0"
+    ]
+  }
+}
