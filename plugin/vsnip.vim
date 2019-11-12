@@ -11,6 +11,7 @@ let g:vsnip_select_trigger = ' '
 let g:vsnip_select_pattern = '\w\+'
 
 let s:timer_ids = {
+      \   'on_insert_leave': -1,
       \   'on_win_leave': -1
       \ }
 
@@ -28,6 +29,7 @@ augroup vsnip
   autocmd! vsnip TextChangedI * call s:on_text_changed_i()
   autocmd! vsnip TextChangedP * call s:on_text_changed_p()
   autocmd! vsnip InsertEnter * call s:on_insert_enter()
+  autocmd! vsnip InsertLeave * call s:on_insert_leave()
   autocmd! vsnip WinLeave * call s:on_win_leave()
   autocmd! vsnip BufWritePre * call s:on_buf_write_pre()
 augroup END
@@ -58,6 +60,17 @@ function! s:on_insert_enter() abort
   if vsnip#utils#get(l:session, ['state', 'running'], v:false)
     call l:session.on_insert_enter()
   endif
+endfunction
+
+function! s:on_insert_leave() abort
+  let l:fn = {}
+  function! l:fn.tick() abort
+    if mode()[0] !=# 'i'
+      call vsnip#deactivate()
+    endif
+  endfunction
+  call timer_stop(s:timer_ids['on_insert_leave'])
+  call timer_start(500, { -> l:fn.tick() }, { 'repeat': 1 })
 endfunction
 
 function! s:on_win_leave() abort
