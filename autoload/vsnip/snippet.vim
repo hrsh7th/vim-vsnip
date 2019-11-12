@@ -72,25 +72,6 @@ function! vsnip#snippet#get_snippet_with_prefix_under_cursor(filetype) abort
     endfor
   endfor
 
-  " pre
-  for l:snippet in l:snippets
-    for l:prefix in l:snippet['prefixes']
-
-      let l:matches = matchlist(l:text, l:select_pattern . l:select_trigger . '\(\<' . l:prefix . '\>\)$')
-      if empty(get(l:matches, 1, ''))
-        continue
-      else
-        call vsnip#select(l:matches[1])
-      endif
-
-      let l:prefix = get(l:matches, 1, '')
-      let l:prefix .= get(l:matches, 2, '')
-      let l:prefix .= get(l:matches, 3, '')
-
-      return { 'prefix': l:prefix, 'snippet': l:snippet }
-    endfor
-  endfor
-
   " only
   for l:snippet in l:snippets
     for l:prefix in l:snippet['prefixes']

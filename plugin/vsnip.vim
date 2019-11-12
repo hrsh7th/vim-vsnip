@@ -65,7 +65,7 @@ endfunction
 function! s:on_insert_leave() abort
   let l:fn = {}
   function! l:fn.tick() abort
-    if mode()[0] !=# 'i'
+    if mode()[0] ==# 'n'
       call vsnip#deactivate()
     endif
   endfunction

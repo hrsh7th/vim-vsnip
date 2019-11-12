@@ -130,7 +130,7 @@ VARIABLE                                                         *vsnip-usage*
 <
     Default: ' '
 
-    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `prefix replacement` or `replacement prefix` .
+    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `replacement prefix` .
 
 
 >
