@@ -95,8 +95,8 @@ function! vsnip#utils#edit#select_or_insert(vim_range) abort
     call cursor(a:vim_range['start'])
   else
     call cursor(a:vim_range['start'])
-    startinsert
   endif
+  startinsert
 endfunction
 
 "
