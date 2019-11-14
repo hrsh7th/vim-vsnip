@@ -49,17 +49,10 @@ function! vsnip#anonymous(body) abort
   let l:virtualedit = &virtualedit
   let l:lazyredraw = &lazyredraw
   let &virtualedit = 'onemore'
-  let &lazyredraw = 1
-
-  let l:col_offset = 0
-  if mode()[0] ==# 'i'
-    stopinsert
-    let l:col_offset = 1
-  endif
 
   " start & expand snippet.
-  call cursor([line('.'), col('.') + l:col_offset])
-  let s:session = vsnip#session#new([line('.'), col('.')], { 'body': a:body })
+  call cursor(vsnip#utils#curpos())
+  let s:session = vsnip#session#new(vsnip#utils#curpos(), { 'body': a:body })
   call s:session.expand()
   call s:session.jump()
 
