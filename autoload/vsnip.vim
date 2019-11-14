@@ -57,21 +57,17 @@ function! vsnip#anonymous(body) abort
     let l:col_offset = 1
   endif
 
-  let l:fn = {}
-  function! l:fn.next_tick(virtualedit, lazyredraw, col_offset, body) abort
-    " start & expand snippet.
-    call cursor([line('.'), col('.') + a:col_offset])
-    let s:session = vsnip#session#new([line('.'), col('.')], { 'body': a:body })
-    call s:session.expand()
-    call s:session.jump()
+  " start & expand snippet.
+  call cursor([line('.'), col('.') + l:col_offset])
+  let s:session = vsnip#session#new([line('.'), col('.')], { 'body': a:body })
+  call s:session.expand()
+  call s:session.jump()
 
-    " remove selected text.
-    call vsnip#select('')
+  " remove selected text.
+  call vsnip#select('')
 
-    let &virtualedit = a:virtualedit
-    let &lazyredraw = a:lazyredraw
-  endfunction
-  call timer_start(0, { -> l:fn.next_tick(l:virtualedit, l:lazyredraw, l:col_offset, a:body) }, { 'repeat': 1 })
+  let &virtualedit = l:virtualedit
+  let &lazyredraw = l:lazyredraw
 endfunction
 
 "
