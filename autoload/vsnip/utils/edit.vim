@@ -91,14 +91,19 @@ endfunction
 function! vsnip#utils#edit#select_or_insert(vim_range) abort
   if vsnip#utils#range#has_length(a:vim_range)
     let l:fn = {}
-    function! l:fn.next_tick(vim_range) abort
+    function! l:fn.next_tick(timer_id, vim_range) abort
+      if mode()[0] !=# 'n'
+        return
+      endif
+
       call cursor(a:vim_range['end'])
       normal! hgh
       call cursor(a:vim_range['start'])
       startinsert
+      call timer_start(0, { -> timer_stop(a:timer_id) }, { 'repeat': 1 })
     endfunction
     stopinsert
-    call timer_start(0, { -> l:fn.next_tick(a:vim_range) }, { 'repeat': 1 })
+    call timer_start(0, { timer_id -> l:fn.next_tick(timer_id, a:vim_range) }, { 'repeat': -1 })
   else
     call cursor(a:vim_range['start'])
     startinsert
