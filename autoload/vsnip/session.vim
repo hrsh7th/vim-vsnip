@@ -27,6 +27,8 @@ function! s:Session.expand() abort
         \   'start': self['state']['start_position'],
         \   'end': self['state']['start_position']
         \ }, self['state']['lines'])
+  let l:snippet_text = join(self['state']['lines'], "\n")
+  call cursor(vsnip#utils#text_index2buffer_pos(self['state']['start_position'], strlen(l:snippet_text), l:snippet_text))
 
   " update state.
   let self['state']['running'] = v:true
