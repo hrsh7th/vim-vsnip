@@ -136,7 +136,7 @@ VARIABLE                                                         *vsnip-usage*
 >
   g:vsnip_select_pattern (regex-string)
 <
-    Default: '\w\+'
+    Default: '\k\+'
 
     To use capture $TM_SELECTED_TEXT.
 
@@ -188,6 +188,9 @@ TODO                                                              *vsnip-todo*
 
 ==============================================================================
 CHANGELOG                                                    *vsnip-changelog*
+
+2019/11/16~
+- Remove prefix auto selection.
 
 2019/10/01~
 - Allow select pattern at postfix/prefix both around prefix.

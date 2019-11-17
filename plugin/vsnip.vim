@@ -8,7 +8,7 @@ let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])
 let g:vsnip_sync_delay = 100
 let g:vsnip_namespace = 'snip_'
 let g:vsnip_select_trigger = ' '
-let g:vsnip_select_pattern = '\w\+'
+let g:vsnip_select_pattern = '\k\+'
 
 let s:timer_ids = {
       \   'on_insert_leave': -1,
