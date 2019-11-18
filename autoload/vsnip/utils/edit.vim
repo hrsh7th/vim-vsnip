@@ -89,18 +89,17 @@ endfunction
 " @param vim_range - start: inclusive, end: exclusive
 "
 function! vsnip#utils#edit#select_or_insert(vim_range) abort
+  call cursor(a:vim_range['end'])
   if vsnip#utils#range#has_length(a:vim_range)
-    let l:mode = mode()
-    call cursor(a:vim_range['end'])
-    normal! hgh
-    if l:mode[0] ==# 'i'
-      call cursor([a:vim_range['start'][0], a:vim_range['start'][1] + 1])
-      stopinsert
+    let l:cmd = ''
+    if mode()[0] ==# 'i'
+      let l:cmd .= "\<Esc>"
     else
-      call cursor(a:vim_range['start'])
+      let l:cmd .= 'h'
     endif
+    let l:cmd .= printf("v%sh\<C-g>", a:vim_range['end'][1] - a:vim_range['start'][1] - 1)
+    call feedkeys(l:cmd, 'n')
   else
-    call cursor(a:vim_range['start'])
     startinsert
   endif
 endfunction
