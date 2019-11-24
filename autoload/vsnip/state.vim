@@ -5,6 +5,7 @@ function! vsnip#state#create(start_position, snippet) abort
         \ 'start_position': a:start_position,
         \ 'lines': [],
         \ 'current_idx': -1,
+        \ 'variables': [],
         \ 'placeholders': [],
         \ }
 
@@ -16,13 +17,27 @@ function! vsnip#state#create(start_position, snippet) abort
   let l:body = substitute(l:body, "\n", "\n" . repeat(l:indent, l:indent_level), 'g')
   let l:body = substitute(l:body, "\n\\s\\+\\ze\n", "\n", 'g')
 
-  " resolve variables.
-  let l:body = vsnip#syntax#variable#resolve(l:body)
+  " parse.
+  " TODO: create range.
+  let l:parsed = vsnip#syntax#parser#parse(l:body)
+  let l:pos = 0
+  let l:text = ''
+  for l:node in l:parsed
+    if type(l:node) == type('')
+      let l:text .= l:node
+      let l:pos += strlen(l:node)
+    elseif l:node.type ==# 'variable'
+      call add(l:state['variables'], l:node)
+      let l:text .= l:node.resolved
+      let l:pos += strlen(l:node.resolved)
+    elseif l:node.type ==# 'placeholder'
+      call add(l:state['placeholders'], l:node)
+      let l:text .= l:node.label
+      let l:pos += strlen(l:node.label)
+    endif
+  endfor
 
-  " resolve placeholders.
-  let [l:body, l:placeholders] = vsnip#syntax#placeholder#resolve(l:state['start_position'], l:body)
-  let l:state['placeholders'] = l:placeholders
-  let l:state['lines'] = split(l:body, "\n", v:true)
+  let l:state['lines'] = split(l:text, "\n", v:true)
 
   return l:state
 endfunction

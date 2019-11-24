@@ -64,8 +64,8 @@ function! s:Session.jump() abort
   let self['state']['current_idx'] = l:idx
 
   " move & select.
-  if len(l:next['choices']) > 0
-    call vsnip#utils#edit#choice(l:next['range'], l:next['choices'])
+  if has_key(l:next, 'items')
+    call vsnip#utils#edit#choice(l:next['range'], l:next['items'])
   else
     call vsnip#utils#edit#select_or_insert(l:next['range'])
   endif
@@ -133,7 +133,7 @@ function! s:find_next_placeholder(current_idx, placeholders) abort
   let l:i = a:current_idx + 1
   while l:i < len(a:placeholders)
     let l:p = a:placeholders[l:i]
-    if l:current['tabstop'] != l:p['tabstop']
+    if l:current['id'] != l:p['id']
       return [l:i, l:p]
     endif
     let l:i += 1
