@@ -1,7 +1,8 @@
 let s:selected_text = ''
 
-function! s:text(stop) abort
+function! s:text(stop, ...) abort
   let l:fn = {}
+  let l:fn.raw = get(a:000, 0, v:false)
   let l:fn.name = 'text'
   let l:fn.stop = a:stop
   function! l:fn.parse(text, pos) abort
@@ -19,19 +20,22 @@ function! s:text(stop) abort
           return [v:false, v:null, l:pos]
         endif
         let l:value .= l:char
-        let l:pos += 1
         continue
       endif
 
       " found stop char.
       if index(self.stop, l:char) >= 0
-        return [v:true, [l:value, strcharpart(a:text, a:pos, l:pos - a:pos)], l:pos]
+        if a:pos != l:pos
+          return [v:true, self.raw ? strcharpart(a:text, a:pos, l:pos - a:pos) : l:value, l:pos]
+        else
+          return [v:false, v:null, l:pos]
+        endif
       endif
 
       let l:value .= l:char
       let l:pos += 1
     endwhile
-    return [v:true, [l:value, strcharpart(a:text, a:pos, l:pos - a:pos)], l:pos]
+    return [v:true, self.raw ? strcharpart(a:text, a:pos, l:pos - a:pos) : l:value, l:len]
   endfunction
   return l:fn
 endfunction
@@ -244,6 +248,18 @@ function! s:resolve_variable(name) abort
   return ''
 endfunction
 
+function! s:flat(arr) abort
+  let l:values = []
+  for l:item in a:arr
+    if type(l:item) == type([])
+      let l:values += l:item
+    else
+      call add(l:values, l:item)
+    endif
+  endfor
+  return l:values
+endfunction
+
 "
 " primitives.
 "
@@ -252,6 +268,7 @@ let s:open = s:token('{')
 let s:close = s:token('}')
 let s:colon = s:token(':')
 let s:slash = s:token('/')
+let s:comma = s:token(',')
 let s:pipe = s:token('|')
 let s:varname = s:pattern('[_[:alpha:]]\w*')
 let s:int = s:map(s:pattern('\d\+'), { value -> str2nr(value[0]) })
@@ -260,10 +277,15 @@ let s:int = s:map(s:pattern('\d\+'), { value -> str2nr(value[0]) })
 " any.
 "
 let s:any = s:or(
-      \ s:lazy({ -> s:tabstop }),
-      \ s:lazy({ -> s:placeholder }),
-      \ s:lazy({ -> s:choice }),
-      \ s:lazy({ -> s:variable })
+      \   s:lazy({ -> s:choice }),
+      \   s:lazy({ -> s:variable }),
+      \   s:lazy({ -> s:tabstop }),
+      \   s:lazy({ -> s:placeholder }),
+      \ )
+
+let s:all = s:or(
+      \   s:any,
+      \   s:text(['$']),
       \ )
 
 "
@@ -303,7 +325,7 @@ let s:format = s:or(s:format1, s:format2, s:format3)
 "
 " regex.
 "
-let s:regex = s:map(s:text(['/']), { value -> value[1] })
+let s:regex = s:text(['/'], v:true)
 
 "
 " transform
@@ -325,7 +347,7 @@ let s:transform2 = s:map(s:seq(
       \   s:slash,
       \   s:regex,
       \   s:slash,
-      \   s:map(s:text(['/']), { value -> value[1] }),
+      \   s:text(['/'], v:true),
       \   s:slash,
       \   s:or(s:token('i'))
       \ ), { value -> {
@@ -365,7 +387,13 @@ let s:choice = s:map(s:seq(
       \   s:open,
       \   s:int,
       \   s:pipe,
-      \   s:many(s:text(['|', ','])),
+      \   s:map(
+      \     s:seq(
+      \       s:many(s:map(s:seq(s:text([',']), s:comma), { value -> value[0] })),
+      \       s:text(['|']),
+      \     ),
+      \     { value -> s:flat(value) }
+      \   ),
       \   s:pipe,
       \   s:close
       \ ), { value -> {
@@ -406,34 +434,30 @@ let s:variable = s:map(s:or(s:variable1, s:variable2, s:variable3, s:variable4),
 "
 " placeholder.
 "
-let s:placeholder1 = s:map(s:seq(s:dollar, s:open, s:int, s:colon, s:any), { value -> {
+let s:placeholder = s:map(s:seq(
+      \   s:dollar,
+      \   s:open,
+      \   s:int,
+      \   s:colon,
+      \   s:many(s:or(s:any, s:text(['$', '}']))),
+      \   s:close
+      \ ), { value -> {
       \   'type': 'placeholder',
       \   'id': value[2],
-      \   'nest': value[4]
+      \   'children': value[4]
       \ } })
-let s:placeholder2 = s:map(s:seq(s:dollar, s:open, s:int, s:colon, s:text(['}'])), { value -> {
-      \   'type': 'placeholder',
-      \   'id': value[2],
-      \   'label': value[4][0]
-      \ } })
-let s:placeholder = s:or(s:placeholder1, s:placeholder2)
 
 "
 " parser.
 "
-let s:parser = s:many(
-      \   s:seq(
-      \     s:map(s:text(['$']), { value -> value[0] }),
-      \     s:any
-      \   )
-      \ )
+let s:parser = s:many(s:all)
 
 function! vsnip#syntax#parser#parse(text) abort
   let l:parsed = s:parser.parse(a:text, 0)
   if l:parsed[0]
     let l:result = []
     for l:item in l:parsed[1]
-      let l:result += l:item
+      let l:result += [l:item]
     endfor
     return l:result
   else
