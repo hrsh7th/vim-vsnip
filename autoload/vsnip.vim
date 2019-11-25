@@ -25,7 +25,7 @@ endfunction
 " Check expandable.
 "
 function! vsnip#expandable() abort
-  return !empty(vsnip#snippet#get_snippet_with_prefix_under_cursor(&filetype))
+  return !empty(vsnip#definition#get_snippet_with_prefix_under_cursor(&filetype))
 endfunction
 
 "
@@ -77,7 +77,7 @@ function! vsnip#expand_or_jump() abort
   elseif vsnip#expandable()
     " remove prefix.
     let l:curpos = vsnip#utils#curpos()
-    let l:target = vsnip#snippet#get_snippet_with_prefix_under_cursor(&filetype)
+    let l:target = vsnip#definition#get_snippet_with_prefix_under_cursor(&filetype)
 
     let l:start_position = [l:curpos[0], l:curpos[1] - strlen(l:target['prefix']) + 1]
     let l:end_position = [l:curpos[0], l:curpos[1] + 1]

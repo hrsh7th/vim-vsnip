@@ -11,7 +11,7 @@ let s:template = [
 
 function! vsnip#command#edit#complete(...) abort
   let l:input = get(a:000, 0, '.')
-  return filter(vsnip#snippet#get_prefixes(&filetype), { i, v -> v =~# '^' . l:input })
+  return filter(vsnip#definition#get_prefixes(&filetype), { i, v -> v =~# '^' . l:input })
 endfunction
 
 function! vsnip#command#edit#call(filetype, prefix) abort
@@ -124,7 +124,7 @@ function! s:on_buf_write_cmd() abort
     let l:json = vsnip#utils#json#read(l:filepath)
     let l:json[l:key] = l:snippet
     call vsnip#utils#json#write(l:filepath, l:json)
-    call vsnip#snippet#invalidate(l:filepath)
+    call vsnip#definition#invalidate(l:filepath)
     setlocal buftype=nofile
     quit
   endif
@@ -166,7 +166,7 @@ endfunction
 
 function! s:get_defaults(filetype, prefix) abort
   let l:indent = vsnip#utils#get_indent()
-    for l:snippet in vsnip#snippet#get_snippets(a:filetype)
+    for l:snippet in vsnip#definition#get_snippets(a:filetype)
       if index(l:snippet['prefixes'], a:prefix) >= 0
         return [
               \ l:snippet['key'],

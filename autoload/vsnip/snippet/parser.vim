@@ -1,0 +1,240 @@
+"
+" vsnip#snippet#parser#parse.
+"
+function! vsnip#snippet#parser#parse(text) abort
+  let l:parsed = s:parser.parse(a:text, 0)
+  if !l:parsed[0]
+    throw json_encode({ 'text': a:text, 'result': l:parsed })
+  endif
+  return l:parsed[1]
+endfunction
+
+"
+" flat.
+"
+function! s:flat(arr) abort
+  let l:values = []
+  for l:item in a:arr
+    if type(l:item) == type([])
+      let l:values += l:item
+    else
+      call add(l:values, l:item)
+    endif
+  endfor
+  return l:values
+endfunction
+
+let s:C = vsnip#snippet#parser#combinator#import()
+
+let s:string = s:C.string
+let s:token = s:C.token
+let s:many = s:C.many
+let s:or = s:C.or
+let s:seq = s:C.seq
+let s:lazy = s:C.lazy
+let s:pattern = s:C.pattern
+let s:map = s:C.map
+
+"
+" primitives.
+"
+let s:dollar = s:token('$')
+let s:open = s:token('{')
+let s:close = s:token('}')
+let s:colon = s:token(':')
+let s:slash = s:token('/')
+let s:comma = s:token(',')
+let s:pipe = s:token('|')
+let s:varname = s:pattern('[_[:alpha:]]\w*')
+let s:int = s:map(s:pattern('\d\+'), { value -> str2nr(value[0]) })
+let s:text = { stop -> s:map(
+      \   s:string(stop),
+      \   { value -> {
+      \     'type': 'text',
+      \     'raw': value[0],
+      \     'escaped': value[1]
+      \   }
+      \ }) }
+
+"
+" any.
+"
+let s:any = s:or(
+      \   s:lazy({ -> s:choice }),
+      \   s:lazy({ -> s:variable }),
+      \   s:lazy({ -> s:tabstop }),
+      \   s:lazy({ -> s:placeholder }),
+      \ )
+
+let s:all = s:or(
+      \   s:any,
+      \   s:text(['$']),
+      \ )
+
+"
+" format.
+"
+let s:format1 = s:map(s:seq(s:dollar, s:int), { value -> {
+      \   'type': 'format',
+      \   'id': value[1]
+      \ } })
+let s:format2 = s:map(s:seq(s:dollar, s:open, s:int, s:close), { value -> {
+      \   'type': 'format',
+      \   'id': value[2]
+      \ } })
+let s:format3 = s:map(
+      \ s:seq(
+      \   s:dollar,
+      \   s:open,
+      \   s:int,
+      \   s:colon,
+      \   s:or(
+      \     s:token('/upcase'),
+      \     s:token('/downcase'),
+      \     s:token('/capitalize'),
+      \     s:token('+if'),
+      \     s:token('?if:else'),
+      \     s:token('-else'),
+      \     s:token('else')
+      \   ),
+      \   s:close
+      \ ), { value -> {
+      \   'type': 'format',
+      \   'id': value[2],
+      \   'modifier': value[4]
+      \ } })
+let s:format = s:or(s:format1, s:format2, s:format3)
+
+"
+" regex.
+"
+let s:regex = s:text(['/'])
+
+"
+" transform
+"
+let s:transform1 = s:map(s:seq(
+      \   s:slash,
+      \   s:regex,
+      \   s:slash,
+      \   s:format,
+      \   s:slash,
+      \   s:or(s:token('i'))
+      \ ), { value -> {
+      \   'type': 'transform',
+      \   'regex': value[1],
+      \   'format': value[3],
+      \   'option': value[5]
+      \ } })
+let s:transform2 = s:map(s:seq(
+      \   s:slash,
+      \   s:regex,
+      \   s:slash,
+      \   s:text(['/']),
+      \   s:slash,
+      \   s:or(s:token('i'))
+      \ ), { value -> {
+      \   'type': 'transform',
+      \   'regex': value[1],
+      \   'replace': value[3],
+      \   'option': value[5]
+      \ } })
+let s:transform = s:or(s:transform1, s:transform2)
+
+"
+" tabstop
+"
+let s:tabstop1 = s:map(s:seq(s:dollar, s:int), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[1],
+      \   'children': [],
+      \ } })
+let s:tabstop2 = s:map(s:seq(s:dollar, s:open, s:int, s:close), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[2],
+      \   'children': [],
+      \ } })
+let s:tabstop3 = s:map(s:seq(s:dollar, s:open, s:int, s:transform, s:close), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[2],
+      \   'children': [],
+      \   'transform': value[3]
+      \ } })
+let s:tabstop = s:or(s:tabstop1, s:tabstop2, s:tabstop3)
+
+"
+" choice
+"
+let s:choice = s:map(s:seq(
+      \   s:dollar,
+      \   s:open,
+      \   s:int,
+      \   s:pipe,
+      \   s:map(
+      \     s:seq(
+      \       s:many(s:map(s:seq(s:text([',']), s:comma), { value -> value[0] })),
+      \       s:text(['|']),
+      \     ),
+      \     { value -> s:flat(value) }
+      \   ),
+      \   s:pipe,
+      \   s:close
+      \ ), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[2],
+      \   'children': [value[4][0]],
+      \   'items': value[4]
+      \ } })
+
+"
+" variable
+"
+let s:variable1 = s:map(s:seq(s:dollar, s:varname), { value -> {
+      \   'type': 'variable',
+      \   'name': value[1]
+      \ } })
+let s:variable2 = s:map(s:seq(s:dollar, s:open, s:varname, s:close), { value -> {
+      \   'type': 'variable',
+      \   'name': value[2]
+      \ } })
+let s:variable3 = s:map(s:seq(
+      \   s:dollar,
+      \   s:open,
+      \   s:varname,
+      \   s:colon,
+      \   s:or(s:any, s:text(['$', '}'])),
+      \   s:close
+      \ ), { value -> {
+      \   'type': 'variable',
+      \   'name': value[2],
+      \   'children': value[4]
+      \ } })
+let s:variable4 = s:map(s:seq(s:dollar, s:open, s:varname, s:transform, s:close), { value -> {
+      \   'type': 'variable',
+      \   'name': value[2],
+      \   'transform': value[3]
+      \ } })
+
+let s:variable = s:or(s:variable1, s:variable2, s:variable3, s:variable4)
+
+"
+" placeholder.
+"
+let s:placeholder = s:map(s:seq(
+      \   s:dollar,
+      \   s:open,
+      \   s:int,
+      \   s:colon,
+      \   s:many(s:or(s:any, s:text(['$', '}']))),
+      \   s:close
+      \ ), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[2],
+      \   'children': value[4]
+      \ } })
+
+"
+" parser.
+"
+let s:parser = s:many(s:all)
+

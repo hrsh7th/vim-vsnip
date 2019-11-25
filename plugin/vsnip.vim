@@ -87,6 +87,6 @@ function! s:on_win_leave() abort
 endfunction
 
 function! s:on_buf_write_pre() abort
-  call vsnip#snippet#invalidate(fnamemodify(bufname('%'), ':p'))
+  call vsnip#definition#invalidate(fnamemodify(bufname('%'), ':p'))
 endfunction
 

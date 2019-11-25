@@ -1,0 +1,144 @@
+let s:expect = themis#helper('expect')
+
+Describe vsnip#snippet#parser
+
+  Describe #parse
+
+    It Should parse1
+      let l:parsed = vsnip#snippet#parser#parse('console.log($0$1)')
+      call s:expect(l:parsed[0]).to_equal({
+            \   'type': 'text',
+            \   'raw': 'console.log(',
+            \   'escaped': 'console.log('
+            \ })
+      call s:expect(l:parsed[1]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 0,
+            \   'children': []
+            \ })
+      call s:expect(l:parsed[2]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 1,
+            \   'children': []
+            \ })
+      call s:expect(l:parsed[3]).to_equal({
+            \   'type': 'text',
+            \   'raw': ')',
+            \   'escaped': ')'
+            \ })
+    End
+
+    It Should parse choice
+      let l:parsed = vsnip#snippet#parser#parse('console.${1|log,warn,error|}($2)$0')
+      call s:expect(l:parsed[0]).to_equal({
+            \   'type': 'text',
+            \   'raw': 'console.',
+            \   'escaped': 'console.'
+            \ })
+      call s:expect(l:parsed[1]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 1,
+            \   'children': [{
+            \     'type': 'text',
+            \     'raw': 'log',
+            \     'escaped': 'log'
+            \   }],
+            \   'items': [{
+            \     'type': 'text',
+            \     'raw': 'log',
+            \     'escaped': 'log'
+            \   }, {
+            \     'type': 'text',
+            \     'raw': 'warn',
+            \     'escaped': 'warn'
+            \   }, {
+            \     'type': 'text',
+            \     'raw': 'error',
+            \     'escaped': 'error'
+            \   }]
+            \ })
+      call s:expect(l:parsed[2]).to_equal({
+            \   'type': 'text',
+            \   'raw': '(',
+            \   'escaped': '('
+            \ })
+      call s:expect(l:parsed[3]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 2,
+            \   'children': []
+            \ })
+      call s:expect(l:parsed[4]).to_equal({
+            \   'type': 'text',
+            \   'raw': ')',
+            \   'escaped': ')'
+            \ })
+      call s:expect(l:parsed[5]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 0,
+            \   'children': []
+            \ })
+    End
+
+    It Should parse escaped text
+      let l:parsed = vsnip#snippet#parser#parse('${1:\\\$variable\}}')
+      call s:expect(l:parsed[0]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 1,
+            \   'children': [{
+            \     'type': 'text',
+            \     'raw': '\\\$variable\}',
+            \     'escaped': '\$variable}'
+            \   }]
+            \ })
+    End
+
+    It Should parse nested placeholder
+      let l:parsed = vsnip#snippet#parser#parse('class $1${2: extends ${3:SuperClass}} { $0 }')
+      call s:expect(l:parsed[0]).to_equal({
+            \   'type': 'text',
+            \   'raw': 'class ',
+            \   'escaped': 'class '
+            \ })
+      call s:expect(l:parsed[1]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 1,
+            \   'children': []
+            \ })
+      call s:expect(l:parsed[2]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 2,
+            \   'children': [{
+            \     'type': 'text',
+            \     'raw': ' extends ',
+            \     'escaped': ' extends '
+            \   }, {
+            \     'type': 'placeholder',
+            \     'id': 3,
+            \     'children': [{
+            \       'type': 'text',
+            \       'raw': 'SuperClass',
+            \       'escaped': 'SuperClass'
+            \     }]
+            \   }]
+            \ })
+      call s:expect(l:parsed[3]).to_equal({
+            \   'type': 'text',
+            \   'raw': ' { ',
+            \   'escaped': ' { '
+            \ })
+      call s:expect(l:parsed[4]).to_equal({
+            \   'type': 'placeholder',
+            \   'id': 0,
+            \   'children': []
+            \ })
+      call s:expect(l:parsed[5]).to_equal({
+            \   'type': 'text',
+            \   'raw': ' }',
+            \   'escaped': ' }'
+            \ })
+    End
+
+  End
+
+End
+
