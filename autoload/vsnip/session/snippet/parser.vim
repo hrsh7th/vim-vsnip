@@ -1,8 +1,8 @@
 "
-" vsnip#snippet#parser#parse.
+" vsnip#session#snippet#parser#parse.
 " @see https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md
 "
-function! vsnip#snippet#parser#parse(text) abort
+function! vsnip#session#snippet#parser#parse(text) abort
   let l:parsed = s:parser.parse(a:text, 0)
   if !l:parsed[0]
     throw json_encode({ 'text': a:text, 'result': l:parsed })
@@ -25,7 +25,7 @@ function! s:flat(arr) abort
   return l:values
 endfunction
 
-let s:Combinator = vsnip#snippet#parser#combinator#import()
+let s:Combinator = vsnip#session#snippet#parser#combinator#import()
 
 let s:skip = s:Combinator.skip
 let s:token = s:Combinator.token

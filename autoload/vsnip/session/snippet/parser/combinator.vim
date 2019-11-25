@@ -1,4 +1,4 @@
-function! vsnip#snippet#parser#combinator#import() abort
+function! vsnip#session#snippet#parser#combinator#import() abort
   return {
         \   'skip': function('s:skip'),
         \   'token': function('s:token'),

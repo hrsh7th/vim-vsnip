@@ -1,4 +1,4 @@
-function! vsnip#snippet#node#text#import() abort
+function! vsnip#session#snippet#node#text#import() abort
   return s:Text
 endfunction
 
