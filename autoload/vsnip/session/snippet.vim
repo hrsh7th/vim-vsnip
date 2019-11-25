@@ -24,13 +24,15 @@ endfunction
 "
 function! s:Snippet.range() abort
   let l:lines = split(self.text(), "\n", v:true)
+
+  " TODO: Should fix end range for next line?
   return {
         \   'start': {
         \     'line': self.position.line,
         \     'character': self.position.character,
         \   },
         \   'end': {
-        \     'line': self.position.line + len(l:lines),
+        \     'line': self.position.line + len(l:lines) - 1,
         \     'character': strlen(l:lines[-1])
         \   }
         \ }

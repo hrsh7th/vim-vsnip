@@ -29,7 +29,26 @@ Describe vsnip#snippet
 
   End
 
+  Describe #range
+
+    It Should return range1
+      let l:snippet = s:Snippet.new(s:start_position, "console.log($0${1:default})")
+      call s:expect(l:snippet.range()).to_equal({
+            \   'start': {
+            \     'line': s:start_position.line,
+            \     'character': s:start_position.character
+            \   },
+            \   'end': {
+            \     'line': s:start_position.line,
+            \     'character': 20
+            \   }
+            \ })
+    End
+
+  End
+
   Describe #convert_range
+
     It Should return offset-based range from line-based range
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic constructor() {\n\t\t$0\n\t}\n}")
       call s:expect(l:snippet.convert_range({
@@ -43,6 +62,7 @@ Describe vsnip#snippet
             \   }
             \ })).to_equal([17, 28])
     End
+
   End
 
   Describe #follow
