@@ -24,13 +24,23 @@ endfunction
 " on_text_changed
 "
 function! s:Session.on_text_changed()
+  " compute diff.
   let l:buffer = getbufline(self.bufnr, '^', '$')
   let l:diff = vsnip#utils#diff#compute(self.buffer, l:buffer)
   if l:diff.rangeLength == 0 && l:diff.newText ==# ''
     return
   endif
   let self.buffer = l:buffer
+
+  " follow and sync.
   call self.snippet.follow(l:diff)
   let l:range = self.snippet.range()
+  call self.snippet.sync()
+  call timer_start(0, { ->
+        \   vsnip#text_edit#apply(self.bufnr, [{
+        \     'range': l:range,
+        \     'newText': split(self.snippet.text(), "\n", v:true)
+        \   }])
+        \ }, { 'repeat': 1 })
 endfunction
 
