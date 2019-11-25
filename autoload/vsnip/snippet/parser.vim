@@ -1,5 +1,6 @@
 "
 " vsnip#snippet#parser#parse.
+" @see https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md
 "
 function! vsnip#snippet#parser#parse(text) abort
   let l:parsed = s:parser.parse(a:text, 0)

@@ -5,9 +5,21 @@ Describe vsnip#snippet
 
   Describe #text
 
-    It Should return text
-      let l:snippet = s:Snippet.new('console.log($0$1)')
-      call s:expect(l:snippet.text()).to_equal('console.log()')
+    It Should return text1
+      let l:snippet = s:Snippet.new('console.log($0${1:default})')
+      call s:expect(l:snippet.text()).to_equal('console.log(default)')
+    End
+
+    It Should return text2
+      let g:vsnip#selected_text = 'THIS_IS_SELECTED_TEXT'
+      let l:snippet = s:Snippet.new('$TM_SELECTED_TEXT')
+      call s:expect(l:snippet.text()).to_equal('THIS_IS_SELECTED_TEXT')
+    End
+
+    It Should return text2
+      let g:vsnip#selected_text = 'THIS_IS_SELECTED_TEXT'
+      let l:snippet = s:Snippet.new('${TM_SELECTED_TEXT}')
+      call s:expect(l:snippet.text()).to_equal('THIS_IS_SELECTED_TEXT')
     End
 
   End
