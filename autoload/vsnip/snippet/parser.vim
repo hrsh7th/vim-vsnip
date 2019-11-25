@@ -24,16 +24,16 @@ function! s:flat(arr) abort
   return l:values
 endfunction
 
-let s:C = vsnip#snippet#parser#combinator#import()
+let s:Combinator = vsnip#snippet#parser#combinator#import()
 
-let s:string = s:C.string
-let s:token = s:C.token
-let s:many = s:C.many
-let s:or = s:C.or
-let s:seq = s:C.seq
-let s:lazy = s:C.lazy
-let s:pattern = s:C.pattern
-let s:map = s:C.map
+let s:skip = s:Combinator.skip
+let s:token = s:Combinator.token
+let s:many = s:Combinator.many
+let s:or = s:Combinator.or
+let s:seq = s:Combinator.seq
+let s:lazy = s:Combinator.lazy
+let s:pattern = s:Combinator.pattern
+let s:map = s:Combinator.map
 
 "
 " primitives.
@@ -48,27 +48,26 @@ let s:pipe = s:token('|')
 let s:varname = s:pattern('[_[:alpha:]]\w*')
 let s:int = s:map(s:pattern('\d\+'), { value -> str2nr(value[0]) })
 let s:text = { stop -> s:map(
-      \   s:string(stop),
+      \   s:skip(stop),
       \   { value -> {
       \     'type': 'text',
       \     'raw': value[0],
       \     'escaped': value[1]
       \   }
       \ }) }
+let s:regex = s:map(s:text(['/']), { value -> {
+      \   'type': 'regex',
+      \   'pattern': value.raw
+      \ } })
 
 "
-" any.
+" any (without text).
 "
 let s:any = s:or(
       \   s:lazy({ -> s:choice }),
       \   s:lazy({ -> s:variable }),
       \   s:lazy({ -> s:tabstop }),
       \   s:lazy({ -> s:placeholder }),
-      \ )
-
-let s:all = s:or(
-      \   s:any,
-      \   s:text(['$']),
       \ )
 
 "
@@ -104,11 +103,6 @@ let s:format3 = s:map(
       \   'modifier': value[4]
       \ } })
 let s:format = s:or(s:format1, s:format2, s:format3)
-
-"
-" regex.
-"
-let s:regex = s:text(['/'])
 
 "
 " transform
@@ -236,5 +230,5 @@ let s:placeholder = s:map(s:seq(
 "
 " parser.
 "
-let s:parser = s:many(s:all)
+let s:parser = s:many(s:or(s:any, s:text(['$'])))
 

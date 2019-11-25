@@ -1,6 +1,6 @@
 function! vsnip#snippet#parser#combinator#import() abort
   return {
-        \   'string': function('s:string'),
+        \   'skip': function('s:skip'),
         \   'token': function('s:token'),
         \   'many': function('s:many'),
         \   'or': function('s:or'),
@@ -14,9 +14,8 @@ endfunction
 "
 " string.
 "
-function! s:string(stop) abort
+function! s:skip(stop) abort
   let l:fn = {}
-  let l:fn.name = 'text'
   let l:fn.stop = a:stop
   function! l:fn.parse(text, pos) abort
     let l:pos = a:pos
@@ -62,7 +61,6 @@ endfunction
 "
 function! s:token(token) abort
   let l:fn = {}
-  let l:fn.name = 'token'
   let l:fn.token = a:token
   function! l:fn.parse(text, pos) abort
     let l:token_len = strchars(self.token)
@@ -80,7 +78,6 @@ endfunction
 "
 function! s:many(parser) abort
   let l:fn = {}
-  let l:fn.name = 'many'
   let l:fn.parser = a:parser
   function! l:fn.parse(text, pos) abort
     let l:pos = a:pos

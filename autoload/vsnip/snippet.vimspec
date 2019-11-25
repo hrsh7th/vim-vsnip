@@ -20,9 +20,9 @@ Describe vsnip#snippet
     End
 
     It Should return placeholder range2
-      let l:snippet = s:Snippet.new('console.log(${1:012345${2:67890}})')
+      let l:snippet = s:Snippet.new('console.log(${1:0123${2:456}7890})')
       call s:expect(l:snippet.get_placeholder_range(1)).to_equal([12, 23])
-      call s:expect(l:snippet.get_placeholder_range(2)).to_equal([18, 23])
+      call s:expect(l:snippet.get_placeholder_range(2)).to_equal([16, 19])
     End
 
   End

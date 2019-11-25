@@ -4,8 +4,19 @@ Describe vsnip#snippet#parser
 
   Describe #parse
 
-    It Should parse1
+    It Should parse text
+      let l:parsed = vsnip#snippet#parser#parse('console.log()')
+      call s:expect(len(l:parsed)).to_equal(1)
+      call s:expect(l:parsed[0]).to_equal({
+            \   'type': 'text',
+            \   'raw': 'console.log()',
+            \   'escaped': 'console.log()'
+            \ })
+    End
+
+    It Should tabstop
       let l:parsed = vsnip#snippet#parser#parse('console.log($0$1)')
+      call s:expect(len(l:parsed)).to_equal(4)
       call s:expect(l:parsed[0]).to_equal({
             \   'type': 'text',
             \   'raw': 'console.log(',
@@ -30,6 +41,7 @@ Describe vsnip#snippet#parser
 
     It Should parse choice
       let l:parsed = vsnip#snippet#parser#parse('console.${1|log,warn,error|}($2)$0')
+      call s:expect(len(l:parsed)).to_equal(6)
       call s:expect(l:parsed[0]).to_equal({
             \   'type': 'text',
             \   'raw': 'console.',
@@ -81,6 +93,7 @@ Describe vsnip#snippet#parser
 
     It Should parse escaped text
       let l:parsed = vsnip#snippet#parser#parse('${1:\\\$variable\}}')
+      call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
             \   'type': 'placeholder',
             \   'id': 1,
@@ -94,6 +107,7 @@ Describe vsnip#snippet#parser
 
     It Should parse nested placeholder
       let l:parsed = vsnip#snippet#parser#parse('class $1${2: extends ${3:SuperClass}} { $0 }')
+      call s:expect(len(l:parsed)).to_equal(6)
       call s:expect(l:parsed[0]).to_equal({
             \   'type': 'text',
             \   'raw': 'class ',
