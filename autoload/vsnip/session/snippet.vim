@@ -62,7 +62,7 @@ function! s:Snippet.follow(diff) abort
       let a:node.value = a:node.value[l:end_offset : -1]
 
     " overlap right -> expand text.
-    elseif a:range[0] <= self.diff.range[0] && a:range[1] < self.diff.range[1] && self.diff.range[0] < a:range[1]
+    elseif a:range[0] < self.diff.range[0] && a:range[1] <= self.diff.range[1] && self.diff.range[0] < a:range[1]
       let l:start_offset = self.diff.range[0] - a:range[0]
       let l:value = ''
       let l:value .= l:start_offset > 0 ? a:node.value[0 : l:start_offset - 1] : ''
@@ -70,7 +70,7 @@ function! s:Snippet.follow(diff) abort
       let a:node.value = l:value
 
     " include -> replace text.
-    elseif a:range[0] <= self.diff.range[0] && self.diff.range[1] < a:range[1]
+    elseif a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
       let l:start_offset = self.diff.range[0] - a:range[0]
       let l:end_offset = self.diff.range[1] - a:range[0]
       let l:value = ''
@@ -101,6 +101,7 @@ function! s:Snippet.sync() abort
   let l:fn = {}
   let l:fn.self = self
   let l:fn.tabstop = {}
+  let l:fn.edits = []
   function! l:fn.traverse(range, node, parent) abort
     " placeholders.
     if a:node.type ==# 'placeholder'
@@ -110,6 +111,13 @@ function! s:Snippet.sync() abort
               \   'raw': self.tabstop[a:node.id],
               \   'escaped': self.tabstop[a:node.id],
               \ }])
+        call add(self.edits, {
+              \   'range': {
+              \     'start': self.self.offset_to_position(a:range[0]),
+              \     'end': self.self.offset_to_position(a:range[1])
+              \   },
+              \   'newText': self.tabstop[a:node.id]
+              \ })
       else
         let self.tabstop[a:node.id] = a:node.text(self.self)
       endif
@@ -127,6 +135,8 @@ function! s:Snippet.sync() abort
     endif
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)
+
+  return reverse(l:fn.edits)
 endfunction
 
 "
