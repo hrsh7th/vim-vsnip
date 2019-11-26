@@ -41,50 +41,58 @@ function! s:Snippet.follow(diff) abort
         \   self.position_to_offset(a:diff.range.end),
         \ ]
 
-  " remove corrupted placeholders.
   let l:fn = {}
   let l:fn.diff = a:diff
-  function! l:fn.traverse(range, node, parent) abort
-    " remove if node range is covered by edit range.
-    if self.diff.range[0] <= a:range[0] && a:range[1] < self.diff.range[1]
-          \ || self.diff.range[0] < a:range[0] && a:range[1] <= self.diff.range[1]
-      call remove(a:parent.children, index(a:parent.children, a:node))
-      return v:false
-    endif
-
+  function! l:fn.traverse(range, node, next, parent) abort
     if a:node.type !=# 'text'
       return v:false
     endif
 
-    " overlap left -> collapse text.
-    if self.diff.range[0] < a:range[0] && self.diff.range[1] <= a:range[1] && a:range[0] < self.diff.range[1]
-      let l:end_offset = self.diff.range[1] - a:range[0]
-      let a:node.value = a:node.value[l:end_offset : -1]
+    let l:is_before = a:range[1] < self.diff.range[0]
+    let l:is_after = self.diff.range[1] < a:range[0]
 
-    " overlap right -> expand text.
-    elseif a:range[0] < self.diff.range[0] && a:range[1] <= self.diff.range[1] && self.diff.range[0] < a:range[1]
-      let l:start_offset = self.diff.range[0] - a:range[0]
-      let l:value = ''
-      let l:value .= l:start_offset > 0 ? a:node.value[0 : l:start_offset - 1] : ''
-      let l:value .= self.diff.text
-      let a:node.value = l:value
+    " Skip before range.
+    " diff:               s------e
+    " text:   s-----e s-----e  s-----e s-----e
+    " expect:    ↑
+    if l:is_before && !l:is_after
+      return v:false
+    endif
 
-    " include -> replace text.
-    elseif a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
-      let l:start_offset = self.diff.range[0] - a:range[0]
-      let l:end_offset = self.diff.range[1] - a:range[0]
+    " Skip after range.
+    " diff:               s------e
+    " text:   s-----e s-----e  s-----e s-----e
+    " expect:                             ↑
+    if !l:is_before && l:is_after
+      return v:false
+    endif
+
+    " If diff is empty and position is just gap, use after node.
+    " diff:                 r
+    " text:   s-----e s-----r-----e s-----e
+    " expect:                  ↑
+    if a:range[1] == self.diff.range[0] && !empty(a:next)
+      return v:false
+    endif
+
+    " Process included range.
+    " diff:     s-------e
+    " text:   s------------e
+    " expect:       ↑
+    if a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
+      let l:start = self.diff.range[0] - a:range[0] - 1
+      let l:end = self.diff.range[1] - a:range[0]
       let l:value = ''
-      let l:value .= l:start_offset > 0 ? a:node.value[0 : l:start_offset - 1] : ''
+      let l:value .= l:start >= 0 ? a:node.value[0: l:start] : ''
       let l:value .= self.diff.text
-      let l:value .= a:node.value[l:end_offset : - 1]
+      let l:value .= a:node.value[l:end : -1]
       let a:node.value = l:value
+      return v:true
     endif
 
     return v:false
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)
-
-  return v:true
 endfunction
 
 "
@@ -102,15 +110,15 @@ function! s:Snippet.sync() abort
   let l:fn.self = self
   let l:fn.tabstop = {}
   let l:fn.edits = []
-  function! l:fn.traverse(range, node, parent) abort
+  function! l:fn.traverse(range, node, next, parent) abort
     " placeholders.
     if a:node.type ==# 'placeholder'
-      if has_key(self.tabstop, a:node.id)
-        let a:node.children = vsnip#session#snippet#node#create_from_ast([{
-              \   'type': 'text',
-              \   'raw': self.tabstop[a:node.id],
-              \   'escaped': self.tabstop[a:node.id],
-              \ }])
+      " placeholder first occurrence.
+      if !has_key(self.tabstop, a:node.id)
+        let self.tabstop[a:node.id] = a:node.text(self.self)
+
+      " sync placeholder text.
+      else
         call add(self.edits, {
               \   'range': {
               \     'start': self.self.offset_to_position(a:range[0]),
@@ -118,8 +126,11 @@ function! s:Snippet.sync() abort
               \   },
               \   'newText': self.tabstop[a:node.id]
               \ })
-      else
-        let self.tabstop[a:node.id] = a:node.text(self.self)
+        let a:node.children = vsnip#session#snippet#node#create_from_ast([{
+              \   'type': 'text',
+              \   'raw': self.tabstop[a:node.id],
+              \   'escaped': self.tabstop[a:node.id],
+              \ }])
       endif
     endif
 
@@ -136,7 +147,7 @@ function! s:Snippet.sync() abort
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)
 
-  return reverse(l:fn.edits)
+  return l:fn.edits
 endfunction
 
 "
@@ -154,7 +165,7 @@ function! s:Snippet.get_placeholder_with_range(id) abort
   let l:fn.id = a:id
   let l:fn.self = self
   let l:fn.result = { 'range': v:null, 'placeholder': v:null }
-  function! l:fn.traverse(range, node, parent) abort
+  function! l:fn.traverse(range, node, next, parent) abort
     if a:node.type ==# 'placeholder' && a:node.id == self.id
       let self.result.range = {
             \   'start': self.self.offset_to_position(a:range[0]),
@@ -174,20 +185,22 @@ endfunction
 "
 function! s:Snippet.traverse(parent, children, callback, pos) abort
   let l:pos = a:pos
-
   let l:skip = v:false
-  for l:child in copy(a:children)
-    let l:len = strlen(l:child.text(self))
+  let l:children = copy(a:children)
+  for l:i in range(0, len(l:children) - 1)
+    let l:next = get(l:children, l:i + 1, v:null)
+    let l:node = l:children[l:i]
+    let l:len = strlen(l:node.text(self))
 
     " child.
-    let l:skip = a:callback([l:pos, l:pos + l:len], l:child, a:parent)
+    let l:skip = a:callback([l:pos, l:pos + l:len], l:node, l:next, a:parent)
     if l:skip
       return l:skip
     endif
 
     " child.children.
-    if has_key(l:child, 'children') && len(l:child.children)
-      let l:skip = self.traverse(l:child, l:child.children, a:callback, l:pos)
+    if has_key(l:node, 'children') && len(l:node.children) > 0
+      let l:skip = self.traverse(l:node, l:node.children, a:callback, l:pos)
       if l:skip
         return l:skip
       endif
@@ -212,7 +225,7 @@ function! s:Snippet.offset_to_position(offset) abort
   let l:offset = 0
 
   let l:i = 0
-  while l:offset < a:offset
+  while l:offset < min([a:offset, strchars(l:text)])
     let l:char = nr2char(strgetchar(l:text, l:i))
     if l:char ==# "\n"
       let l:line += 1

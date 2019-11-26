@@ -18,7 +18,6 @@ function! s:Session.new(bufnr, position, text) abort
         \   'buffer': getbufline(a:bufnr, '^', '$'),
         \   'snippet': s:Snippet.new(a:position, a:text),
         \   'active': v:true,
-        \   'timer_id': -1
         \ })
 endfunction
 
@@ -35,17 +34,11 @@ function! s:Session.insert() abort
         \ }])
 endfunction
 
-"
-" on_text_changed.
-"
-function! s:Session.on_text_changed() abort
-  call self.on_text_changed_after()
-endfunction
 
 "
 " on_text_changed.
 "
-function! s:Session.on_text_changed_after() abort
+function! s:Session.on_text_changed() abort
   if !self.active
     return
   endif
@@ -68,21 +61,21 @@ function! s:Session.on_text_changed_after() abort
   let l:range = self.snippet.range()
 
   " out of range (line).
-  if l:diff.range.start.line > l:range.start.line || l:range.end.line < l:diff.range.end.line
+  if l:diff.range.end.line < l:range.start.line || l:range.end.line < l:diff.range.start.line
     let self.active = v:false
     return
   endif
 
   " out of range (start char).
-  if l:diff.range.start.line == l:range.start.line &&
-        \ l:diff.range.start.character < l:range.start.character
+  if l:diff.range.end.line == l:range.start.line &&
+        \ l:diff.range.end.character < l:range.start.character
     let self.active = v:false
     return
   endif
 
   " out of range (end char).
-  if l:range.end.line == l:diff.range.end.line &&
-        \ l:range.end.character < l:diff.range.end.character
+  if l:range.end.line == l:diff.range.start.line &&
+        \ l:range.end.character < l:diff.range.start.character
     let self.active = v:false
     return
   endif
@@ -90,7 +83,8 @@ function! s:Session.on_text_changed_after() abort
   " follow and sync.
   call self.snippet.follow(l:diff)
   try
-    undojoin | call call({ -> lamp#view#edit#apply(self.bufnr, self.snippet.sync()) }, [])
+    let l:edits = self.snippet.sync()
+    undojoin | call call({ -> lamp#view#edit#apply(self.bufnr, l:edits) }, [])
   catch /.*/
     " undojoin causes error when undo. this is expected exception.
   endtry

@@ -12,7 +12,7 @@ let g:vsnip_select_pattern = '\k\+'
 
 augroup vsnip
   autocmd!
-  autocmd TextChanged,TextChangedI * call s:on_text_changed()
+  autocmd TextYankPost,TextChanged,TextChangedI,TextChangedP * call s:on_text_changed()
 augroup END
 
 "
