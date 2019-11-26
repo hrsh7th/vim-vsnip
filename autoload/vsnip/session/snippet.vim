@@ -25,18 +25,10 @@ endfunction
 " range.
 "
 function! s:Snippet.range() abort
-  let l:lines = split(self.text(), "\n", v:true)
-
   " TODO: Should fix end range for next line?
   return {
-        \   'start': {
-        \     'line': self.position.line,
-        \     'character': self.position.character,
-        \   },
-        \   'end': {
-        \     'line': self.position.line + len(l:lines) - 1,
-        \     'character': strlen(l:lines[-1])
-        \   }
+        \   'start': self.offset_to_position(0),
+        \   'end': self.offset_to_position(strlen(self.text()))
         \ }
 endfunction
 
@@ -74,16 +66,16 @@ function! s:Snippet.follow(diff) abort
       let l:start_offset = self.diff.range[0] - a:range[0]
       let l:value = ''
       let l:value .= l:start_offset > 0 ? a:node.value[0 : l:start_offset - 1] : ''
-      let l:value .= self.diff.newText
+      let l:value .= self.diff.text
       let a:node.value = l:value
 
     " include -> replace text.
-    elseif a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
+    elseif a:range[0] <= self.diff.range[0] && self.diff.range[1] < a:range[1]
       let l:start_offset = self.diff.range[0] - a:range[0]
       let l:end_offset = self.diff.range[1] - a:range[0]
       let l:value = ''
       let l:value .= l:start_offset > 0 ? a:node.value[0 : l:start_offset - 1] : ''
-      let l:value .= self.diff.newText
+      let l:value .= self.diff.text
       let l:value .= a:node.value[l:end_offset : - 1]
       let a:node.value = l:value
     endif
@@ -91,6 +83,8 @@ function! s:Snippet.follow(diff) abort
     return v:false
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)
+
+  return v:true
 endfunction
 
 "
@@ -248,7 +242,9 @@ function! s:Snippet.position_to_offset(position) abort
     if l:i != a:position.line
       let l:offset += strlen(l:lines[l:i]) + 1
     elseif l:i == a:position.line
-      let l:offset += strlen(l:lines[l:i][0 : a:position.character - 1])
+      if a:position.character > 0
+        let l:offset += strlen(l:lines[l:i][0 : a:position.character - 1])
+      endif
     endif
 
     let l:i += 1

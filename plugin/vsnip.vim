@@ -10,3 +10,18 @@ let g:vsnip_namespace = 'snip_'
 let g:vsnip_select_trigger = ' '
 let g:vsnip_select_pattern = '\k\+'
 
+augroup vsnip
+  autocmd!
+  autocmd TextChanged,TextChangedI,TextChangedP * call s:on_text_changed()
+augroup END
+
+"
+" on_text_changed
+"
+function! s:on_text_changed() abort
+  let l:session = vsnip#get_session()
+  if !empty(l:session)
+    call l:session.on_text_changed()
+  endif
+endfunction
+

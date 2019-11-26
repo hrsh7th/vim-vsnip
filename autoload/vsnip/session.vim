@@ -12,13 +12,26 @@ let s:Session = {}
 "
 " new.
 "
-function! s:Session.new(bufnr, position, lines) abort
+function! s:Session.new(bufnr, position, text) abort
   return extend(deepcopy(s:Session), {
         \   'bufnr': a:bufnr,
         \   'buffer': getbufline(a:bufnr, '^', '$'),
-        \   'snippet': s:Snippet.new(a:position, join(a:lines, "\n")),
+        \   'snippet': s:Snippet.new(a:position, a:text),
         \   'active': v:true
         \ })
+endfunction
+
+"
+" insert.
+"
+function! s:Session.insert() abort
+  call lamp#view#edit#apply(self.bufnr, [{
+        \   'range': {
+        \     'start': self.snippet.position,
+        \     'end': self.snippet.position
+        \   },
+        \   'newText': self.snippet.text()
+        \ }])
 endfunction
 
 "
@@ -31,8 +44,8 @@ function! s:Session.on_text_changed()
 
   " compute diff.
   let l:buffer = getbufline(self.bufnr, '^', '$')
-  let l:diff = vsnip#utils#diff#compute(self.buffer, l:buffer)
-  if l:diff.rangeLength == 0 && l:diff.newText ==# ''
+  let l:diff = lamp#server#document#diff#compute(self.buffer, l:buffer)
+  if l:diff.rangeLength == 0 && l:diff.text ==# ''
     return
   endif
   let self.buffer = l:buffer
@@ -42,10 +55,10 @@ function! s:Session.on_text_changed()
   let l:range = self.snippet.range()
   call self.snippet.sync()
   call timer_start(0, { ->
-        \   vsnip#text_edit#apply(self.bufnr, [{
+        \   lamp#view#edit#apply(self.bufnr, [{
         \     'range': l:range,
         \     'newText': split(self.snippet.text(), "\n", v:true)
-        \   }])
+          \ }])
         \ }, { 'repeat': 1 })
 endfunction
 
