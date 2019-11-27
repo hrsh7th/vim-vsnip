@@ -10,7 +10,6 @@ let s:Variable = {}
 function! s:Variable.new(ast) abort
   return extend(deepcopy(s:Variable), {
         \   'type': 'variable',
-        \   'ast': a:ast,
         \   'name': a:ast.name,
         \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', []))
         \ })
@@ -19,15 +18,15 @@ endfunction
 "
 " text.
 "
-function! s:Variable.text(snippet) abort
-  return self.resolve(a:snippet)
+function! s:Variable.text() abort
+  return self.resolve()
 endfunction
 
 
 "
 " resolve.
 "
-function! s:Variable.resolve(snippet) abort
+function! s:Variable.resolve() abort
   " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
   if self.name ==# 'TM_SELECTED_TEXT'
     return g:vsnip#selected_text
@@ -105,6 +104,6 @@ function! s:Variable.resolve(snippet) abort
     return '//' " TODO
   endif
 
-  return join(map(copy(self.children), { k, v -> v.text(a:snippet) }), '')
+  return join(map(copy(self.children), { k, v -> v.text() }), '')
 endfunction
 

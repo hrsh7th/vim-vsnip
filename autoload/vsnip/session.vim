@@ -17,7 +17,8 @@ function! s:Session.new(bufnr, position, text) abort
         \   'bufnr': a:bufnr,
         \   'buffer': getbufline(a:bufnr, '^', '$'),
         \   'snippet': s:Snippet.new(a:position, a:text),
-        \   'changenr': changenr()
+        \   'changenr': changenr() + 1,
+        \   'changenrs': [changenr() + 1]
         \ })
 endfunction
 
@@ -47,6 +48,15 @@ function! s:Session.on_text_changed() abort
     return
   endif
 
+  " redo/undo.
+  let l:changenr = changenr()
+  if index(self.changenrs, l:changenr) >= 0 && self.changenr != l:changenr
+    call self.snippet.restore(l:changenr)
+    let self.changenr = l:changenr
+    return
+  endif
+  call add(self.changenrs, l:changenr)
+
   let l:range = self.snippet.range()
 
   " diff includes out of range changes (line)
@@ -74,18 +84,13 @@ function! s:Session.on_text_changed() abort
     return
   endif
 
-  let l:changenr = changenr()
-  if self.changenr <= l:changenr
-    if self.snippet.follow(l:changenr, l:diff)
-      call lamp#view#edit#apply(self.bufnr, self.snippet.sync())
-    else
-      call vsnip#deactivate()
-    endif
+  if self.snippet.follow(self.changenr, l:diff)
+    undojoin | call lamp#view#edit#apply(self.bufnr, self.snippet.sync())
+    let self.buffer = getbufline(self.bufnr, '^', '$')
+    let self.changenr = l:changenr
   else
-    call self.snippet.restore(l:changenr)
+    call vsnip#deactivate()
   endif
-  let self.changenr = l:changenr
-  let self.buffer = getbufline(self.bufnr, '^', '$')
 endfunction
 
 "

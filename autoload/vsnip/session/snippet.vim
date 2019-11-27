@@ -36,6 +36,18 @@ endfunction
 " restore.
 "
 function! s:Snippet.restore(changenr) abort
+  let l:fn = {}
+  let l:fn.changenr = a:changenr
+  function! l:fn.traverse(range, node, next, parent) abort
+    if a:node.type !=# 'text'
+      return v:false
+    endif
+    echomsg self.changenr . ': ' . string(a:node.history)
+    if has_key(a:node.history, self.changenr)
+      let a:node.value = a:node.history[self.changenr]
+    endif
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0)
 endfunction
 
 "
@@ -48,8 +60,9 @@ function! s:Snippet.follow(changenr, diff) abort
         \ ]
 
   let l:fn = {}
-  let l:fn.found = v:false
+  let l:fn.changenr = a:changenr
   let l:fn.diff = a:diff
+  let l:fn.found = v:false
   function! l:fn.traverse(range, node, next, parent) abort
     if a:node.type !=# 'text'
       return v:false
@@ -93,6 +106,7 @@ function! s:Snippet.follow(changenr, diff) abort
       let l:value .= l:start >= 0 ? a:node.value[0: l:start] : ''
       let l:value .= self.diff.text
       let l:value .= a:node.value[l:end : -1]
+      let a:node.history[self.changenr] = a:node.value
       let a:node.value = l:value
       let self.found = v:true
       return v:true
@@ -118,14 +132,14 @@ endfunction
 function! s:Snippet.sync() abort
   let l:fn = {}
   let l:fn.self = self
-  let l:fn.tabstop = {}
+  let l:fn.group = {}
   let l:fn.edits = []
   function! l:fn.traverse(range, node, next, parent) abort
     " placeholders.
     if a:node.type ==# 'placeholder'
       " placeholder first occurrence.
-      if !has_key(self.tabstop, a:node.id)
-        let self.tabstop[a:node.id] = a:node.text(self.self)
+      if !has_key(self.group, a:node.id)
+        let self.group[a:node.id] = a:node
 
       " sync placeholder text.
       else
@@ -134,13 +148,9 @@ function! s:Snippet.sync() abort
               \     'start': self.self.offset_to_position(a:range[0]),
               \     'end': self.self.offset_to_position(a:range[1])
               \   },
-              \   'newText': self.tabstop[a:node.id]
+              \   'newText': self.group[a:node.id].text()
               \ })
-        let a:node.children = vsnip#session#snippet#node#create_from_ast([{
-              \   'type': 'text',
-              \   'raw': self.tabstop[a:node.id],
-              \   'escaped': self.tabstop[a:node.id],
-              \ }])
+        let a:node.children = deepcopy(self.group[a:node.id].children)
       endif
     endif
 
@@ -150,8 +160,8 @@ function! s:Snippet.sync() abort
       call remove(a:parent.children, l:index)
       call insert(a:parent.children, vsnip#session#snippet#node#create_from_ast({
             \   'type': 'text',
-            \   'raw': a:node.text(self.self),
-            \   'escaped': a:node.text(self.self)
+            \   'raw': a:node.text(),
+            \   'escaped': a:node.text()
             \ }), l:index)
     endif
   endfunction
@@ -164,7 +174,7 @@ endfunction
 " text.
 "
 function! s:Snippet.text() abort
-  return join(map(copy(self.children), { k, v -> v.text(self) }), '')
+  return join(map(copy(self.children), { k, v -> v.text() }), '')
 endfunction
 
 "
@@ -200,7 +210,7 @@ function! s:Snippet.traverse(parent, children, callback, pos) abort
   for l:i in range(0, len(l:children) - 1)
     let l:next = get(l:children, l:i + 1, v:null)
     let l:node = l:children[l:i]
-    let l:len = strlen(l:node.text(self))
+    let l:len = strlen(l:node.text())
 
     " child.
     let l:skip = a:callback([l:pos, l:pos + l:len], l:node, l:next, a:parent)
