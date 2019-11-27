@@ -21,3 +21,11 @@ function! vsnip#get_session() abort
   return s:session
 endfunction
 
+"
+" vsnip#deactivate
+"
+function! vsnip#deactivate() abort
+  call lamp#view#notice#add({ 'lines': ['`Snippet`: session deactivated.'] })
+  let s:session = {}
+endfunction
+

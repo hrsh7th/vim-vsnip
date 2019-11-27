@@ -33,15 +33,22 @@ function! s:Snippet.range() abort
 endfunction
 
 "
+" restore.
+"
+function! s:Snippet.restore(changenr) abort
+endfunction
+
+"
 " follow.
 "
-function! s:Snippet.follow(diff) abort
+function! s:Snippet.follow(changenr, diff) abort
   let a:diff.range = [
         \   self.position_to_offset(a:diff.range.start),
         \   self.position_to_offset(a:diff.range.end),
         \ ]
 
   let l:fn = {}
+  let l:fn.found = v:false
   let l:fn.diff = a:diff
   function! l:fn.traverse(range, node, next, parent) abort
     if a:node.type !=# 'text'
@@ -52,32 +59,32 @@ function! s:Snippet.follow(diff) abort
     let l:is_after = self.diff.range[1] < a:range[0]
 
     " Skip before range.
-    " diff:               s------e
-    " text:   s-----e s-----e  s-----e s-----e
-    " expect:    ↑
+    " diff:      s-----e
+    " text:   1-----2-----3-----4
+    " expect:                ↑
     if l:is_before && !l:is_after
       return v:false
     endif
 
     " Skip after range.
-    " diff:               s------e
-    " text:   s-----e s-----e  s-----e s-----e
-    " expect:                             ↑
+    " diff:            s-----e
+    " text:   1-----2-----3-----4
+    " expect:    ↑
     if !l:is_before && l:is_after
       return v:false
     endif
 
     " If diff is empty and position is just gap, use after node.
-    " diff:                 r
-    " text:   s-----e s-----r-----e s-----e
-    " expect:                  ↑
+    " diff:               d
+    " text:   1-----2-----3-----4
+    " expect:          ↑
     if a:range[1] == self.diff.range[0] && !empty(a:next)
       return v:false
     endif
 
     " Process included range.
-    " diff:     s-------e
-    " text:   s------------e
+    " diff:      s-----e
+    " text:   1-----------2
     " expect:       ↑
     if a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
       let l:start = self.diff.range[0] - a:range[0] - 1
@@ -87,12 +94,15 @@ function! s:Snippet.follow(diff) abort
       let l:value .= self.diff.text
       let l:value .= a:node.value[l:end : -1]
       let a:node.value = l:value
+      let self.found = v:true
       return v:true
     endif
 
     return v:false
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)
+
+  return l:fn.found
 endfunction
 
 "
