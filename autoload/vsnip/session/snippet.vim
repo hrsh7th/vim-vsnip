@@ -12,6 +12,7 @@ let s:Snippet = {}
 "
 function! s:Snippet.new(position, text) abort
   let l:snippet = extend(deepcopy(s:Snippet), {
+        \   'type': 'snippet',
         \   'position': a:position,
         \   'children': vsnip#session#snippet#node#create_from_ast(
         \     vsnip#session#snippet#parser#parse(a:text)
@@ -33,6 +34,21 @@ function! s:Snippet.range() abort
 endfunction
 
 "
+" store.
+"
+function! s:Snippet.store(changenr) abort
+  let l:fn = {}
+  let l:fn.changenr = a:changenr
+  function! l:fn.traverse(range, node, next, parent) abort
+    if a:node.type !=# 'text'
+      return v:false
+    endif
+    let a:node.history[self.changenr] = a:node.value
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0)
+endfunction
+
+"
 " restore.
 "
 function! s:Snippet.restore(changenr) abort
@@ -42,7 +58,6 @@ function! s:Snippet.restore(changenr) abort
     if a:node.type !=# 'text'
       return v:false
     endif
-    echomsg self.changenr . ': ' . string(a:node.history)
     if has_key(a:node.history, self.changenr)
       let a:node.value = a:node.history[self.changenr]
     endif
@@ -53,14 +68,13 @@ endfunction
 "
 " follow.
 "
-function! s:Snippet.follow(changenr, diff) abort
+function! s:Snippet.follow(diff) abort
   let a:diff.range = [
         \   self.position_to_offset(a:diff.range.start),
         \   self.position_to_offset(a:diff.range.end),
         \ ]
 
   let l:fn = {}
-  let l:fn.changenr = a:changenr
   let l:fn.diff = a:diff
   let l:fn.found = v:false
   function! l:fn.traverse(range, node, next, parent) abort
@@ -74,7 +88,7 @@ function! s:Snippet.follow(changenr, diff) abort
     " Skip before range.
     " diff:      s-----e
     " text:   1-----2-----3-----4
-    " expect:                ↑
+    " expect:                ^
     if l:is_before && !l:is_after
       return v:false
     endif
@@ -82,7 +96,7 @@ function! s:Snippet.follow(changenr, diff) abort
     " Skip after range.
     " diff:            s-----e
     " text:   1-----2-----3-----4
-    " expect:    ↑
+    " expect:    ^
     if !l:is_before && l:is_after
       return v:false
     endif
@@ -90,7 +104,7 @@ function! s:Snippet.follow(changenr, diff) abort
     " If diff is empty and position is just gap, use after node.
     " diff:               d
     " text:   1-----2-----3-----4
-    " expect:          ↑
+    " expect:          ^
     if a:range[1] == self.diff.range[0] && !empty(a:next)
       return v:false
     endif
@@ -98,7 +112,7 @@ function! s:Snippet.follow(changenr, diff) abort
     " Process included range.
     " diff:      s-----e
     " text:   1-----------2
-    " expect:       ↑
+    " expect:       ^
     if a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
       let l:start = self.diff.range[0] - a:range[0] - 1
       let l:end = self.diff.range[1] - a:range[0]
@@ -106,7 +120,6 @@ function! s:Snippet.follow(changenr, diff) abort
       let l:value .= l:start >= 0 ? a:node.value[0: l:start] : ''
       let l:value .= self.diff.text
       let l:value .= a:node.value[l:end : -1]
-      let a:node.history[self.changenr] = a:node.value
       let a:node.value = l:value
       let self.found = v:true
       return v:true
@@ -143,14 +156,16 @@ function! s:Snippet.sync() abort
 
       " sync placeholder text.
       else
-        call add(self.edits, {
-              \   'range': {
-              \     'start': self.self.offset_to_position(a:range[0]),
-              \     'end': self.self.offset_to_position(a:range[1])
-              \   },
-              \   'newText': self.group[a:node.id].text()
-              \ })
-        let a:node.children = deepcopy(self.group[a:node.id].children)
+        if self.group[a:node.id].text() !=# a:node.text()
+          call add(self.edits, {
+                \   'range': {
+                \     'start': self.self.offset_to_position(a:range[0]),
+                \     'end': self.self.offset_to_position(a:range[1])
+                \   },
+                \   'newText': self.group[a:node.id].text()
+                \ })
+          let a:node.children = deepcopy(self.group[a:node.id].children)
+        endif
       endif
     endif
 
@@ -210,10 +225,10 @@ function! s:Snippet.traverse(parent, children, callback, pos) abort
   for l:i in range(0, len(l:children) - 1)
     let l:next = get(l:children, l:i + 1, v:null)
     let l:node = l:children[l:i]
-    let l:len = strlen(l:node.text())
+    let l:length = strlen(l:node.text())
 
     " child.
-    let l:skip = a:callback([l:pos, l:pos + l:len], l:node, l:next, a:parent)
+    let l:skip = a:callback([l:pos, l:pos + l:length], l:node, l:next, a:parent)
     if l:skip
       return l:skip
     endif
@@ -226,7 +241,7 @@ function! s:Snippet.traverse(parent, children, callback, pos) abort
       endif
     endif
 
-    let l:pos += l:len
+    let l:pos += l:length
   endfor
   return l:skip
 endfunction

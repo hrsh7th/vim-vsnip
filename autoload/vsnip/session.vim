@@ -17,8 +17,8 @@ function! s:Session.new(bufnr, position, text) abort
         \   'bufnr': a:bufnr,
         \   'buffer': getbufline(a:bufnr, '^', '$'),
         \   'snippet': s:Snippet.new(a:position, a:text),
-        \   'changenr': changenr() + 1,
-        \   'changenrs': [changenr() + 1]
+        \   'changenr': changenr(),
+        \   'changenrs': []
         \ })
 endfunction
 
@@ -34,12 +34,17 @@ function! s:Session.insert() abort
         \   },
         \   'newText': self.snippet.text()
         \ }])
+
+  let self.changenr = changenr()
+  call add(self.changenrs, self.changenr)
+  call self.snippet.store(self.changenr)
 endfunction
 
 "
 " on_text_changed.
 "
 function! s:Session.on_text_changed() abort
+
   " compute diff.
   let l:buffer = getbufline(self.bufnr, '^', '$')
   let l:diff = lamp#server#document#diff#compute(self.buffer, l:buffer)
@@ -48,14 +53,14 @@ function! s:Session.on_text_changed() abort
     return
   endif
 
-  " redo/undo.
   let l:changenr = changenr()
+
+  " redo/undo.
   if index(self.changenrs, l:changenr) >= 0 && self.changenr != l:changenr
     call self.snippet.restore(l:changenr)
     let self.changenr = l:changenr
     return
   endif
-  call add(self.changenrs, l:changenr)
 
   let l:range = self.snippet.range()
 
@@ -84,10 +89,13 @@ function! s:Session.on_text_changed() abort
     return
   endif
 
-  if self.snippet.follow(self.changenr, l:diff)
+  " if follow succeeded, sync placeholders and write back to the buffer.
+  if self.snippet.follow(l:diff)
     undojoin | call lamp#view#edit#apply(self.bufnr, self.snippet.sync())
     let self.buffer = getbufline(self.bufnr, '^', '$')
-    let self.changenr = l:changenr
+    let self.changenr = changenr()
+    call add(self.changenrs, self.changenr)
+    call self.snippet.store(self.changenr)
   else
     call vsnip#deactivate()
   endif
@@ -97,6 +105,14 @@ endfunction
 " is_dirty.
 "
 function! s:Session.is_dirty(buffer)
+  return self.snippet.text() !=# self.text_from_buffer(a:buffer)
+endfunction
+
+
+"
+" text_from_buffer.
+"
+function! s:Session.text_from_buffer(buffer)
   let l:range = self.snippet.range()
 
   let l:text = ''
@@ -124,6 +140,6 @@ function! s:Session.is_dirty(buffer)
     endif
   endfor
 
-  return self.snippet.text() !=# l:text
+  return l:text
 endfunction
 

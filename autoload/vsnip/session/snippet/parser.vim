@@ -137,51 +137,6 @@ let s:transform2 = s:map(s:seq(
 let s:transform = s:or(s:transform1, s:transform2)
 
 "
-" tabstop
-"
-let s:tabstop1 = s:map(s:seq(s:dollar, s:int), { value -> {
-      \   'type': 'placeholder',
-      \   'id': value[1],
-      \   'children': [],
-      \ } })
-let s:tabstop2 = s:map(s:seq(s:dollar, s:open, s:int, s:close), { value -> {
-      \   'type': 'placeholder',
-      \   'id': value[2],
-      \   'children': [],
-      \ } })
-let s:tabstop3 = s:map(s:seq(s:dollar, s:open, s:int, s:transform, s:close), { value -> {
-      \   'type': 'placeholder',
-      \   'id': value[2],
-      \   'children': [],
-      \   'transform': value[3]
-      \ } })
-let s:tabstop = s:or(s:tabstop1, s:tabstop2, s:tabstop3)
-
-"
-" choice
-"
-let s:choice = s:map(s:seq(
-      \   s:dollar,
-      \   s:open,
-      \   s:int,
-      \   s:pipe,
-      \   s:map(
-      \     s:seq(
-      \       s:many(s:map(s:seq(s:text([',']), s:comma), { value -> value[0] })),
-      \       s:text(['|']),
-      \     ),
-      \     { value -> s:flat(value) }
-      \   ),
-      \   s:pipe,
-      \   s:close
-      \ ), { value -> {
-      \   'type': 'placeholder',
-      \   'id': value[2],
-      \   'children': [value[4][0]],
-      \   'items': value[4]
-      \ } })
-
-"
 " variable
 "
 let s:variable1 = s:map(s:seq(s:dollar, s:varname), { value -> {
@@ -230,6 +185,51 @@ let s:placeholder = s:map(s:seq(
       \   'type': 'placeholder',
       \   'id': value[2],
       \   'children': value[4]
+      \ } })
+
+"
+" tabstop
+"
+let s:tabstop1 = s:map(s:seq(s:dollar, s:int), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[1],
+      \   'children': [],
+      \ } })
+let s:tabstop2 = s:map(s:seq(s:dollar, s:open, s:int, s:close), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[2],
+      \   'children': [],
+      \ } })
+let s:tabstop3 = s:map(s:seq(s:dollar, s:open, s:int, s:transform, s:close), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[2],
+      \   'children': [],
+      \   'transform': value[3]
+      \ } })
+let s:tabstop = s:or(s:tabstop1, s:tabstop2, s:tabstop3)
+
+"
+" choice
+"
+let s:choice = s:map(s:seq(
+      \   s:dollar,
+      \   s:open,
+      \   s:int,
+      \   s:pipe,
+      \   s:map(
+      \     s:seq(
+      \       s:many(s:map(s:seq(s:text([',']), s:comma), { value -> value[0] })),
+      \       s:text(['|']),
+      \     ),
+      \     { value -> s:flat(value) }
+      \   ),
+      \   s:pipe,
+      \   s:close
+      \ ), { value -> {
+      \   'type': 'placeholder',
+      \   'id': value[2],
+      \   'children': [value[4][0]],
+      \   'items': value[4]
       \ } })
 
 "
