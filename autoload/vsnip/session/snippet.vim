@@ -1,3 +1,5 @@
+let s:max_tabstop = 1000000
+
 "
 " import.
 "
@@ -39,24 +41,24 @@ endfunction
 " store.
 "
 function! s:Snippet.store(changenr) abort
-  let l:fn = {}
-  let l:fn.changenr = a:changenr
-  function! l:fn.traverse(range, node, next, parent) abort
+  let l:ctx = {}
+  let l:ctx.changenr = a:changenr
+  function! l:ctx.traverse(range, node, next, parent) abort
     if a:node.type !=# 'text'
       return v:false
     endif
     let a:node.history[self.changenr] = a:node.value
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:ctx.traverse, 0)
 endfunction
 
 "
 " restore.
 "
 function! s:Snippet.restore(changenr) abort
-  let l:fn = {}
-  let l:fn.changenr = a:changenr
-  function! l:fn.traverse(range, node, next, parent) abort
+  let l:ctx = {}
+  let l:ctx.changenr = a:changenr
+  function! l:ctx.traverse(range, node, next, parent) abort
     if a:node.type !=# 'text'
       return v:false
     endif
@@ -64,7 +66,7 @@ function! s:Snippet.restore(changenr) abort
       let a:node.value = a:node.history[self.changenr]
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:ctx.traverse, 0)
 endfunction
 
 "
@@ -76,10 +78,10 @@ function! s:Snippet.follow(diff) abort
         \   self.position_to_offset(a:diff.range.end),
         \ ]
 
-  let l:fn = {}
-  let l:fn.diff = a:diff
-  let l:fn.found = v:false
-  function! l:fn.traverse(range, node, next, parent) abort
+  let l:ctx = {}
+  let l:ctx.diff = a:diff
+  let l:ctx.found = v:false
+  function! l:ctx.traverse(range, node, next, parent) abort
     if a:node.type !=# 'text'
       return v:false
     endif
@@ -129,9 +131,9 @@ function! s:Snippet.follow(diff) abort
 
     return v:false
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:ctx.traverse, 0)
 
-  return l:fn.found
+  return l:ctx.found
 endfunction
 
 "
@@ -146,11 +148,11 @@ endfunction
 "
 function! s:Snippet.sync() abort
   " create edits.
-  let l:fn1 = {}
-  let l:fn1.self = self
-  let l:fn1.group = {}
-  let l:fn1.edits = []
-  function! l:fn1.traverse(range, node, next, parent) abort
+  let l:ctx1 = {}
+  let l:ctx1.self = self
+  let l:ctx1.group = {}
+  let l:ctx1.edits = []
+  function! l:ctx1.callback(range, node, next, parent) abort
     if a:node.type !=# 'placeholder'
       return v:false
     endif
@@ -167,18 +169,21 @@ function! s:Snippet.sync() abort
             \ })
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn1.traverse, 0)
+  call self.traverse(self, self.children, l:ctx1.callback, 0)
 
   " sync placeholder.
-  let l:fn2 = {}
-  let l:fn2.self = self
-  let l:fn2.group = {}
-  function! l:fn2.traverse(range, node, next, parent) abort
+  let l:ctx2 = {}
+  let l:ctx2.self = self
+  let l:ctx2.group = {}
+  function! l:ctx2.callback(range, node, next, parent) abort
     if a:node.type ==# 'placeholder'
       if !has_key(self.group, a:node.id)
         let self.group[a:node.id] = a:node
       else
         let a:node.children = deepcopy(self.group[a:node.id].children)
+      endif
+      if a:node.id == 0
+        let a:node.id = s:max_tabstop
       endif
     elseif a:node.type ==# 'variable'
       let l:index = index(a:parent.children, a:node)
@@ -190,9 +195,9 @@ function! s:Snippet.sync() abort
             \ }), l:index)
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn2.traverse, 0)
+  call self.traverse(self, self.children, l:ctx2.callback, 0)
 
-  return l:fn1.edits
+  return l:ctx1.edits
 endfunction
 
 "
@@ -205,24 +210,31 @@ endfunction
 "
 " get_placeholder_with_range.
 "
-function! s:Snippet.get_placeholder_with_range(id) abort
-  let l:fn = {}
-  let l:fn.id = a:id
-  let l:fn.self = self
-  let l:fn.result = { 'range': v:null, 'placeholder': v:null }
-  function! l:fn.traverse(range, node, next, parent) abort
-    if a:node.type ==# 'placeholder' && a:node.id == self.id
-      let self.result.range = {
-            \   'start': self.self.offset_to_position(a:range[0]),
-            \   'end': self.self.offset_to_position(a:range[1]),
+function! s:Snippet.get_next_jump_point(current_tabstop) abort
+  let l:ctx = {}
+  let l:ctx.current_tabstop = a:current_tabstop
+  let l:ctx.self = self
+  function! l:ctx.callback(range, node, next, parent) abort
+    if a:node.type ==# 'placeholder' && self.current_tabstop < a:node.id
+      let self.jump_point = {
+            \   'range': {
+            \     'start': self.self.offset_to_position(a:range[0]),
+            \     'end': self.self.offset_to_position(a:range[1]),
+            \   },
+            \   'placeholder': a:node
             \ }
-      let self.result.placeholder = a:node
       return v:true
     endif
     return v:false
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
-  return l:fn.result
+  call self.traverse(self, self.children, l:ctx.callback, 0)
+
+  " deactivate when jump to final tabstop.
+  if l:ctx.jump_point.placeholder.id == s:max_tabstop
+    call vsnip#deactivate()
+  endif
+
+  return l:ctx.jump_point
 endfunction
 
 "

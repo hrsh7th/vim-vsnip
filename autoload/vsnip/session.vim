@@ -16,6 +16,7 @@ function! s:Session.new(bufnr, position, text) abort
   return extend(deepcopy(s:Session), {
         \   'bufnr': a:bufnr,
         \   'buffer': getbufline(a:bufnr, '^', '$'),
+        \   'tabstop': -1,
         \   'snippet': s:Snippet.new(a:position, a:text),
         \   'changenr': changenr(),
         \   'changenrs': []
@@ -26,6 +27,7 @@ endfunction
 " insert.
 "
 function! s:Session.insert() abort
+  " insert snippet.
   call lamp#view#notice#add({ 'lines': ['`Snippet`: session activated.'] })
   call lamp#view#edit#apply(self.bufnr, [{
         \   'range': {
@@ -35,9 +37,39 @@ function! s:Session.insert() abort
         \   'newText': self.snippet.text()
         \ }])
 
+  " save first state.
   let self.changenr = changenr()
   call add(self.changenrs, self.changenr)
   call self.snippet.store(self.changenr)
+
+  " move to end of snippet after snippet insertion.
+  let l:range = self.snippet.range()
+  call cursor(l:range.end.line - 1, l:range.end.character - 1)
+endfunction
+
+"
+" jump.
+"
+function! s:Session.jump() abort
+  let l:jump_point = self.snippet.get_next_jump_point(self.tabstop)
+
+  let self.tabstop = l:jump_point.placeholder.id
+
+  " move to end position.
+  call cursor(l:jump_point.range.end.line + 1, l:jump_point.range.end.character + 1)
+
+  " if jump_point has range, select range.
+  if l:jump_point.range.start.character != l:jump_point.range.end.character
+    let l:cmd = ''
+    if mode()[0] ==# 'i'
+      let l:cmd .= "\<Esc>"
+    else
+      let l:cmd .= 'h'
+    endif
+    let l:cmd .= printf('v%sh', strlen(l:jump_point.placeholder.text()) - 1)
+    let l:cmd .= "\<C-g>"
+    execute printf('normal! %s', l:cmd)
+  endif
 endfunction
 
 "
@@ -59,28 +91,6 @@ function! s:Session.on_text_changed() abort
   if index(self.changenrs, l:changenr) >= 0 && self.changenr != l:changenr
     call self.snippet.restore(l:changenr)
     let self.changenr = l:changenr
-    return
-  endif
-
-  let l:range = self.snippet.range()
-
-  " diff includes out of range changes (line)
-  if l:diff.range.start.line < l:range.start.line || l:range.end.line < l:diff.range.start.line
-    call vsnip#deactivate()
-    return
-  endif
-
-  " diff includes out of range changes (start char)
-  if l:diff.range.start.line == l:range.start.line
-        \ && l:diff.range.start.character < l:range.start.character
-    call vsnip#deactivate()
-    return
-  endif
-
-  " diff includes out of range changes (start char)
-  if l:range.end.line == l:diff.range.end.line &&
-        \ l:range.end.character < l:diff.range.end.character
-    call vsnip#deactivate()
     return
   endif
 

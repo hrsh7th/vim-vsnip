@@ -29,7 +29,7 @@ endfunction
 function! s:Variable.resolve() abort
   " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
   if self.name ==# 'TM_SELECTED_TEXT'
-    return g:vsnip#selected_text
+    return vsnip#selected_text()
 
   elseif self.name ==# 'TM_CURRENT_LINE'
     return getline('.')

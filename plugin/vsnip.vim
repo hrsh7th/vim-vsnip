@@ -10,13 +10,29 @@ let g:vsnip_namespace = 'snip_'
 let g:vsnip_select_trigger = ' '
 let g:vsnip_select_pattern = '\k\+'
 
+inoremap <expr> <Plug>(vsnip-expand-or-jump) "\<C-o>:call \<SID>expand_or_jump()\<CR>"
+snoremap <expr> <Plug>(vsnip-expand-or-jump) "\<C-o>:call \<SID>expand_or_jump()\<CR>"
+
+"
+" expand_or_jump.
+"
+function! s:expand_or_jump()
+  let l:session = vsnip#get_session()
+  if !empty(l:session)
+    call l:session.jump()
+  else
+    call vsnip#expand()
+  endif
+  return ''
+endfunction
+
 augroup vsnip
   autocmd!
   autocmd TextChanged,TextChangedI,TextChangedP * call s:on_text_changed()
 augroup END
 
 "
-" on_text_changed
+" on_text_changed.
 "
 function! s:on_text_changed() abort
   let l:session = vsnip#get_session()
