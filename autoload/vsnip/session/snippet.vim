@@ -7,6 +7,8 @@ endfunction
 
 let s:Snippet = {}
 
+
+
 "
 " new.
 "
@@ -143,34 +145,42 @@ endfunction
 " Variable should transform to text node.
 "
 function! s:Snippet.sync() abort
-  let l:fn = {}
-  let l:fn.self = self
-  let l:fn.group = {}
-  let l:fn.edits = []
-  function! l:fn.traverse(range, node, next, parent) abort
-    " placeholders.
-    if a:node.type ==# 'placeholder'
-      " placeholder first occurrence.
-      if !has_key(self.group, a:node.id)
-        let self.group[a:node.id] = a:node
-
-      " sync placeholder text.
-      else
-        if self.group[a:node.id].text() !=# a:node.text()
-          call add(self.edits, {
-                \   'range': {
-                \     'start': self.self.offset_to_position(a:range[0]),
-                \     'end': self.self.offset_to_position(a:range[1])
-                \   },
-                \   'newText': self.group[a:node.id].text()
-                \ })
-          let a:node.children = deepcopy(self.group[a:node.id].children)
-        endif
-      endif
+  " create edits.
+  let l:fn1 = {}
+  let l:fn1.self = self
+  let l:fn1.group = {}
+  let l:fn1.edits = []
+  function! l:fn1.traverse(range, node, next, parent) abort
+    if a:node.type !=# 'placeholder'
+      return v:false
     endif
 
-    " variables.
-    if a:node.type ==# 'variable'
+    if !has_key(self.group, a:node.id)
+      let self.group[a:node.id] = a:node
+    else
+      call add(self.edits, {
+            \   'range': {
+            \     'start': self.self.offset_to_position(a:range[0]),
+            \     'end': self.self.offset_to_position(a:range[1])
+            \   },
+            \   'newText': self.group[a:node.id].text()
+            \ })
+    endif
+  endfunction
+  call self.traverse(self, self.children, l:fn1.traverse, 0)
+
+  " sync placeholder.
+  let l:fn2 = {}
+  let l:fn2.self = self
+  let l:fn2.group = {}
+  function! l:fn2.traverse(range, node, next, parent) abort
+    if a:node.type ==# 'placeholder'
+      if !has_key(self.group, a:node.id)
+        let self.group[a:node.id] = a:node
+      else
+        let a:node.children = deepcopy(self.group[a:node.id].children)
+      endif
+    elseif a:node.type ==# 'variable'
       let l:index = index(a:parent.children, a:node)
       call remove(a:parent.children, l:index)
       call insert(a:parent.children, vsnip#session#snippet#node#create_from_ast({
@@ -180,9 +190,9 @@ function! s:Snippet.sync() abort
             \ }), l:index)
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:fn2.traverse, 0)
 
-  return l:fn.edits
+  return l:fn1.edits
 endfunction
 
 "
@@ -296,7 +306,7 @@ function! s:Snippet.position_to_offset(position) abort
   let l:offset = 0
 
   let l:i = 0
-  while l:i <= a:position.line
+  while l:i <= min([a:position.line, len(l:lines) - 1])
     if l:i != a:position.line
       let l:offset += strlen(l:lines[l:i]) + 1
     elseif l:i == a:position.line
@@ -310,3 +320,4 @@ function! s:Snippet.position_to_offset(position) abort
 
   return l:offset
 endfunction
+
