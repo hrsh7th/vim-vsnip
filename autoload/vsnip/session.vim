@@ -45,6 +45,13 @@ function! s:Session.insert() abort
 endfunction
 
 "
+" jumpable.
+"
+function! s:Session.jumpable() abort
+  return !empty(self.snippet.get_next_jump_point(self.tabstop))
+endfunction
+
+"
 " jump.
 "
 function! s:Session.jump() abort

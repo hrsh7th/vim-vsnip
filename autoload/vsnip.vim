@@ -17,7 +17,7 @@ endfunction
 " vsnip#available.
 "
 function! vsnip#available() abort
-  return !empty(s:session) || !empty(s:get_context())
+  return !empty(s:session) && s:session.jumpable() || !empty(s:get_context())
 endfunction
 
 "
