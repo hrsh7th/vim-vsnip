@@ -89,22 +89,27 @@ function! s:get_context() abort
   for l:source in vsnip#source#find(&filetype)
     for l:snippet in l:source
       for l:prefix in l:snippet.prefix
-        let l:length = strlen(l:prefix)
-        if l:before_text[-l:length : -1] ==# l:prefix
-          let l:match = matchlist(l:before_text, printf('\<\(%s\)\>\.\=\<\V%s\m\>$',
-              \   g:vsnip_select_pattern,
+        let l:match = matchlist(l:before_text, printf('\%(\<\(\k\+\)\>\.\)\=\<\(\V%s\m\)\>$',
               \   escape(l:prefix, '\'),
               \ ))
-          if len(l:match) > 0
-            let l:length += 1
-            let l:length += strlen(l:match[1])
-            call vsnip#selected_text(l:match[1])
-          endif
-          return {
-                \   'length': l:length,
-                \   'snippet': l:snippet
-                \ }
+
+        " check match.
+        if len(l:match) == 0 || l:match[3] ==# ''
+          continue
         endif
+
+        " check selected text.
+        let l:length = strlen(l:prefix)
+        if l:match[2] !=# ''
+          let l:length += 1
+          let l:length += strlen(l:match[2])
+          call vsnip#selected_text(l:match[2])
+        endif
+
+        return {
+              \   'length': l:length,
+              \   'snippet': l:snippet
+              \ }
       endfor
     endfor
   endfor

@@ -24,19 +24,6 @@ function! vsnip#source#find(filetype) abort
 endfunction
 
 "
-" vsnip#source#get_prefixes.
-"
-function! vsnip#source#get_prefixes(filetype) abort
-  let l:prefixes = []
-  for l:source in vsnip#source#find(a:filetype)
-    for l:snippet in l:source
-      let l:prefixes += l:snippet.prefix
-    endfor
-  endfor
-  return l:prefixes
-endfunction
-
-"
 " get_source_paths.
 "
 function! s:get_source_paths(filetype)
@@ -84,7 +71,7 @@ function! s:resolve_prefix(prefix) abort
       call add(l:prefixes, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
     endif
     if strlen(g:vsnip_namespace) > 0
-      call add(l:prefixes, g:vsnip_namespace. l:prefix)
+      call add(l:prefixes, g:vsnip_namespace . l:prefix)
     endif
   endfor
 

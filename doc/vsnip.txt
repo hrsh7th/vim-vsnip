@@ -1,0 +1,85 @@
+*vim-vsnip* *vsnip*
+
+V(SCode) Snip(pet) like plugin.
+
+
+==============================================================================
+CONTENTS                                                      *vsnip-contents*
+
+INTRODUCTION                                                     |vsnip-intro|
+INSTALL                                                        |vsnip-install|
+MAPPING                                                        |vsnip-mapping|
+EXAMPLE                                                        |vsnip-example|
+FAQ                                                                |vsnip-faq|
+CHANGELOG                                                    |vsnip-changelog|
+
+
+
+==============================================================================
+INSTALL                                                        *vsnip-install*
+
+You can use your favorite plugin manager.
+The below example uses dein.nvim.
+
+>
+  call dein#add('hrsh7th/vim-vsnip')
+<
+
+
+
+==============================================================================
+VARIABLE                                                      *vsnip-variable*
+
+let g:vsnip_snippet_dir = expand('~/.vsnip')~
+----------
+Specify use snippet directory.
+
+
+let g:vsnip_sync_delay = 0~
+----------
+Specify delay time to sync same tabstop placeholder.
+
+
+let g:vsnip_namespace = 'vsnip_'~
+----------
+Specify all snippet prefix's prefix.
+It useful when you use auto-completion.
+
+
+
+==============================================================================
+MAPPING                                                        *vsnip-mapping*
+
+You can use your favorite key to expand or jump snippet.
+The below example uses '<Tab>' key.
+
+>
+  imap <expr><Tab> vsnip#available() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+  smap <expr><Tab> vsnip#available() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+<
+
+
+
+==============================================================================
+COMMAND                                                        *vsnip-command*
+
+VsnipOpen~
+
+>
+  :VsnipOpen
+  :VsnipOpenEdit
+  :VsnipOpenSplit
+  :VsnipOpenVsplit
+<
+
+Open snippet source file under `g:vsnip_snippet_dir`.
+
+
+==============================================================================
+CHANGELOG                                                     *vsnip-changelog*
+
+2019/12/01~
+- publish v2.
+
+
+

@@ -16,8 +16,9 @@ function! s:Session.new(bufnr, position, text) abort
   return extend(deepcopy(s:Session), {
         \   'bufnr': a:bufnr,
         \   'buffer': getbufline(a:bufnr, '^', '$'),
-        \   'tabstop': -1,
+        \   'timer_id': -1,
         \   'snippet': s:Snippet.new(a:position, self.indent(a:text)),
+        \   'tabstop': -1,
         \   'changenr': changenr(),
         \   'changenrs': []
         \ })
@@ -48,6 +49,9 @@ endfunction
 "
 function! s:Session.jump() abort
   let l:jump_point = self.snippet.get_next_jump_point(self.tabstop)
+  if empty(l:jump_point)
+    return vsnip#deactivate()
+  endif
 
   let self.tabstop = l:jump_point.placeholder.id
 
@@ -57,14 +61,12 @@ function! s:Session.jump() abort
   " if jump_point has range, select range.
   if l:jump_point.range.start.character != l:jump_point.range.end.character
     let l:cmd = ''
-    if mode()[0] ==# 'i'
-      let l:cmd .= "\<Esc>"
-    else
-      let l:cmd .= 'h'
-    endif
+    let l:cmd .= "\<Esc>"
     let l:cmd .= printf('v%sh', strlen(l:jump_point.placeholder.text()) - 1)
     let l:cmd .= "\<C-g>"
-    execute printf('normal! %s', l:cmd)
+    call feedkeys(l:cmd, 'n')
+  else
+    startinsert
   endif
 endfunction
 
@@ -72,14 +74,6 @@ endfunction
 " on_text_changed.
 "
 function! s:Session.on_text_changed() abort
-  " compute diff.
-  let l:buffer = getbufline(self.bufnr, '^', '$')
-  let l:diff = lamp#server#document#diff#compute(self.buffer, l:buffer)
-  let self.buffer = l:buffer
-  if l:diff.rangeLength == 0 && l:diff.text ==# ''
-    return
-  endif
-
   " redo/undo.
   let l:changenr = changenr()
   if index(self.changenrs, l:changenr) >= 0 && self.changenr != l:changenr
@@ -88,17 +82,34 @@ function! s:Session.on_text_changed() abort
     return
   endif
 
-  " snippet text is not changed.
-  if !self.is_dirty(l:buffer)
-    return
-  endif
+  let l:fn = {}
+  function! l:fn.debounce(timer_id)
+    " compute diff.
+    let l:buffer = getbufline(self.bufnr, '^', '$')
+    let l:diff = lamp#server#document#diff#compute(self.buffer, l:buffer)
+    let self.buffer = l:buffer
+    if l:diff.rangeLength == 0 && l:diff.text ==# ''
+      return
+    endif
 
-  " if follow succeeded, sync placeholders and write back to the buffer.
-  if self.snippet.follow(self.tabstop, l:diff)
-    undojoin | call lamp#view#edit#apply(self.bufnr, self.snippet.sync())
-    call self.store()
+    " snippet text is not changed.
+    if !self.is_dirty(l:buffer)
+      return
+    endif
+
+    " if follow succeeded, sync placeholders and write back to the buffer.
+    if self.snippet.follow(self.tabstop, l:diff)
+      undojoin | call lamp#view#edit#apply(self.bufnr, self.snippet.sync())
+      call self.store()
+    else
+      call vsnip#deactivate()
+    endif
+  endfunction
+  if g:vsnip_sync_delay == 0
+    call call(l:fn.debounce, [0], self)
   else
-    call vsnip#deactivate()
+    call timer_stop(self.timer_id)
+    let self.timer_id = timer_start(g:vsnip_sync_delay, function(l:fn.debounce, [], self), { 'repeat': 1 })
   endif
 endfunction
 
