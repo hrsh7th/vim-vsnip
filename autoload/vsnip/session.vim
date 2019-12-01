@@ -57,7 +57,8 @@ endfunction
 function! s:Session.jump() abort
   let l:jump_point = self.snippet.get_next_jump_point(self.tabstop)
   if empty(l:jump_point)
-    return vsnip#deactivate()
+    call vsnip#deactivate()
+    return
   endif
 
   let self.tabstop = l:jump_point.placeholder.id
@@ -68,12 +69,16 @@ function! s:Session.jump() abort
   " if jump_point has range, select range.
   if l:jump_point.range.start.character != l:jump_point.range.end.character
     let l:cmd = ''
-    let l:cmd .= "\<Esc>"
+    if mode()[0] ==# 'i'
+      let l:cmd .= "\<Esc>"
+    else
+      let l:cmd .= 'h'
+    endif
     let l:cmd .= printf('v%sh', strlen(l:jump_point.placeholder.text()) - 1)
     let l:cmd .= "\<C-g>"
     call feedkeys(l:cmd, 'n')
   else
-    startinsert
+    call feedkeys('i', 'n')
   endif
 endfunction
 

@@ -17,7 +17,9 @@ endfunction
 " vsnip#available.
 "
 function! vsnip#available() abort
-  return !empty(s:session) && s:session.jumpable() || !empty(s:get_context())
+  let l:expandable = !empty(s:get_context())
+  let l:jumpable = !empty(s:session) && s:session.jumpable()
+  return l:expandable || l:jumpable
 endfunction
 
 "
@@ -60,6 +62,9 @@ function! vsnip#expand() abort
   endif
 endfunction
 
+"
+" vsnip#jump
+"
 function! vsnip#jump() abort
   if !empty(s:session)
     call s:session.jump()
@@ -77,8 +82,8 @@ endfunction
 " vsnip#deactivate
 "
 function! vsnip#deactivate() abort
-  call lamp#view#notice#add({ 'lines': ['`Snippet`: session deactivated.'] })
   let s:session = {}
+  call timer_start(0, { -> lamp#view#notice#add({ 'lines': ['`Snippet`: session deactivated.'] }) }, { 'repeat': 1 })
 endfunction
 
 "

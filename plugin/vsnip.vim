@@ -31,16 +31,27 @@ endfunction
 "
 " mapping.
 "
-inoremap <expr> <Plug>(vsnip-expand-or-jump) "\<C-o>:call \<SID>expand_or_jump()\<CR>"
-snoremap <expr> <Plug>(vsnip-expand-or-jump) "\<C-o>:call \<SID>expand_or_jump()\<CR>"
+inoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
+snoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
 function! s:expand_or_jump()
-  let l:session = vsnip#get_session()
-  if !empty(l:session)
-    call l:session.jump()
-  else
-    call vsnip#expand()
-  endif
-  return ''
+  let l:virtualedit = &virtualedit
+  let &virtualedit = 'onemore'
+
+  " <Plug>(vsnip-expand-or-jump) uses `<Esc>`, So should correct cursor position.
+  normal! l
+
+  try
+    let l:session = vsnip#get_session()
+    if !empty(l:session)
+      call l:session.jump()
+    else
+      call vsnip#expand()
+    endif
+  catch /.*/
+    echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
+  endtry
+
+  let &virtualedit = l:virtualedit
 endfunction
 
 "

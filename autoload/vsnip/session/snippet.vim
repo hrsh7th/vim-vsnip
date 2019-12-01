@@ -246,11 +246,6 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
     return {}
   endif
 
-  " deactivate when jump to final tabstop.
-  if l:fn.jump_point.placeholder.id == s:max_tabstop
-    call vsnip#deactivate()
-  endif
-
   return l:fn.jump_point
 endfunction
 
