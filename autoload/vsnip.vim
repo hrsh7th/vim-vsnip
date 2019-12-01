@@ -85,40 +85,29 @@ endfunction
 " get_context.
 "
 function! s:get_context() abort
-  let l:length = -1
   let l:before_text = getline('.')[0 : col('.') - 2]
   for l:source in vsnip#source#find(&filetype)
     for [l:label, l:snippet] in items(l:source)
       for l:prefix in l:snippet.prefix
-        let l:match = matchlist(l:before_text, printf('\<\(\V%s\m\)\>\%(\V%s\m\<\(%s\)\>\)\?$',
-              \   l:prefix,
-              \   g:vsnip_select_trigger,
-              \   g:vsnip_select_pattern
+        let l:length = strlen(l:prefix)
+        if l:before_text[-l:length : -1] ==# l:prefix
+          let l:match = matchlist(l:before_text, printf('\<\(%s\)\>\.\=\<\V%s\m\>$',
+              \   g:vsnip_select_pattern,
+              \   escape(l:prefix, '\'),
               \ ))
-        if len(l:match) > 0 && l:match[1] !=# ''
-          let l:length = strlen(l:match[1])
-          if l:match[2] !=# ''
-            let l:length += strlen(g:vsnip_select_trigger)
-            let l:length += strlen(l:match[2])
-            call vsnip#selected_text(l:match[2])
-            break
+          if len(l:match) > 0
+            let l:length += 1
+            let l:length += strlen(l:match[1])
+            call vsnip#selected_text(l:match[1])
           endif
+          return {
+                \   'length': l:length,
+                \   'snippet': l:snippet
+                \ }
         endif
       endfor
-      if l:length != -1
-        break
-      endif
     endfor
-    if l:length != -1
-      break
-    endif
   endfor
 
-  if l:length != -1
-    return {
-          \   'length': l:length,
-          \   'snippet': l:snippet
-          \ }
-  endif
   return {}
 endfunction

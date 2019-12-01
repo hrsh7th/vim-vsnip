@@ -23,3 +23,13 @@ function! vsnip#session#snippet#node#create_from_ast(ast) abort
   throw 'vsnip: invalid node type'
 endfunction
 
+"
+" vsnip#session#snippet#node#create_text
+"
+function! vsnip#session#snippet#node#create_text(text) abort
+  return s:Text.new({
+        \   'type': 'text',
+        \   'raw': a:text,
+        \   'escaped': a:text
+        \ })
+endfunction

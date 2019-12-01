@@ -36,11 +36,7 @@ function! s:Session.insert() abort
         \   },
         \   'newText': self.snippet.text()
         \ }])
-
-  " save first state.
-  let self.changenr = changenr()
-  call add(self.changenrs, self.changenr)
-  call self.snippet.store(self.changenr)
+  call self.store()
 
   " move to end of snippet after snippet insertion.
   let l:range = self.snippet.range()
@@ -76,7 +72,6 @@ endfunction
 " on_text_changed.
 "
 function! s:Session.on_text_changed() abort
-
   " compute diff.
   let l:buffer = getbufline(self.bufnr, '^', '$')
   let l:diff = lamp#server#document#diff#compute(self.buffer, l:buffer)
@@ -85,9 +80,8 @@ function! s:Session.on_text_changed() abort
     return
   endif
 
-  let l:changenr = changenr()
-
   " redo/undo.
+  let l:changenr = changenr()
   if index(self.changenrs, l:changenr) >= 0 && self.changenr != l:changenr
     call self.snippet.restore(l:changenr)
     let self.changenr = l:changenr
@@ -100,15 +94,22 @@ function! s:Session.on_text_changed() abort
   endif
 
   " if follow succeeded, sync placeholders and write back to the buffer.
-  if self.snippet.follow(l:diff)
+  if self.snippet.follow(self.tabstop, l:diff)
     undojoin | call lamp#view#edit#apply(self.bufnr, self.snippet.sync())
-    let self.buffer = getbufline(self.bufnr, '^', '$')
-    let self.changenr = changenr()
-    call add(self.changenrs, self.changenr)
-    call self.snippet.store(self.changenr)
+    call self.store()
   else
     call vsnip#deactivate()
   endif
+endfunction
+
+"
+" save.
+"
+function! s:Session.store() abort
+  let self.buffer = getbufline(self.bufnr, '^', '$')
+  let self.changenr = changenr()
+  call add(self.changenrs, self.changenr)
+  call self.snippet.store(self.changenr)
 endfunction
 
 "
@@ -117,7 +118,6 @@ endfunction
 function! s:Session.is_dirty(buffer)
   return self.snippet.text() !=# self.text_from_buffer(a:buffer)
 endfunction
-
 
 "
 " text_from_buffer.
