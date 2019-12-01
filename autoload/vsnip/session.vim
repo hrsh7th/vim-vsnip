@@ -17,7 +17,7 @@ function! s:Session.new(bufnr, position, text) abort
         \   'bufnr': a:bufnr,
         \   'buffer': getbufline(a:bufnr, '^', '$'),
         \   'tabstop': -1,
-        \   'snippet': s:Snippet.new(a:position, a:text),
+        \   'snippet': s:Snippet.new(a:position, self.indent(a:text)),
         \   'changenr': changenr(),
         \   'changenrs': []
         \ })
@@ -150,6 +150,19 @@ function! s:Session.text_from_buffer(buffer)
     endif
   endfor
 
+  return l:text
+endfunction
+
+"
+" indent.
+"
+function! s:Session.indent(text) abort
+  let l:indent = !&expandtab ? "\t" : repeat(' ', &shiftwidth ? &shiftwidth : &tabstop)
+  let l:level = matchstr(getline('.'), '^\s*')
+  let l:text = a:text
+  let l:text = substitute(l:text, "\t", l:indent, 'g')
+  let l:text = substitute(l:text, "\n\\zs", l:level, 'g')
+  let l:text = substitute(l:text, "\n\\s*\\ze\n", "\n", 'g')
   return l:text
 endfunction
 
