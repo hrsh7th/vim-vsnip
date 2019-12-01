@@ -87,7 +87,7 @@ endfunction
 function! s:get_context() abort
   let l:before_text = getline('.')[0 : col('.') - 2]
   for l:source in vsnip#source#find(&filetype)
-    for [l:label, l:snippet] in items(l:source)
+    for l:snippet in l:source
       for l:prefix in l:snippet.prefix
         let l:length = strlen(l:prefix)
         if l:before_text[-l:length : -1] ==# l:prefix
@@ -111,3 +111,4 @@ function! s:get_context() abort
 
   return {}
 endfunction
+

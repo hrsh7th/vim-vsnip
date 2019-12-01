@@ -29,7 +29,7 @@ endfunction
 function! vsnip#source#get_prefixes(filetype) abort
   let l:prefixes = []
   for l:source in vsnip#source#find(a:filetype)
-    for [l:label, l:snippet] in items(l:source)
+    for l:snippet in l:source
       let l:prefixes += l:snippet.prefix
     endfor
   endfor
@@ -42,7 +42,7 @@ endfunction
 function! s:get_source_paths(filetype)
   let l:paths = []
   for l:dir in [g:vsnip_snippet_dir] + g:vsnip_snippet_dirs
-    for l:name in ['global'] + split(a:filetype, '\.')
+    for l:name in split(a:filetype, '\.') + ['global']
       let l:path = resolve(printf('%s/%s.json', l:dir, l:name))
       if has_key(s:sources, l:path) || filereadable(l:path)
         call add(l:paths, l:path)
@@ -56,16 +56,17 @@ endfunction
 " source.
 "
 function! s:source(path) abort
-  let l:source = {}
+  let l:source = []
   try
     let l:file = readfile(a:path)
     let l:file = type(l:file) == type([]) ? l:file : [l:file]
     for [l:label, l:snippet] in items(json_decode(l:file))
-      let l:source[l:label] = {
+      call add(l:source, {
+            \   'label': l:label,
             \   'prefix': s:resolve_prefix(l:snippet.prefix),
             \   'body': type(l:snippet.body) == type([]) ? l:snippet.body : [l:snippet.body],
             \   'description': get(l:snippet, 'description', '')
-            \ }
+            \ })
     endfor
   catch /.*/
   endtry
