@@ -49,7 +49,11 @@ endfunction
 " jumpable.
 "
 function! s:Session.jumpable() abort
-  return !empty(self.snippet.get_next_jump_point(self.tabstop))
+  let l:jumpable = !empty(self.snippet.get_next_jump_point(self.tabstop))
+  if !l:jumpable
+    call vsnip#deactivate()
+  endif
+  return l:jumpable
 endfunction
 
 "
@@ -79,7 +83,7 @@ function! s:Session.jump() abort
     let l:cmd .= "\<C-g>"
     call feedkeys(l:cmd, 'n')
   else
-    call feedkeys('i', 'n')
+    startinsert
   endif
 endfunction
 
