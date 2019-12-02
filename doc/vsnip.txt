@@ -21,9 +21,7 @@ INSTALL                                                        *vsnip-install*
 You can use your favorite plugin manager.
 The below example uses dein.nvim.
 
->
-  call dein#add('hrsh7th/vim-vsnip')
-<
+call dein#add('hrsh7th/vim-vsnip')~
 
 
 
@@ -31,21 +29,22 @@ The below example uses dein.nvim.
 VARIABLE                                                      *vsnip-variable*
 
 let g:vsnip_extra_mapping = v:true~
-----------
-Toggle extra mappings.
+Enable or disable extra mappings.
+
 
 let g:vsnip_snippet_dir = expand('~/.vsnip')~
-----------
-Specify use snippet directory.
+Specify user snippet directory.
+
+
+let g:vsnip_snippet_dirs = []~
+Specify plugin snippet directory.
 
 
 let g:vsnip_sync_delay = 0~
-----------
 Specify delay time to sync same tabstop placeholder.
 
 
 let g:vsnip_namespace = 'vsnip_'~
-----------
 Specify all snippet prefix's prefix.
 It useful when you use auto-completion.
 
@@ -84,6 +83,4 @@ CHANGELOG                                                     *vsnip-changelog*
 
 2019/12/01~
 - publish v2.
-
-
 

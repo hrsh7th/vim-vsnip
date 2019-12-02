@@ -83,7 +83,6 @@ endfunction
 "
 function! vsnip#deactivate() abort
   let s:session = {}
-  call timer_start(0, { -> lamp#view#notice#add({ 'lines': ['`Snippet`: session deactivated.'] }) }, { 'repeat': 1 })
 endfunction
 
 "
