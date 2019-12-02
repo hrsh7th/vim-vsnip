@@ -6,11 +6,11 @@ V(SCode) Snip(pet) like plugin.
 ==============================================================================
 CONTENTS                                                      *vsnip-contents*
 
-INTRODUCTION                                                     |vsnip-intro|
 INSTALL                                                        |vsnip-install|
+VARIABLE                                                      |vsnip-variable|
 MAPPING                                                        |vsnip-mapping|
-EXAMPLE                                                        |vsnip-example|
-FAQ                                                                |vsnip-faq|
+COMMAND                                                        |vsnip-command|
+LIMITATION                                                  |vsnip-limitation|
 CHANGELOG                                                    |vsnip-changelog|
 
 
@@ -76,6 +76,34 @@ VsnipOpen~
 <
 
 Open snippet source file under `g:vsnip_snippet_dir`.
+
+
+
+==============================================================================
+LIMITATION                                                  *vsnip-limitation*
+
+Currently vsnip has below limitations.
+
+1. placeholder transform feature is not supported.~
+I plan to support it later.
+
+
+2. if text diff has multiple candidates, always use last one.~
+
+below snippet is not work for expected.
+>
+  class $1${2: extends ${3:SuperClass}} {
+    $0
+  }
+<
+
+below one is work as expected.
+>
+  class $1 ${2:extends ${3:SuperClass} }{
+    $0
+  }
+<
+
 
 
 ==============================================================================
