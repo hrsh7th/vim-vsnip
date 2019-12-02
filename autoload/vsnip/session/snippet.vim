@@ -70,6 +70,8 @@ endfunction
 "
 " follow.
 "
+" TODO: Correct position of white-splace changes.
+"
 function! s:Snippet.follow(current_tabstop, diff) abort
   let a:diff.range = [
         \   self.position_to_offset(a:diff.range.start),
@@ -190,10 +192,12 @@ function! s:Snippet.sync() abort
         let a:node.children = [vsnip#session#snippet#node#create_text('')]
       endif
 
-      " detect first occurrence of same tabstop placeholdes.
+      " sync same tabstop placeholders.
       if !has_key(self.group, a:node.id)
+        " first occurrence.
         let self.group[a:node.id] = a:node
       else
+        " sync.
         let a:node.children = deepcopy(self.group[a:node.id].children)
       endif
 

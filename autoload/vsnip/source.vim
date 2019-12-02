@@ -47,7 +47,7 @@ function! s:source(path) abort
   try
     let l:file = readfile(a:path)
     let l:file = type(l:file) == type([]) ? l:file : [l:file]
-    for [l:label, l:snippet] in items(json_decode(l:file))
+    for [l:label, l:snippet] in items(json_decode(join(l:file, "\n")))
       call add(l:source, {
             \   'label': l:label,
             \   'prefix': s:resolve_prefix(l:snippet.prefix),

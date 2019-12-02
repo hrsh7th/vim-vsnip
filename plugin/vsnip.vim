@@ -3,6 +3,7 @@ if exists('g:loaded_vsnip')
 endif
 let g:loaded_vsnip = 1
 
+let g:vsnip_extra_mapping = get(g:, 'vsnip_extra_mapping', v:true)
 let g:vsnip_snippet_dir = expand('~/.vsnip')
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])
 let g:vsnip_sync_delay = 0
@@ -31,6 +32,10 @@ endfunction
 "
 " mapping.
 "
+if g:vsnip_extra_mapping
+  snoremap <BS> <BS>i
+endif
+
 inoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
 snoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
 function! s:expand_or_jump()

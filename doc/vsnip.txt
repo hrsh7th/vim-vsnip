@@ -30,6 +30,10 @@ The below example uses dein.nvim.
 ==============================================================================
 VARIABLE                                                      *vsnip-variable*
 
+let g:vsnip_extra_mapping = v:true~
+----------
+Toggle extra mappings.
+
 let g:vsnip_snippet_dir = expand('~/.vsnip')~
 ----------
 Specify use snippet directory.

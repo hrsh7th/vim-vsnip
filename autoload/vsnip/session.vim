@@ -28,8 +28,9 @@ endfunction
 " insert.
 "
 function! s:Session.insert() abort
-  " insert snippet.
   call lamp#view#notice#add({ 'lines': ['`Snippet`: session activated.'] })
+
+  " insert snippet.
   call lamp#view#edit#apply(self.bufnr, [{
         \   'range': {
         \     'start': self.snippet.position,
