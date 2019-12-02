@@ -36,7 +36,7 @@ function! s:Session.insert() abort
         \   },
         \   'newText': self.snippet.text()
         \ }])
-  call self.store()
+  call self.store(changenr())
 
   " move to end of snippet after snippet insertion.
   let l:range = self.snippet.range()
@@ -89,12 +89,19 @@ endfunction
 " on_text_changed.
 "
 function! s:Session.on_text_changed() abort
-  " redo/undo.
   let l:changenr = changenr()
-  if has_key(self.changenrs, l:changenr) && self.changenr != l:changenr
-    let self.snippet = self.changenrs[l:changenr]
+
+  " save state.
+  if self.changenr != l:changenr
+    call self.store(self.changenr)
     let self.changenr = l:changenr
-    return
+    if has_key(self.changenrs, l:changenr)
+      let self.tabstop = self.changenrs[l:changenr].tabstop
+      let self.snippet = self.changenrs[l:changenr].snippet
+      let self.changenr = l:changenr
+      let self.buffer = getbufline(self.bufnr, '^', '$')
+      return
+    endif
   endif
 
   let l:fn = {}
@@ -130,7 +137,7 @@ function! s:Session.on_text_changed() abort
     " if follow succeeded, sync placeholders and write back to the buffer.
     if self.snippet.follow(self.tabstop, l:diff)
       undojoin | call vsnip#edits#text_edit#apply(self.bufnr, self.snippet.sync())
-      call self.store()
+      let self.buffer = getbufline(self.bufnr, '^', '$')
     else
       call vsnip#deactivate()
     endif
@@ -148,10 +155,11 @@ endfunction
 "
 " save.
 "
-function! s:Session.store() abort
-  let self.buffer = getbufline(self.bufnr, '^', '$')
-  let self.changenr = changenr()
-  let self.changenrs[self.changenr] = deepcopy(self.snippet)
+function! s:Session.store(changenr) abort
+  let self.changenrs[a:changenr] = {
+        \   'tabstop': self.tabstop,
+        \   'snippet': deepcopy(self.snippet)
+        \ }
 endfunction
 
 "

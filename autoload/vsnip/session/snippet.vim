@@ -88,7 +88,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
 
   let l:target = v:null
   for l:candidate in l:fn.candidates
-    if l:candidate.range[0] ==# a:diff.range[0] && a:diff.range[1] ==# l:candidate.range[1]
+    if l:candidate.node.type ==# 'placelhoder' && l:candidate.range[0] ==# a:diff.range[0] && a:diff.range[1] ==# l:candidate.range[1]
       let l:target = l:candidate
       break
     else
@@ -313,3 +313,10 @@ function! s:Snippet.position_to_offset(position) abort
   return l:offset
 endfunction
 
+function! s:Snippet.debug() abort
+  let l:fn = {}
+  function! l:fn.traverse(range, node, parent) abort
+    echomsg string(a:node)
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0)
+endfunction
