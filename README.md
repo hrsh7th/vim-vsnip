@@ -12,3 +12,8 @@ This aims to plugin like Visual Studio Code's Snippet feature.
 
 See `./doc/vsnip.txt`
 
+# Limitation
+
+- Not supported `transform` freature.
+    - I plan to support it later.
+

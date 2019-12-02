@@ -11,6 +11,7 @@ function! s:Placeholder.new(ast) abort
   return extend(deepcopy(s:Placeholder), {
         \   'type': 'placeholder',
         \   'id': a:ast.id,
+        \   'follower': v:false,
         \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', []))
         \ })
 endfunction

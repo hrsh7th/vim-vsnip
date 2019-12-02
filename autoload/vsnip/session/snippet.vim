@@ -101,6 +101,11 @@ function! s:Snippet.follow(current_tabstop, diff) abort
 
   if l:target.node.type ==# 'placeholder'
     let l:target.node.children = [vsnip#session#snippet#node#create_text(a:diff.text)]
+    if l:target.node.follower
+      let l:index = index(l:target.parent.children, l:target.node)
+      call remove(l:target.parent.children, l:index)
+      call insert(l:target.parent.children, vsnip#session#snippet#node#create_text(l:target.node.text()), l:index)
+    endif
   else
     let l:start = a:diff.range[0] - l:target.range[0] - 1
     let l:end = a:diff.range[1] - l:target.range[0]
@@ -109,6 +114,13 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     let l:value .= a:diff.text
     let l:value .= l:target.node.value[l:end : -1]
     let l:target.node.value = l:value
+
+    if get(l:target.parent, 'follower', v:false)
+      let l:parent = self.get_parent(l:target.parent)
+      let l:index = index(l:parent.children, l:target.parent)
+      call remove(l:parent.children, l:index)
+      call insert(l:parent.children, vsnip#session#snippet#node#create_text(l:target.parent.text()), l:index)
+    endif
   endif
 
   return v:true
@@ -166,6 +178,7 @@ function! s:Snippet.sync() abort
         let self.group[a:node.id] = a:node
       else
         " sync.
+        let a:node.follower = v:true
         let a:node.children = deepcopy(self.group[a:node.id].children)
       endif
 
@@ -219,6 +232,23 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
   endif
 
   return l:fn.jump_point
+endfunction
+
+"
+" get_parent.
+"
+function! s:Snippet.get_parent(node) abort
+  let l:fn = {}
+  let l:fn.node = a:node
+  let l:fn.parent = v:null
+  function! l:fn.traverse(range, node, parent) abort
+    if self.node == a:node
+      let self.parent = a:parent
+      return v:true
+    endif
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0)
+  return l:fn.parent
 endfunction
 
 "
