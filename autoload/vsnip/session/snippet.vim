@@ -36,38 +36,6 @@ function! s:Snippet.range() abort
 endfunction
 
 "
-" store.
-"
-function! s:Snippet.store(changenr) abort
-  let l:fn = {}
-  let l:fn.changenr = a:changenr
-  function! l:fn.traverse(range, node, parent) abort
-    if a:node.type !=# 'text'
-      return v:false
-    endif
-    let a:node.history[self.changenr] = a:node.value
-  endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
-endfunction
-
-"
-" restore.
-"
-function! s:Snippet.restore(changenr) abort
-  let l:fn = {}
-  let l:fn.changenr = a:changenr
-  function! l:fn.traverse(range, node, parent) abort
-    if a:node.type !=# 'text'
-      return v:false
-    endif
-    if has_key(a:node.history, self.changenr)
-      let a:node.value = a:node.history[self.changenr]
-    endif
-  endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
-endfunction
-
-"
 " follow.
 "
 " TODO: Correct position of white-splace changes.

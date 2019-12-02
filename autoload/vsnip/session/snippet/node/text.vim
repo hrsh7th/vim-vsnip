@@ -11,7 +11,6 @@ function! s:Text.new(ast) abort
   return extend(deepcopy(s:Text), {
         \   'type': 'text',
         \   'value': a:ast.escaped,
-        \   'history': {},
         \ })
 endfunction
 

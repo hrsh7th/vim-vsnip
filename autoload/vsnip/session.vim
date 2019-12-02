@@ -20,7 +20,7 @@ function! s:Session.new(bufnr, position, text) abort
         \   'snippet': s:Snippet.new(a:position, self.indent(a:text)),
         \   'tabstop': -1,
         \   'changenr': changenr(),
-        \   'changenrs': []
+        \   'changenrs': {},
         \ })
 endfunction
 
@@ -93,8 +93,8 @@ endfunction
 function! s:Session.on_text_changed() abort
   " redo/undo.
   let l:changenr = changenr()
-  if index(self.changenrs, l:changenr) >= 0 && self.changenr != l:changenr
-    call self.snippet.restore(l:changenr)
+  if has_key(self.changenrs, l:changenr) && self.changenr != l:changenr
+    let self.snippet = self.changenrs[l:changenr]
     let self.changenr = l:changenr
     return
   endif
@@ -106,6 +106,21 @@ function! s:Session.on_text_changed() abort
     let l:diff = lamp#server#document#diff#compute(self.buffer, l:buffer)
     let self.buffer = l:buffer
     if l:diff.rangeLength == 0 && l:diff.text ==# ''
+      return
+    endif
+
+    " text edit is out of range.
+    let l:range = self.snippet.range()
+    if l:diff.range.end.line < l:range.start.line || l:range.end.line < l:diff.range.start.line
+      call vsnip#deactivate()
+      return
+    endif
+    if l:diff.range.end.line == l:range.start.line && l:diff.range.end.character < l:range.start.character
+      call vsnip#deactivate()
+      return
+    endif
+    if l:diff.range.start.line == l:range.end.line && l:range.end.character < l:diff.range.end.character
+      call vsnip#deactivate()
       return
     endif
 
@@ -122,6 +137,8 @@ function! s:Session.on_text_changed() abort
       call vsnip#deactivate()
     endif
   endfunction
+
+  " if delay is not zero, should debounce.
   if g:vsnip_sync_delay == 0
     call call(l:fn.debounce, [0], self)
   else
@@ -136,8 +153,7 @@ endfunction
 function! s:Session.store() abort
   let self.buffer = getbufline(self.bufnr, '^', '$')
   let self.changenr = changenr()
-  call add(self.changenrs, self.changenr)
-  call self.snippet.store(self.changenr)
+  let self.changenrs[self.changenr] = deepcopy(self.snippet)
 endfunction
 
 "
