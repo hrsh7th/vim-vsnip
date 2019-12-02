@@ -3,90 +3,85 @@ if exists('g:loaded_vsnip')
 endif
 let g:loaded_vsnip = 1
 
+let g:vsnip_extra_mapping = get(g:, 'vsnip_extra_mapping', v:true)
 let g:vsnip_snippet_dir = expand('~/.vsnip')
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])
-let g:vsnip_sync_delay = 100
-let g:vsnip_namespace = 'snip_'
-let g:vsnip_select_trigger = ' '
-let g:vsnip_select_pattern = '\k\+'
+let g:vsnip_sync_delay = 0
+let g:vsnip_namespace = 'vsnip_'
 
-let s:timer_ids = {
-      \   'on_insert_leave': -1,
-      \   'on_win_leave': -1
-      \ }
+"
+" command.
+"
+command! VsnipOpen call s:open_command('vsplit')
+command! VsnipOpenEdit call s:open_command('edit')
+command! VsnipOpenVsplit call s:open_command('vsplit')
+command! VsnipOpenSplit call s:open_command('split')
+function! s:open_command(cmd)
+  let l:candidates = split(&filetype, '\.') + ['global']
+  let l:idx = inputlist(['Select type: '] + map(copy(l:candidates), { k, v -> printf('%s: %s', k + 1, v) }))
+  if l:idx == 0
+    return
+  endif
 
-inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
-snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
+  execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.json',
+        \   g:vsnip_snippet_dir,
+        \   l:candidates[l:idx - 1]
+        \ )))
+endfunction
 
-command! VsnipOpen
-      \ call vsnip#command#open#call(&filetype)
-command! -nargs=? -complete=customlist,vsnip#command#edit#complete VsnipEdit
-      \ call vsnip#command#edit#call(&filetype, '<args>')
+"
+" mapping.
+"
+if g:vsnip_extra_mapping
+  snoremap <BS> <BS>i
+endif
 
+inoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
+snoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
+function! s:expand_or_jump()
+  let l:virtualedit = &virtualedit
+  let &virtualedit = 'onemore'
+
+  " <Plug>(vsnip-expand-or-jump) uses `<Esc>`, So should correct cursor position.
+  normal! l
+
+  try
+    let l:session = vsnip#get_session()
+    if !empty(l:session)
+      call l:session.jump()
+    else
+      call vsnip#expand()
+    endif
+  catch /.*/
+    echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
+  endtry
+
+  let &virtualedit = l:virtualedit
+endfunction
+
+"
+" augroup.
+"
 augroup vsnip
   autocmd!
-  autocmd! vsnip TextChanged * call s:on_text_changed()
-  autocmd! vsnip TextChangedI * call s:on_text_changed_i()
-  autocmd! vsnip TextChangedP * call s:on_text_changed_p()
-  autocmd! vsnip InsertEnter * call s:on_insert_enter()
-  autocmd! vsnip InsertLeave * call s:on_insert_leave()
-  autocmd! vsnip WinLeave * call s:on_win_leave()
-  autocmd! vsnip BufWritePre * call s:on_buf_write_pre()
+  autocmd TextChanged,TextChangedI,TextChangedP * call s:on_text_changed()
+  autocmd BufWritePost * call s:on_buf_write_post()
 augroup END
 
+"
+" on_text_changed.
+"
 function! s:on_text_changed() abort
   let l:session = vsnip#get_session()
-  if vsnip#utils#get(l:session, ['state', 'running'], v:false)
+  if !empty(l:session)
     call l:session.on_text_changed()
   endif
 endfunction
 
-function! s:on_text_changed_i() abort
-  let l:session = vsnip#get_session()
-  if vsnip#utils#get(l:session, ['state', 'running'], v:false)
-    call l:session.on_text_changed()
-  endif
-endfunction
-
-function! s:on_text_changed_p() abort
-  let l:session = vsnip#get_session()
-  if vsnip#utils#get(l:session, ['state', 'running'], v:false)
-    call l:session.on_text_changed()
-  endif
-endfunction
-
-function! s:on_insert_enter() abort
-  let l:session = vsnip#get_session()
-  if vsnip#utils#get(l:session, ['state', 'running'], v:false)
-    call l:session.on_insert_enter()
-  endif
-endfunction
-
-function! s:on_insert_leave() abort
-  let l:fn = {}
-  function! l:fn.tick() abort
-    if mode()[0] ==# 'n'
-      call vsnip#deactivate()
-    endif
-  endfunction
-  call timer_stop(s:timer_ids['on_insert_leave'])
-  call timer_start(500, { -> l:fn.tick() }, { 'repeat': 1 })
-endfunction
-
-function! s:on_win_leave() abort
-  let l:session = vsnip#get_session()
-  if vsnip#utils#get(l:session, ['state', 'running'], v:false)
-    function! s:on_tick(session, id)
-      if a:session['bufnr'] != bufnr('%')
-        call vsnip#deactivate()
-      endif
-    endfunction
-    call timer_stop(s:timer_ids['on_win_leave'])
-    let s:timer_ids['on_win_leave'] = timer_start(500, function('s:on_tick', [l:session]), { 'repeat': 1 })
-  endif
-endfunction
-
-function! s:on_buf_write_pre() abort
-  call vsnip#snippet#invalidate(fnamemodify(bufname('%'), ':p'))
+"
+" on_buf_write_post.
+"
+function! s:on_buf_write_post() abort
+  call vsnip#source#refresh(fnamemodify(bufname('%'), ':p'))
 endfunction
 

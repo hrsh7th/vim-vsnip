@@ -1,72 +1,64 @@
-*vsnip* *vim-vsnip*
+*vim-vsnip* *vsnip*
 
-(v)scode (snip)pet
-
-The plugin aims to VSCode's snippet feature.
-
+V(SCode) Snip(pet) like plugin.
 
 
 ==============================================================================
 CONTENTS                                                      *vsnip-contents*
 
-INTRODUCTION                                                     |vsnip-intro|
 INSTALL                                                        |vsnip-install|
-SETTING                                                        |vsnip-setting|
+VARIABLE                                                      |vsnip-variable|
 MAPPING                                                        |vsnip-mapping|
 COMMAND                                                        |vsnip-command|
-VARIABLE                                                      |vsnip-variable|
-FAQ                                                                |vsnip-faq|
-TODO                                                              |vsnip-todo|
+LIMITATION                                                  |vsnip-limitation|
 CHANGELOG                                                    |vsnip-changelog|
-
-
-
-==============================================================================
-INTRODUCTION                                                     *vsnip-intro*
-
-`vsnip` is snippet plugin that aims to Visual Studio Code's snippet feature.
-
-Currently implementations are not supported features below.
-
-- variable/placeholder transform.
-- nested placeholder.
-- multiline changes.
 
 
 
 ==============================================================================
 INSTALL                                                        *vsnip-install*
 
->
-  call dein#add('hrsh7th/vim-vsnip')
+You can use your favorite plugin manager.
+The below example uses dein.nvim.
 
-  or
-
-  Plug 'hrsh7th/vim-vsnip'
-<
-
-Can use any plugin managers to install.
+call dein#add('hrsh7th/vim-vsnip')~
 
 
 
 ==============================================================================
-SETTING                                                        *vsnip-setting*
->
-  let g:vsnip_snippet_dir = expand('~/.vsnip')
-  imap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
-  smap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
-<
+VARIABLE                                                      *vsnip-variable*
+
+let g:vsnip_extra_mapping = v:true~
+Enable or disable extra mappings.
+
+
+let g:vsnip_snippet_dir = expand('~/.vsnip')~
+Specify user snippet directory.
+
+
+let g:vsnip_snippet_dirs = []~
+Specify plugin snippet directory.
+
+
+let g:vsnip_sync_delay = 0~
+Specify delay time to sync same tabstop placeholder.
+
+
+let g:vsnip_namespace = 'vsnip_'~
+Specify all snippet prefix's prefix.
+It useful when you use auto-completion.
 
 
 
 ==============================================================================
 MAPPING                                                        *vsnip-mapping*
 
-`vsnip` provides these `<Plug>` mapping.
+You can use your favorite key to expand or jump snippet.
+The below example uses '<Tab>' key.
 
 >
-  inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
-  snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call vsnip#expand_or_jump()<CR>
+  imap <expr><Tab> vsnip#available() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+  smap <expr><Tab> vsnip#available() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
 <
 
 
@@ -74,153 +66,49 @@ MAPPING                                                        *vsnip-mapping*
 ==============================================================================
 COMMAND                                                        *vsnip-command*
 
+VsnipOpen~
+
 >
   :VsnipOpen
+  :VsnipOpenEdit
+  :VsnipOpenSplit
+  :VsnipOpenVsplit
 <
-  Open snippet file for current filetype.
 
-
->
-  :VsnipEdit %snippet_prefix%
-<
-  Open snippet edit buffer.
+Open snippet source file under `g:vsnip_snippet_dir`.
 
 
 
 ==============================================================================
-VARIABLE                                                         *vsnip-usage*
+LIMITATION                                                  *vsnip-limitation*
 
+Currently vsnip has below limitations.
+
+1. placeholder transform feature is not supported.~
+I plan to support it later.
+
+
+2. if text diff has multiple candidates, always use last one.~
+
+below snippet is not work for expected.
 >
-  g:vsnip_snippet_dir (string)
+  class $1${2: extends ${3:SuperClass}} {
+    $0
+  }
 <
-    Default: '~/.vsnip'
 
-    Specify user snippet dir.
-
-
+below one is work as expected.
 >
-  g:vsnip_snippet_dirs (string[])
+  class $1 ${2:extends ${3:SuperClass} }{
+    $0
+  }
 <
-    Default: ['/path/to/default-snippet-dir']
-
-    Specify snippets dir.
-    Probably you don't need this value.
-    This is reserved variable for other snippet plugin.
-
-
->
-  g:vsnip_sync_delay (number)
-<
-    Default: 100
-
-    Milliseconds to delay of sync same placeholder.
-
-
->
-  g:vsnip_namespace (string)
-<
-    Default: 'snip_'
-
-    This value will be prepend to all prefixes.
-    Will be useful for auto-completion.
-
-
->
-  g:vsnip_select_trigger (regex-string)
-<
-    Default: ' '
-
-    If you use $TM_SELECTED_TEXT in snippet, You can specify replacement text like `replacement prefix` .
-
-
->
-  g:vsnip_select_pattern (regex-string)
-<
-    Default: '\k\+'
-
-    To use capture $TM_SELECTED_TEXT.
 
 
 
 ==============================================================================
-FAQ                                                                *vsnip-faq*
+CHANGELOG                                                     *vsnip-changelog*
 
-------------------------------------------------------------------------------
-How to define snippets?~
-
-  `vsnip` searches `&filetype.json` and 'global.json' in `g:vsnip_snippet_dir` and `g:vsnip_snippet_dirs`.
-  When `&filetype` is `typescript.tsx`, `vsnip` try to load `typescript.tsx.json`, `typescript.json` and `tsx.json`.
-
-  If found multiple snippet, those are merged.
-
-
-  Snippet format is same of VSCode (or Language Server Protocol).
-  You can find documentation in [spec](https://code.visualstudio.com/docs/editor/userdefinedsnippets.)
-
-  You can use `:VsnipOpen` to open (or create) user snippet file.
-  You can use `:VsnipEdit` to create new snippet via visual selected lines.
-
-
-------------------------------------------------------------------------------
-How to use this with lexima?~
-
-  You should define key-mapping like belwo.
->
-  imap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : lexima#expand('<LT>Tab>', 'i')
-  smap <expr><Tab> vsnip#expandable_or_jumpable() ? '<Plug>(vsnip-expand-or-jump)' : lexima#expand('<LT>Tab>', 'i')
-<
-
-------------------------------------------------------------------------------
-How to enable snippets auto-completion?~
-
-  If you can use `deoplete.nvim`, use `deoplete-vsnip`.
-
-
-
-==============================================================================
-TODO                                                              *vsnip-todo*
-
-- multibytes support.
-- regex for variable/placeholder.
-- performance up.
-
-
-
-==============================================================================
-CHANGELOG                                                    *vsnip-changelog*
-
-2019/11/16~
-- Remove prefix auto selection.
-
-2019/10/01~
-- Allow select pattern at postfix/prefix both around prefix.
-
-2019/09/20~
-- Fix for signature help.
-
-2019/09/19~
-- `_.json` to load default snippet.
-
-2019/09/05~
-- Improve snippet creation
-
-2019/09/04~
-- Change `select` behavior.
-
-2019/09/03~
-- Add `g:vsnip_snippet_dir` for manage user snippets.
-- Change behavior `:VsnipEdit`.
-  - `:VsnipEdit` will open snippet file in under `g:vsnip_snippet_dir`.
-- Add `:VsnipNew` command (unstable/experimental).
-- Add `g:vsnip_select_trigger`
-- Add `g:vsnip_select_pattern`
-
-2019/09/02~
-- Remove `VsnipSelect` experimental.
-- Add `g:vsnip_namespace`
-- Add `g:vsnip_sync_delay`
-- Update README.md
-- Initial release
-
-
+2019/12/01~
+- publish v2.
 

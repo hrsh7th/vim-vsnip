@@ -12,9 +12,8 @@ This aims to plugin like Visual Studio Code's Snippet feature.
 
 See `./doc/vsnip.txt`
 
-# Help wanted
+# Limitation
 
-- `placeholder` parsing more strictly
-
-- Sync placeholder more strictly
+- Not supported `transform` freature.
+    - I plan to support it later.
 
