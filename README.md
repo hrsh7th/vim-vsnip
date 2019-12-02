@@ -12,9 +12,3 @@ This aims to plugin like Visual Studio Code's Snippet feature.
 
 See `./doc/vsnip.txt`
 
-# Help wanted
-
-- `placeholder` parsing more strictly
-
-- Sync placeholder more strictly
-
