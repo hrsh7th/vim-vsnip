@@ -29,7 +29,7 @@ endfunction
 "
 function! s:Session.insert() abort
   " insert snippet.
-  call lamp#view#edit#apply(self.bufnr, [{
+  call vsnip#edits#text_edit#apply(self.bufnr, [{
         \   'range': {
         \     'start': self.snippet.position,
         \     'end': self.snippet.position
@@ -101,7 +101,7 @@ function! s:Session.on_text_changed() abort
   function! l:fn.debounce(timer_id)
     " compute diff.
     let l:buffer = getbufline(self.bufnr, '^', '$')
-    let l:diff = lamp#server#document#diff#compute(self.buffer, l:buffer)
+    let l:diff = vsnip#edits#diff#compute(self.buffer, l:buffer)
     let self.buffer = l:buffer
     if l:diff.rangeLength == 0 && l:diff.text ==# ''
       return
@@ -129,7 +129,7 @@ function! s:Session.on_text_changed() abort
 
     " if follow succeeded, sync placeholders and write back to the buffer.
     if self.snippet.follow(self.tabstop, l:diff)
-      undojoin | call lamp#view#edit#apply(self.bufnr, self.snippet.sync())
+      undojoin | call vsnip#edits#text_edit#apply(self.bufnr, self.snippet.sync())
       call self.store()
     else
       call vsnip#deactivate()

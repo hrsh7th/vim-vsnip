@@ -28,7 +28,10 @@ endfunction
 function! vsnip#anonymous(text) abort
   let s:session = s:Session.new(
         \   bufnr('%'),
-        \   lamp#protocol#position#get(),
+        \   {
+        \     'line': line('.') - 1,
+        \     'character': col('.') - 1
+        \   },
         \   a:text
         \ )
   call s:session.insert()
@@ -44,7 +47,7 @@ function! vsnip#expand() abort
   if !empty(l:context)
     let l:line = line('.')
     let l:col = col('.')
-    call lamp#view#edit#apply(bufnr('%'), [{
+    call vsnip#edits#text_edit#apply(bufnr('%'), [{
           \   'range': {
           \     'start': {
           \       'line': l:line - 1,
