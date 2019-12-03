@@ -124,7 +124,7 @@ function! s:Session.on_text_changed() abort
       call vsnip#deactivate()
       return
     endif
-    if l:diff.range.start.line == l:range.end.line && l:range.end.character < l:diff.range.end.character
+    if l:diff.range.start.line == l:range.end.line && l:range.end.character < l:diff.range.start.character
       call vsnip#deactivate()
       return
     endif
