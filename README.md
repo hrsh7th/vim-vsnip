@@ -5,7 +5,7 @@ This aims to plugin like Visual Studio Code's Snippet feature.
 
 # DEMO
 
-![vsnip-demo](https://user-images.githubusercontent.com/629908/64090812-23b7b880-cd88-11e9-96b9-9e15b8606653.gif)
+![vsnip-demo](https://user-images.githubusercontent.com/629908/70024306-0d1a3b00-15dd-11ea-87ec-d5c648b763ab.gif)
 
 
 # Documentation
