@@ -12,7 +12,7 @@ Describe vsnip#snippet
 
     It Should follow diff overlap left
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
-      call l:snippet.follow({
+      let l:followed = l:snippet.follow(0, {
             \   'range': {
             \     'start': {
             \       'line': 2,
@@ -25,13 +25,12 @@ Describe vsnip#snippet
             \   },
             \   'text': '___'
             \ })
-      call s:expect(l:snippet.text()).to_equal("class  {\n\t___ult() {\n\t\t\n\t}\n}")
-      call s:expect(l:snippet.get_placeholder_with_range(2).placeholder.text(l:snippet)).to_equal('ult')
+      call s:expect(l:followed).to_equal(v:false)
     End
 
     It Should follow diff overlap right
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
-      call l:snippet.follow({
+      let l:followed = l:snippet.follow(0, {
             \   'range': {
             \     'start': {
             \       'line': 2,
@@ -44,13 +43,30 @@ Describe vsnip#snippet
             \   },
             \   'text': '___(params)'
             \ })
-      call s:expect(l:snippet.text()).to_equal("class  {\n\tpublic defa___(params) {\n\t\t\n\t}\n}")
-      call s:expect(l:snippet.get_placeholder_with_range(2).placeholder.text(l:snippet)).to_equal('defa___(params)')
+      call s:expect(l:followed).to_equal(v:false)
+    End
+
+    It Should follow diff cover
+      let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
+      let l:followed = l:snippet.follow(0, {
+            \   'range': {
+            \     'start': {
+            \       'line': 2,
+            \       'character': 7
+            \     },
+            \     'end': {
+            \       'line': 2,
+            \       'character': 16
+            \     }
+            \   },
+            \   'text': '___'
+            \ })
+      call s:expect(l:followed).to_equal(v:false)
     End
 
     It Should follow diff include
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
-      call l:snippet.follow({
+      call l:snippet.follow(0, {
             \   'range': {
             \     'start': {
             \       'line': 2,
@@ -64,25 +80,7 @@ Describe vsnip#snippet
             \   'text': '___'
             \ })
       call s:expect(l:snippet.text()).to_equal("class  {\n\tpublic d___ult() {\n\t\t\n\t}\n}")
-      call s:expect(l:snippet.get_placeholder_with_range(2).placeholder.text(l:snippet)).to_equal('d___ult')
-    End
-
-    It Should follow diff cover
-      let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
-      call l:snippet.follow({
-            \   'range': {
-            \     'start': {
-            \       'line': 2,
-            \       'character': 7
-            \     },
-            \     'end': {
-            \       'line': 2,
-            \       'character': 16
-            \     }
-            \   },
-            \   'text': '___'
-            \ })
-      call s:expect(l:snippet.get_placeholder_with_range(2).placeholder).to_equal(v:null)
+      call s:expect(l:snippet.get_next_jump_point(1).placeholder.text()).to_equal('d___ult')
     End
 
   End
@@ -96,7 +94,7 @@ Describe vsnip#snippet
 
     It Should sync same tabstop placeholder 2
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1:default}, $1)')
-      call l:snippet.follow({
+      call l:snippet.follow(0, {
             \   'range': {
             \     'start': {
             \       'line': 1,
@@ -123,13 +121,13 @@ Describe vsnip#snippet
     End
 
     It Should return text2
-      let g:vsnip#selected_text = 'THIS_IS_SELECTED_TEXT'
+      call vsnip#selected_text('THIS_IS_SELECTED_TEXT')
       let l:snippet = s:Snippet.new(s:start_position, '$TM_SELECTED_TEXT')
       call s:expect(l:snippet.text()).to_equal('THIS_IS_SELECTED_TEXT')
     End
 
     It Should return text2
-      let g:vsnip#selected_text = 'THIS_IS_SELECTED_TEXT'
+      call vsnip#selected_text('THIS_IS_SELECTED_TEXT')
       let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT}')
       call s:expect(l:snippet.text()).to_equal('THIS_IS_SELECTED_TEXT')
     End
@@ -192,13 +190,11 @@ Describe vsnip#snippet
 
   End
 
-  Describe #get_placeholder_with_range
+  Describe #get_next_jump_point
 
-    It Should return placeholder range1
-      " NOTE: `s:start_position` is [1, 1] and This snippet will insert to start
-      " of line. So character should be +1 value.
+    It Should return next jump point 1
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1:012345})')
-      call s:expect(l:snippet.get_placeholder_with_range(1).range).to_equal({
+      call s:expect(l:snippet.get_next_jump_point(0).range).to_equal({
             \   'start': {
             \     'line': 1,
             \     'character': 13
@@ -210,11 +206,9 @@ Describe vsnip#snippet
             \ })
     End
 
-    It Should return placeholder range2
-      " NOTE: `s:start_position` is [1, 1] and This snippet will insert to start
-      " of line. So character should be +1 value.
+    It Should return next jump point 2
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1:0123${2:456}7890})')
-      call s:expect(l:snippet.get_placeholder_with_range(1).range).to_equal({
+      call s:expect(l:snippet.get_next_jump_point(0).range).to_equal({
             \   'start': {
             \     'line': 1,
             \     'character': 13
@@ -224,7 +218,7 @@ Describe vsnip#snippet
             \     'character': 24
             \   }
             \ })
-      call s:expect(l:snippet.get_placeholder_with_range(2).range).to_equal({
+      call s:expect(l:snippet.get_next_jump_point(1).range).to_equal({
             \   'start': {
             \     'line': 1,
             \     'character': 17,
@@ -232,6 +226,54 @@ Describe vsnip#snippet
             \   'end': {
             \     'line': 1,
             \     'character': 20
+            \   }
+            \ })
+    End
+
+    It Should return next jump point 3
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1:0${3:12}3${2:456}7890})')
+      call s:expect(l:snippet.get_next_jump_point(0).range).to_equal({
+            \   'start': {
+            \     'line': 1,
+            \     'character': 13
+            \   },
+            \   'end': {
+            \     'line': 1,
+            \     'character': 24
+            \   }
+            \ })
+      call s:expect(l:snippet.get_next_jump_point(1).range).to_equal({
+            \   'start': {
+            \     'line': 1,
+            \     'character': 17,
+            \   },
+            \   'end': {
+            \     'line': 1,
+            \     'character': 20
+            \   }
+            \ })
+      call s:expect(l:snippet.get_next_jump_point(2).range).to_equal({
+            \   'start': {
+            \     'line': 1,
+            \     'character': 14,
+            \   },
+            \   'end': {
+            \     'line': 1,
+            \     'character': 16
+            \   }
+            \ })
+    End
+
+    It Should return next jump point 4
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(0${1}123456789${1}0)')
+      call s:expect(l:snippet.get_next_jump_point(0).range).to_equal({
+            \   'start': {
+            \     'line': 1,
+            \     'character': 14
+            \   },
+            \   'end': {
+            \     'line': 1,
+            \     'character': 14
             \   }
             \ })
     End

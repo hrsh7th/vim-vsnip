@@ -148,7 +148,7 @@ endfunction
 function! s:lazy(callback) abort
   let l:fn = {}
   let l:fn.callback = a:callback
-  function! l:fn.parse(text, pos)
+  function! l:fn.parse(text, pos) abort
     if !has_key(self, 'parser')
       let self.parser = self.callback()
     endif

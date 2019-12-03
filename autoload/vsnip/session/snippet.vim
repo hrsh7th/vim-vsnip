@@ -214,6 +214,10 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
   let l:fn.self = self
   function! l:fn.traverse(range, node, parent) abort
     if a:node.type ==# 'placeholder' && self.current_tabstop < a:node.id
+      if has_key(self, 'jump_point') && self.jump_point.placeholder.id <= a:node.id
+        return v:false
+      endif
+
       let self.jump_point = {
             \   'range': {
             \     'start': self.self.offset_to_position(a:range[0]),
@@ -221,7 +225,6 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
             \   },
             \   'placeholder': a:node
             \ }
-      return v:true
     endif
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)

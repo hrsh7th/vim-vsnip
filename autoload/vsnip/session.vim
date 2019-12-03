@@ -105,7 +105,7 @@ function! s:Session.on_text_changed() abort
   endif
 
   let l:fn = {}
-  function! l:fn.debounce(timer_id)
+  function! l:fn.debounce(timer_id) abort
     " compute diff.
     let l:buffer = getbufline(self.bufnr, '^', '$')
     let l:diff = vsnip#edits#diff#compute(self.buffer, l:buffer)
@@ -165,14 +165,14 @@ endfunction
 "
 " is_dirty.
 "
-function! s:Session.is_dirty(buffer)
+function! s:Session.is_dirty(buffer) abort
   return self.snippet.text() !=# self.text_from_buffer(a:buffer)
 endfunction
 
 "
 " text_from_buffer.
 "
-function! s:Session.text_from_buffer(buffer)
+function! s:Session.text_from_buffer(buffer) abort
   let l:range = self.snippet.range()
 
   let l:text = ''

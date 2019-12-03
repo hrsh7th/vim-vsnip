@@ -26,7 +26,7 @@ endfunction
 "
 " get_source_paths.
 "
-function! s:get_source_paths(filetype)
+function! s:get_source_paths(filetype) abort
   let l:paths = []
   for l:dir in [g:vsnip_snippet_dir] + g:vsnip_snippet_dirs
     for l:name in split(a:filetype, '\.') + ['global']
