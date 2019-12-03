@@ -40,7 +40,7 @@ function! s:Session.insert() abort
 
   " move to end of snippet after snippet insertion.
   let l:range = self.snippet.range()
-  call cursor(l:range.end.line - 1, l:range.end.character - 1)
+  call cursor(l:range.end.line + 1, l:range.end.character + 1)
 endfunction
 
 "
