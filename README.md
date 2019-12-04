@@ -2,6 +2,59 @@
 
 Support VSCode(LSP)'s snippet feature in vim.
 
+# Usage.
+
+### install.
+
+You can use your favorite plugin managers to install this plugin.
+
+```viml
+" vim-plug.
+Plug 'hrsh7th/vim-vsnip'
+
+" dein.nvim
+call dein#add('hrsh7th/vim-vsnip')
+
+" NeoBundle.
+NeoBundle 'hrsh7th/vim-vsnip'
+```
+
+### setting.
+
+```viml
+" You can use other key to expand snippet.
+imap <expr> <Tab> vsnip#available() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+smap <expr> <Tab> vsnip#available() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
+```
+
+### create your own snippet.
+
+Snippet source file will store to `g:vsnip_snippet_dir` per filetype.
+
+1. Open some file (example: `Sample.js`)
+
+2. Invoke `:VsnipOpen` command.
+
+3. Edit snippet.
+
+```json
+{
+  "Class": {
+    "prefix": ["class"],
+    "body": [
+      "class $1 ${2:extends ${3:Parent} }{",
+      "\tconstructor() {",
+      "\t\t$0",
+      "\t}"
+      "}"
+    ],
+    "description": "Class definition template."
+  }
+}
+```
+
+The snippet format was described in [here](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax) or [here](https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md).
+
 
 # DEMO
 
