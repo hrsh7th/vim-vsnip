@@ -66,12 +66,12 @@ endfunction
 function! s:resolve_prefix(prefix) abort
   let l:prefixes = []
   for l:prefix in type(a:prefix) == type([]) ? a:prefix : [a:prefix]
+    if strlen(g:vsnip_namespace) > 0
+      call add(l:prefixes, g:vsnip_namespace . l:prefix)
+    endif
     call add(l:prefixes, l:prefix)
     if l:prefix =~# '-'
       call add(l:prefixes, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
-    endif
-    if strlen(g:vsnip_namespace) > 0
-      call add(l:prefixes, g:vsnip_namespace . l:prefix)
     endif
   endfor
 
