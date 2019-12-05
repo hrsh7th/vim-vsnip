@@ -7,6 +7,7 @@ function! vsnip#session#snippet#parser#combinator#import() abort
         \   'seq': function('s:seq'),
         \   'pattern': function('s:pattern'),
         \   'lazy': function('s:lazy'),
+        \   'option': function('s:option'),
         \   'map': function('s:map')
         \ }
 endfunction
@@ -187,6 +188,22 @@ function! s:map(parser, callback) abort
       return [v:true, self.callback(l:parsed[1]), l:parsed[2]]
     endif
     return l:parsed
+  endfunction
+  return l:fn
+endfunction
+
+"
+" option.
+"
+function! s:option(parser) abort
+  let l:fn = {}
+  let l:fn.parser = a:parser
+  function! l:fn.parse(text, pos) abort
+    let l:parsed = self.parser.parse(a:text, a:pos)
+    if l:parsed[0]
+      return l:parsed
+    endif
+    return [v:true, v:null, a:pos]
   endfunction
   return l:fn
 endfunction

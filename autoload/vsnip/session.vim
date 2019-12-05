@@ -66,24 +66,62 @@ function! s:Session.jump() abort
 
   let self.tabstop = l:jump_point.placeholder.id
 
-  " move to end position.
-  call cursor(l:jump_point.range.end.line + 1, l:jump_point.range.end.character + 1)
+  " choice.
+  if len(l:jump_point.placeholder.choice) > 0
+    call self.choice(l:jump_point)
 
-  " if jump_point has range, select range.
-  if l:jump_point.range.start.character != l:jump_point.range.end.character
-    let l:cmd = ''
-    if mode()[0] ==# 'i'
-      let l:cmd .= "\<Esc>"
-    else
-      let l:cmd .= 'h'
-    endif
-    let l:cmd .= printf('v%sh', strlen(l:jump_point.placeholder.text()) - 1)
-    let l:cmd .= "\<C-g>"
-    call feedkeys(l:cmd, 'n')
+  " select.
+  elseif l:jump_point.range.start.character != l:jump_point.range.end.character
+    call self.select(l:jump_point)
+
+  " move.
   else
-    startinsert
+    call self.move(l:jump_point)
   endif
 endfunction
+
+"
+" choice.
+"
+function! s:Session.choice(jump_point) abort
+  call cursor(a:jump_point.range.end.line + 1, a:jump_point.range.end.character + 1)
+  startinsert
+
+  let l:fn = {}
+  let l:fn.jump_point = a:jump_point
+  function! l:fn.next_tick() abort
+    let l:col = 0
+    let l:col += self.jump_point.range.end.character + 1
+    let l:col -= strlen(self.jump_point.placeholder.text())
+    call complete(l:col, map(copy(self.jump_point.placeholder.choice), { k, v -> {
+          \   'word': v.escaped,
+          \   'abbr': v.escaped,
+          \   'menu': '[vsnip]',
+          \   'kind': 'Choice'
+          \ } }))
+  endfunction
+  call timer_start(&updatetime, { -> l:fn.next_tick() })
+endfunction
+
+"
+" select.
+"
+function! s:Session.select(jump_point) abort
+  call cursor(a:jump_point.range.end.line + 1, a:jump_point.range.end.character + 1)
+  let l:cmd = mode()[0] ==# 'i' ? "\<Esc>" : 'h'
+  let l:cmd .= printf('v%sh', strlen(a:jump_point.placeholder.text()) - 1)
+  let l:cmd .= "\<C-g>"
+  call feedkeys(l:cmd, 'n')
+endfunction
+
+"
+" move.
+"
+function! s:Session.move(jump_point) abort
+  call cursor(a:jump_point.range.end.line + 1, a:jump_point.range.end.character + 1)
+  startinsert
+endfunction
+
 
 "
 " on_text_changed.

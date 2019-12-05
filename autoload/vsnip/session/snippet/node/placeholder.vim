@@ -12,6 +12,7 @@ function! s:Placeholder.new(ast) abort
         \   'type': 'placeholder',
         \   'id': a:ast.id,
         \   'follower': v:false,
+        \   'choice': get(a:ast, 'choice', []),
         \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', []))
         \ })
 endfunction

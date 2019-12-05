@@ -10,21 +10,6 @@ function! vsnip#session#snippet#parser#parse(text) abort
   return l:parsed[1]
 endfunction
 
-"
-" flat.
-"
-function! s:flat(arr) abort
-  let l:values = []
-  for l:item in a:arr
-    if type(l:item) == type([])
-      let l:values += l:item
-    else
-      call add(l:values, l:item)
-    endif
-  endfor
-  return l:values
-endfunction
-
 let s:Combinator = vsnip#session#snippet#parser#combinator#import()
 
 let s:skip = s:Combinator.skip
@@ -33,6 +18,7 @@ let s:many = s:Combinator.many
 let s:or = s:Combinator.or
 let s:seq = s:Combinator.seq
 let s:lazy = s:Combinator.lazy
+let s:option = s:Combinator.option
 let s:pattern = s:Combinator.pattern
 let s:map = s:Combinator.map
 
@@ -216,20 +202,16 @@ let s:choice = s:map(s:seq(
       \   s:open,
       \   s:int,
       \   s:pipe,
-      \   s:map(
-      \     s:seq(
-      \       s:many(s:map(s:seq(s:text([',']), s:comma), { value -> value[0] })),
-      \       s:text(['|']),
-      \     ),
-      \     { value -> s:flat(value) }
+      \   s:many(
+      \     s:map(s:seq(s:text([',', '|']), s:option(s:comma)), { value -> value[0] }),
       \   ),
       \   s:pipe,
       \   s:close
       \ ), { value -> {
       \   'type': 'placeholder',
       \   'id': value[2],
-      \   'children': [value[4][0]],
-      \   'items': value[4]
+      \   'choice': value[4],
+      \   'children': [copy(value[4][0])],
       \ } })
 
 "

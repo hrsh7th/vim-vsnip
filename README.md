@@ -107,7 +107,6 @@ See `./doc/vsnip.txt`
     - vim-lamp
 - Support more features in VSCode(LSP) spec.
     - regex transform
-    - choice
 - Some other useful features.
     - feel free to send request.
 
