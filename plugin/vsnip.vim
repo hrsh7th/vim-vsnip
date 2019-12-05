@@ -15,10 +15,11 @@ if !exists('*getbufline')
 endif
 
 let g:vsnip_extra_mapping = get(g:, 'vsnip_extra_mapping', v:true)
-let g:vsnip_snippet_dir = expand('~/.vsnip')
+let g:vsnip_snippet_dir = get(g:, 'vsnip_snippet_dir', expand('~/.vsnip'))
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])
-let g:vsnip_sync_delay = 0
-let g:vsnip_namespace = 'vsnip:'
+let g:vsnip_sync_delay = get(g:, 'vsnip_sync_delay', 0)
+let g:vsnip_namespace = get(g:, 'vsnip_namespace', 'vsnip:')
+
 
 "
 " command.
