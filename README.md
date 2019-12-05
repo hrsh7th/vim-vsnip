@@ -100,15 +100,12 @@ See `./doc/vsnip.txt`
 - Improve snippet source file detection.
     - Should understand `package.json` [example](https://github.com/xabikos/vscode-react/blob/master/package.json#L22)
     - Should convert filetype to LSP's languageId.
-
 - Builtin plugin integration.
     - vim-lsp
     - vim-lamp
-
 - Support more features in VSCode(LSP) spec.
     - regex transform
     - choice
-
 - Some other useful features.
     - feel free to send request.
 
