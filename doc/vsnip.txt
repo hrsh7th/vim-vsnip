@@ -19,10 +19,32 @@ CHANGELOG                                                    |vsnip-changelog|
 INSTALL                                                        *vsnip-install*
 
 You can use your favorite plugin manager.
-The below example uses dein.nvim.
 
-call dein#add('hrsh7th/vim-vsnip')~
+>
+  " dein.vim
+  call dein#add('hrsh7th/vim-vsnip')
 
+  " vim-plug
+  Plug 'hrsh7th/vim-vsnip'
+
+  " neobundle
+  NeoBundle 'hrsh7th/vim-vsnip'
+<
+
+If you use `deoplete.nvim`, you can use `vim-vsnip-integ`.
+
+>
+  " dein.vim
+  call dein#add('hrsh7th/vim-vsnip-integ')
+
+  " vim-plug
+  Plug 'hrsh7th/vim-vsnip-integ'
+
+  " neobundle
+  NeoBundle 'hrsh7th/vim-vsnip-integ'
+<
+
+`vim-vsnip-integ` will supports other plugin integrations.
 
 
 ==============================================================================

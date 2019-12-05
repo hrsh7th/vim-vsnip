@@ -2,31 +2,31 @@
 
 Support VSCode(LSP)'s snippet feature in vim.
 
-# Rerequirements.
+# Rerequirements
 
 - nvim
   - v0.4.0 or higher.
 - vim
   - v8.l.0039 or higher.
 
-# Usage.
+# Usage
 
-### install.
+### install
 
 You can use your favorite plugin managers to install this plugin.
 
 ```viml
-" vim-plug.
 Plug 'hrsh7th/vim-vsnip'
+Plug 'hrsh7th/vim-vsnip-integ'
 
-" dein.nvim
 call dein#add('hrsh7th/vim-vsnip')
+call dein#add('hrsh7th/vim-vsnip-integ')
 
-" NeoBundle.
 NeoBundle 'hrsh7th/vim-vsnip'
+NeoBundle 'hrsh7th/vim-vsnip-integ'
 ```
 
-### setting.
+### setting
 
 ```viml
 " You can use other key to expand snippet.
@@ -34,7 +34,7 @@ imap <expr> <Tab> vsnip#available() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
 smap <expr> <Tab> vsnip#available() ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
 ```
 
-### create your own snippet.
+### create your own snippet
 
 Snippet source file will store to `g:vsnip_snippet_dir` per filetype.
 
@@ -83,6 +83,11 @@ The snippet format was described in [here](https://code.visualstudio.com/docs/ed
 # Documentation
 
 See `./doc/vsnip.txt`
+
+
+# Integration
+
+- You can use [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ)
 
 
 # TODO
