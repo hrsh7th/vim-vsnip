@@ -89,6 +89,8 @@ See `./doc/vsnip.txt`
 # Why create vim-vsnip?
 
 - I want to support VSCode(LSP)'s snippet format.
+    - Some LSP client plugins has not snippet feature.
+    - This plugin aims to integrate this.
 - I want to snippet plugin that written in Pure Vim script.
     - For example, `vim-lsp`, `vim-lsc` are written in Pure Vim script.
     - If snippet plugin needs `python`, `lua` etc, will breaks those plugins advantage when using both.
