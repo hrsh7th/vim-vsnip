@@ -3,6 +3,17 @@ if exists('g:loaded_vsnip')
 endif
 let g:loaded_vsnip = 1
 
+" version check.
+if !exists('*getbufline')
+      \ || !exists('*setbufline')
+      \ || !exists('*appendbufline')
+      \ || !exists('*deletebufline')
+  echomsg '[vim-vsnip] `vim-vsnip` was disabled.'
+  echomsg '[vim-vsnip] `vim-vsnip` required getbufline/setbufline/appendbufline/deletebufline.'
+  echomsg '[vim-vsnip] Please use nvim >= v0.4.0 or vim >= v8.1.0039'
+  finish
+endif
+
 let g:vsnip_extra_mapping = get(g:, 'vsnip_extra_mapping', v:true)
 let g:vsnip_snippet_dir = expand('~/.vsnip')
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])

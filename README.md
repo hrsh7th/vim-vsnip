@@ -2,6 +2,13 @@
 
 Support VSCode(LSP)'s snippet feature in vim.
 
+# Rerequirements.
+
+- nvim
+  - v0.4.0 or higher.
+- vim
+  - v8.l.0039 or higher.
+
 # Usage.
 
 ### install.
@@ -94,3 +101,4 @@ See `./doc/vsnip.txt`
 
 - Some other useful features.
     - feel free to send request.
+
