@@ -2,6 +2,8 @@
 
 Support VSCode(LSP)'s snippet feature in vim.
 
+vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ). (e.g. [vim-lsp](https://github.com/prabirshrestha/vim-lsp))
+
 
 # DEMO
 
@@ -13,12 +15,9 @@ Support VSCode(LSP)'s snippet feature in vim.
 - Standard features written in Pure Vim script.
 - Support VSCode(LSP)'s snippet format.
 - Some LSP client integration.
-    - vim-lsp
-    - LanguageClient-neovim
-    - vim-lamp
 
 
-# Rerequirements
+# Requirements
 
 - nvim: v0.4.0 or higher.
 -  vim: v8.1.0039 or higher.
@@ -102,9 +101,6 @@ See `./doc/vsnip.txt`
 - Improve snippet source file detection.
     - Should understand `package.json` [example](https://github.com/xabikos/vscode-react/blob/master/package.json#L22)
     - Should convert filetype to LSP's languageId.
-- Builtin plugin integration.
-    - vim-lsp
-    - vim-lamp
 - Support more features in VSCode(LSP) spec.
     - regex transform
 - Some other useful features.
