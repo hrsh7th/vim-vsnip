@@ -66,6 +66,12 @@ let g:vsnip_sync_delay = 0~
 Specify delay time to sync same tabstop placeholder.
 
 
+let g:vsnip_choice_delay = 500~
+Specify delay time to show choice candidates.
+Sometimes choice completion menu is closed by auto-completion engine.
+You can use this variable to solve this conflict.
+
+
 let g:vsnip_namespace = 'vsnip_'~
 Specify all snippet prefix's prefix.
 It useful when you use auto-completion.

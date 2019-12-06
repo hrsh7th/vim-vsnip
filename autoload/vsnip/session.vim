@@ -100,7 +100,7 @@ function! s:Session.choice(jump_point) abort
           \   'kind': 'Choice'
           \ } }))
   endfunction
-  call timer_start(&updatetime, { -> l:fn.next_tick() })
+  call timer_start(g:vsnip_choice_delay, { -> l:fn.next_tick() })
 endfunction
 
 "
