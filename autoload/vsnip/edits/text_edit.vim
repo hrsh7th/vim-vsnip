@@ -13,22 +13,20 @@ function! vsnip#edits#text_edit#apply(bufnr, edits) abort
         \   'character': col('.')
         \ }
   for l:edit in reverse(copy(l:edits))
-    call s:edit(a:bufnr, l:edit, l:position)
+    call s:edit(l:edit, l:position)
   endfor
 
-  if bufnr('%') == a:bufnr
-    " adjust curops.
-    call setpos('.', [a:bufnr, l:position.line, l:position.character])
-  endif
+  " adjust curops.
+  call setpos('.', [a:bufnr, l:position.line, l:position.character])
 endfunction
 
 "
 " s:edit
 "
-function! s:edit(bufnr, edit, position) abort
-  let l:start_line = getbufline(a:bufnr, a:edit.range.start.line)[0]
+function! s:edit(edit, position) abort
+  let l:start_line = getline(a:edit.range.start.line)
   let l:before_line = strcharpart(l:start_line, 0, a:edit.range.start.character - 1)
-  let l:end_line = get(getbufline(a:bufnr, a:edit.range.end.line), 0, '')
+  let l:end_line = getline(a:edit.range.end.line)
   let l:after_line = strcharpart(l:end_line, a:edit.range.end.character - 1, strchars(l:end_line) - (a:edit.range.end.character - 1))
 
   let l:lines = split(a:edit.newText, "\n", v:true)
@@ -38,7 +36,7 @@ function! s:edit(bufnr, edit, position) abort
   let l:lines_len = len(l:lines)
   let l:range_len = a:edit.range.end.line - a:edit.range.start.line
 
-  let l:total_lines = len(getbufline(a:bufnr, '^', '$'))
+  let l:total_lines = len(getline('^', '$'))
 
   " fix cursor pos
   if a:edit.range.end.line <= a:position.line
@@ -59,11 +57,11 @@ function! s:edit(bufnr, edit, position) abort
   while l:i < l:lines_len
     let l:lnum = a:edit.range.start.line + l:i
     if l:i <= l:range_len && l:i < l:total_lines
-      if get(getbufline(a:bufnr, l:lnum), 0) !=# l:lines[l:i]
-        call setbufline(a:bufnr, l:lnum, l:lines[l:i])
+      if getline(l:lnum) !=# l:lines[l:i]
+        call setline(l:lnum, l:lines[l:i])
       endif
     else
-      call appendbufline(a:bufnr, l:lnum - 1, l:lines[l:i])
+      call append(l:lnum - 1, l:lines[l:i])
     endif
     let l:i += 1
   endwhile
@@ -72,7 +70,7 @@ function! s:edit(bufnr, edit, position) abort
   if l:lines_len <= l:range_len
     let l:start = a:edit.range.end.line - (l:range_len - l:lines_len)
     let l:end = a:edit.range.end.line
-    call deletebufline(a:bufnr, l:start, l:end)
+    execute printf('normal! %s,%sdelete _', l:start, l:end)
   endif
 endfunction
 

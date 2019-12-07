@@ -17,12 +17,6 @@ vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/
 - Some LSP client integration.
 
 
-# Requirements
-
-- nvim: v0.4.0 or higher.
--  vim: v8.1.0039 or higher.
-
-
 # Usage
 
 ### 1. Install
