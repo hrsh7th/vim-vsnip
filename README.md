@@ -1,6 +1,6 @@
 # vim-vsnip
 
-Support VSCode(LSP)'s snippet feature in vim.
+VSCode(LSP)'s snippet feature in vim.
 
 vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ). (e.g. [vim-lsp](https://github.com/prabirshrestha/vim-lsp))
 
@@ -82,11 +82,11 @@ See `./doc/vsnip.txt`
 # Why create vim-vsnip?
 
 - I want to support VSCode(LSP)'s snippet format.
-    - Some LSP client plugins has not snippet feature.
-    - This plugin aims to integrate this.
+    - Some LSP client plugins has no snippet feature.
+    - This plugin aims to integrate those plugins.
 - I want to snippet plugin that written in Pure Vim script.
     - For example, `vim-lsp`, `vim-lsc` are written in Pure Vim script.
-    - If snippet plugin needs `python`, `lua` etc, will breaks those plugins advantage when using both.
+    - If snippet plugin needs `python`, `lua` etc, will breaks those plugins advantage.
 - I want to study parser combinator.
 
 
