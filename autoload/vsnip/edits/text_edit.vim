@@ -70,7 +70,7 @@ function! s:edit(edit, position) abort
   if l:lines_len <= l:range_len
     let l:start = a:edit.range.end.line - (l:range_len - l:lines_len)
     let l:end = a:edit.range.end.line
-    execute printf('normal! %s,%sdelete _', l:start, l:end)
+    execute printf('%s,%sdelete _', l:start, l:end)
   endif
 endfunction
 

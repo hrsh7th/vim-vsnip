@@ -1,0 +1,91 @@
+let s:expect = themis#helper('expect')
+
+Describe vsnip#edits#text_edit
+
+  Before each
+    set hidden
+  End
+
+  Describe #apply
+
+    It Should change single line
+      enew
+      put!=['0123456789']
+      $delete
+
+      call vsnip#edits#text_edit#apply(bufnr('%'), [{
+            \   'range': {
+            \     'start': {
+            \       'line': 0,
+            \       'character': 3,
+            \     },
+            \     'end': {
+            \       'line': 0,
+            \       'character': 6,
+            \     },
+            \   },
+            \   'newText': 'abcdefg'
+            \ }])
+
+      call s:expect(getline('^', '$')).to_equal([
+            \   '012abcdefg6789'
+            \ ])
+    End
+
+    It Should add line
+      enew
+      put!=['0123456789_1', '0123456789_2', '0123456789_3']
+      $delete
+
+      call vsnip#edits#text_edit#apply(bufnr('%'), [{
+            \   'range': {
+            \     'start': {
+            \       'line': 1,
+            \       'character': 0,
+            \     },
+            \     'end': {
+            \       'line': 1,
+            \       'character': 0,
+            \     },
+            \   },
+            \   'newText': "abcdefg\n"
+            \ }])
+
+      call s:expect(getline('^', '$')).to_equal([
+            \   '0123456789_1',
+            \   'abcdefg',
+            \   '0123456789_2',
+            \   '0123456789_3',
+            \ ])
+    End
+
+    It Should delete line
+      enew
+      put!=['0123456789_1', '0123456789_2', '0123456789_3']
+      $delete
+
+      call vsnip#edits#text_edit#apply(bufnr('%'), [{
+            \   'range': {
+            \     'start': {
+            \       'line': 1,
+            \       'character': 0,
+            \     },
+            \     'end': {
+            \       'line': 2,
+            \       'character': 0,
+            \     },
+            \   },
+            \   'newText': ''
+            \ }])
+
+      call s:expect(getline('^', '$')).to_equal([
+            \   '0123456789_1',
+            \   '0123456789_3',
+            \ ])
+    End
+
+  End
+
+End
+
+
