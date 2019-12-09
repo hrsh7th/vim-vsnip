@@ -30,7 +30,7 @@ function! s:get_source_paths(filetype) abort
   let l:paths = []
   for l:dir in [g:vsnip_snippet_dir] + g:vsnip_snippet_dirs
     for l:name in split(a:filetype, '\.') + ['global']
-      let l:path = resolve(printf('%s/%s.json', l:dir, l:name))
+      let l:path = expand(printf('%s/%s.json', l:dir, l:name))
       if has_key(s:sources, l:path) || filereadable(l:path)
         call add(l:paths, l:path)
       endif
