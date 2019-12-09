@@ -1,12 +1,8 @@
-let s:sources = {}
-
 "
 " vsnip#source#refresh.
 "
 function! vsnip#source#refresh(path) abort
-  if has_key(s:sources, a:path)
-    unlet s:sources[a:path]
-  endif
+  call vsnip#source#user_snippet#refresh(a:path)
 endfunction
 
 "
@@ -14,35 +10,14 @@ endfunction
 "
 function! vsnip#source#find(filetype) abort
   let l:sources = []
-  for l:path in s:get_source_paths(a:filetype)
-    if !has_key(s:sources, l:path)
-      let s:sources[l:path] = s:source(l:path)
-    endif
-    call add(l:sources, s:sources[l:path])
-  endfor
+  call extend(l:sources, vsnip#source#user_snippet#find(a:filetype))
   return l:sources
 endfunction
 
 "
-" get_source_paths.
+" vsnip#source#create.
 "
-function! s:get_source_paths(filetype) abort
-  let l:paths = []
-  for l:dir in [g:vsnip_snippet_dir] + g:vsnip_snippet_dirs
-    for l:name in split(a:filetype, '\.') + ['global']
-      let l:path = expand(printf('%s/%s.json', l:dir, l:name))
-      if has_key(s:sources, l:path) || filereadable(l:path)
-        call add(l:paths, l:path)
-      endif
-    endfor
-  endfor
-  return l:paths
-endfunction
-
-"
-" source.
-"
-function! s:source(path) abort
+function! vsnip#source#create(path) abort
   let l:source = []
   try
     let l:file = readfile(a:path)
