@@ -181,7 +181,7 @@ let s:tabstop1 = s:map(s:seq(s:dollar, s:int), { value -> {
       \   'id': value[1],
       \   'children': [],
       \ } })
-let s:tabstop2 = s:map(s:seq(s:dollar, s:open, s:int, s:close), { value -> {
+let s:tabstop2 = s:map(s:seq(s:dollar, s:open, s:int, s:option(s:colon), s:close), { value -> {
       \   'type': 'placeholder',
       \   'id': value[2],
       \   'children': [],
