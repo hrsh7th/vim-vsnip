@@ -109,11 +109,12 @@ endfunction
 function! s:Session.select(jump_point) abort
   " `virtualedit=onemore` is restored by `plugin/vsnip.vim` before invoke `feedkeys` contents. (feedkeys is not synchronous.)
   " So using `range.end.character` as inclusive position in here.
+  " Do not worry to first position of line, `select` has always have text.
   call cursor(a:jump_point.range.end.line + 1, a:jump_point.range.end.character)
   let l:cmd = mode()[0] ==# 'i' ? "\<Esc>l" : ''
   let l:cmd .= printf('v%sh', strlen(a:jump_point.placeholder.text()) - 1)
   let l:cmd .= "\<C-g>"
-  call feedkeys(l:cmd, 'n')
+  call feedkeys(l:cmd, 'nt')
 endfunction
 
 "

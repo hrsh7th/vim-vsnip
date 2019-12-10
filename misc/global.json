@@ -9,5 +9,13 @@
       "\ta$1, $1b, $6",
       "}"
     ]
+  },
+  "Start end example": {
+    "prefix": ["start-end-example"],
+    "body": [
+      "---",
+      "${1:start_of_line}console.log(${2:middle_of_line})${0:end_of_line}",
+      "---"
+    ]
   }
 }
