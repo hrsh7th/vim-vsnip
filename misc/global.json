@@ -1,0 +1,13 @@
+{
+  "Complex example": {
+    "prefix": ["complex-example"],
+    "body": [
+      "\\$1 is tabstop. \\${1} is tabstop.",
+      "class $1 ${2:extends ${3:Parent} }{",
+      "\tconsole.${4|log,warn,error|}($5);$0",
+      "\tconsole.$4($1$1$1);$0",
+      "\ta$1, $1b, $6",
+      "}"
+    ]
+  }
+}
