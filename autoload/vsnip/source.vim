@@ -3,6 +3,7 @@
 "
 function! vsnip#source#refresh(path) abort
   call vsnip#source#user_snippet#refresh(a:path)
+  call vsnip#source#vscode#refresh(a:path)
 endfunction
 
 "
@@ -11,6 +12,7 @@ endfunction
 function! vsnip#source#find(filetype) abort
   let l:sources = []
   call extend(l:sources, vsnip#source#user_snippet#find(a:filetype))
+  call extend(l:sources, vsnip#source#vscode#find(a:filetype))
   return l:sources
 endfunction
 
