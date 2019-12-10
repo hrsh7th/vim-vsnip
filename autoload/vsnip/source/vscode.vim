@@ -27,8 +27,6 @@ endfunction
 " find.
 "
 function! s:find(language) abort
-  let l:sources = []
-
   " Load `package.json#contributes.snippets` if does not exists it's cache.
   for l:rtp in split(&runtimepath, ',')
     if has_key(s:runtimepaths, l:rtp)
@@ -37,20 +35,24 @@ function! s:find(language) abort
     let s:runtimepaths[l:rtp] = v:true
 
     try
-      let l:package_json = readfile(expand(l:rtp . '/package.json'))
+      let l:package_json = resolve(expand(l:rtp . '/package.json'))
+      if !filereadable(l:package_json)
+        continue
+      endif
+      let l:package_json = readfile(l:package_json)
       let l:package_json = type(l:package_json) == type([]) ? join(l:package_json, "\n") : l:package_json
       let l:package_json = iconv(l:package_json, 'utf-8', &encoding)
       let l:package_json = json_decode(l:package_json)
 
       " if package.json has not `contributes.snippets` fields, skip it.
-      if !has_key(l:package_json, 'contibutes')
+      if !has_key(l:package_json, 'contributes')
             \ || !has_key(l:package_json.contributes, 'snippets')
         continue
       endif
 
       " Create source if does not exists it's cache.
       for l:snippet in l:package_json.contributes.snippets
-        let l:path = expand(l:rtp . '/' . l:snippet.path)
+        let l:path = resolve(expand(l:rtp . '/' . l:snippet.path))
 
         " if already cached `snippets.json`, skip it.
         if has_key(s:snippets, l:path)
@@ -59,7 +61,7 @@ function! s:find(language) abort
 
         let s:snippets[l:path] = {
               \   'languages': type(l:snippet.language) == type([]) ? l:snippet.language : [l:snippet.language],
-              \   'source': vsnip#source#create()
+              \   'source': vsnip#source#create(l:path)
               \ }
       endfor
     catch /.*/

@@ -11,8 +11,8 @@ endfunction
 "
 function! vsnip#source#find(filetype) abort
   let l:sources = []
-  call extend(l:sources, vsnip#source#user_snippet#find(a:filetype))
-  call extend(l:sources, vsnip#source#vscode#find(a:filetype))
+  let l:sources += vsnip#source#user_snippet#find(a:filetype)
+  let l:sources += vsnip#source#vscode#find(a:filetype)
   return l:sources
 endfunction
 
@@ -23,8 +23,9 @@ function! vsnip#source#create(path) abort
   let l:source = []
   try
     let l:file = readfile(a:path)
-    let l:file = type(l:file) == type([]) ? l:file : [l:file]
-    for [l:label, l:snippet] in items(json_decode(join(l:file, "\n")))
+    let l:file = type(l:file) == type([]) ? join(l:file, "\n") : l:file
+    let l:file = iconv(l:file, 'utf-8', &encoding)
+    for [l:label, l:snippet] in items(json_decode(l:file))
       call add(l:source, {
             \   'label': l:label,
             \   'prefix': s:resolve_prefix(l:snippet.prefix),
@@ -34,7 +35,7 @@ function! vsnip#source#create(path) abort
     endfor
   catch /.*/
   endtry
-  return l:source
+  return sort(l:source, { a, b -> strlen(b.prefix[0]) - strlen(a.prefix[0]) })
 endfunction
 
 "
@@ -52,6 +53,6 @@ function! s:resolve_prefix(prefix) abort
     endif
   endfor
 
-  return l:prefixes
+  return sort(l:prefixes, { a, b -> strlen(b) - strlen(a) })
 endfunction
 
