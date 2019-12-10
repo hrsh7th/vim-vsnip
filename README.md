@@ -22,6 +22,7 @@ vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/
 - VSCode's snippet format support.
 - Load snippet from VSCode's extension.
     - You can load snippet via `Plug 'microsoft/vscode-python'` etc.
+    - If you use `dein.nvim`, You should set `merged` flag to 0.
 - Some LSP client integration.
     - You can find how to integrate those plugins in [here](https://github.com/hrsh7th/vim-vsnip-integ).
 
