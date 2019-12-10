@@ -17,6 +17,16 @@ vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/
 - Some LSP client integration.
 
 
+# Features
+
+- VSCode's snippet format support.
+- Load snippet from VSCode's extension.
+    - You can load snippet via `Plug 'microsoft/vscode-python'` etc.
+    - If you use `dein.nvim`, You should set `merged` flag to 0.
+- Some LSP client integration.
+    - You can find how to integrate those plugins in [here](https://github.com/hrsh7th/vim-vsnip-integ).
+
+
 # Usage
 
 ### 1. Install
@@ -58,7 +68,7 @@ Snippet source file will store to `g:vsnip_snippet_dir` per filetype.
       "class $1 ${2:extends ${3:Parent} }{",
       "\tconstructor() {",
       "\t\t$0",
-      "\t}"
+      "\t}",
       "}"
     ],
     "description": "Class definition template."
@@ -92,9 +102,8 @@ See `./doc/vsnip.txt`
 
 # TODO
 
-- Improve snippet source file detection.
-    - Should understand `package.json` [example](https://github.com/xabikos/vscode-react/blob/master/package.json#L22)
-    - Should convert filetype to LSP's languageId.
+- Should convert filetype to LSP's languageId.
+    - It's breaking change...
 - Support more features in VSCode(LSP) spec.
     - regex transform
 - Some other useful features.

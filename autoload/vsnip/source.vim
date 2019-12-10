@@ -1,12 +1,9 @@
-let s:sources = {}
-
 "
 " vsnip#source#refresh.
 "
 function! vsnip#source#refresh(path) abort
-  if has_key(s:sources, a:path)
-    unlet s:sources[a:path]
-  endif
+  call vsnip#source#user_snippet#refresh(a:path)
+  call vsnip#source#vscode#refresh(a:path)
 endfunction
 
 "
@@ -14,40 +11,21 @@ endfunction
 "
 function! vsnip#source#find(filetype) abort
   let l:sources = []
-  for l:path in s:get_source_paths(a:filetype)
-    if !has_key(s:sources, l:path)
-      let s:sources[l:path] = s:source(l:path)
-    endif
-    call add(l:sources, s:sources[l:path])
-  endfor
+  let l:sources += vsnip#source#user_snippet#find(a:filetype)
+  let l:sources += vsnip#source#vscode#find(a:filetype)
   return l:sources
 endfunction
 
 "
-" get_source_paths.
+" vsnip#source#create.
 "
-function! s:get_source_paths(filetype) abort
-  let l:paths = []
-  for l:dir in [g:vsnip_snippet_dir] + g:vsnip_snippet_dirs
-    for l:name in split(a:filetype, '\.') + ['global']
-      let l:path = expand(printf('%s/%s.json', l:dir, l:name))
-      if has_key(s:sources, l:path) || filereadable(l:path)
-        call add(l:paths, l:path)
-      endif
-    endfor
-  endfor
-  return l:paths
-endfunction
-
-"
-" source.
-"
-function! s:source(path) abort
+function! vsnip#source#create(path) abort
   let l:source = []
   try
     let l:file = readfile(a:path)
-    let l:file = type(l:file) == type([]) ? l:file : [l:file]
-    for [l:label, l:snippet] in items(json_decode(join(l:file, "\n")))
+    let l:file = type(l:file) == type([]) ? join(l:file, "\n") : l:file
+    let l:file = iconv(l:file, 'utf-8', &encoding)
+    for [l:label, l:snippet] in items(json_decode(l:file))
       call add(l:source, {
             \   'label': l:label,
             \   'prefix': s:resolve_prefix(l:snippet.prefix),
@@ -57,7 +35,7 @@ function! s:source(path) abort
     endfor
   catch /.*/
   endtry
-  return l:source
+  return sort(l:source, { a, b -> strlen(b.prefix[0]) - strlen(a.prefix[0]) })
 endfunction
 
 "
@@ -75,6 +53,6 @@ function! s:resolve_prefix(prefix) abort
     endif
   endfor
 
-  return l:prefixes
+  return sort(l:prefixes, { a, b -> strlen(b) - strlen(a) })
 endfunction
 
