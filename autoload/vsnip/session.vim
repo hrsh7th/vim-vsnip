@@ -57,8 +57,15 @@ endfunction
 "
 " jump.
 "
-function! s:Session.jump() abort
-  let l:jump_point = self.snippet.get_next_jump_point(self.tabstop)
+function! s:Session.jump(...) abort
+  let l:direction = get(a:000, 0, 1) " default: next
+
+  if l:direction == 1
+    let l:jump_point = self.snippet.get_next_jump_point(self.tabstop)
+  else
+    let l:jump_point = self.snippet.get_prev_jump_point(self.tabstop)
+  endif
+
   if empty(l:jump_point)
     call vsnip#deactivate()
     return

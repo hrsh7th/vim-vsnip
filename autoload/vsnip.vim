@@ -23,23 +23,6 @@ function! vsnip#available() abort
 endfunction
 
 "
-" vsnip#anonymous.
-"
-function! vsnip#anonymous(text) abort
-  let s:session = s:Session.new(
-        \   bufnr('%'),
-        \   {
-        \     'line': line('.') - 1,
-        \     'character': col('.') - 1
-        \   },
-        \   a:text
-        \ )
-  call s:session.insert()
-  call s:session.jump()
-  call vsnip#selected_text('')
-endfunction
-
-"
 " vsnip#expand
 "
 function! vsnip#expand() abort
@@ -66,12 +49,20 @@ function! vsnip#expand() abort
 endfunction
 
 "
-" vsnip#jump
+" vsnip#anonymous.
 "
-function! vsnip#jump() abort
-  if !empty(s:session)
-    call s:session.jump()
-  endif
+function! vsnip#anonymous(text) abort
+  let s:session = s:Session.new(
+        \   bufnr('%'),
+        \   {
+        \     'line': line('.') - 1,
+        \     'character': col('.') - 1
+        \   },
+        \   a:text
+        \ )
+  call s:session.insert()
+  call s:session.jump()
+  call vsnip#selected_text('')
 endfunction
 
 "
