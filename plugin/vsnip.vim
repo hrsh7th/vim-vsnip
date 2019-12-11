@@ -50,11 +50,14 @@ function! s:expand_or_jump()
   normal! l
 
   try
-    let l:session = vsnip#get_session()
-    if !empty(l:session)
-      call l:session.jump()
-    else
+    let l:context = vsnip#get_context()
+    if !empty(l:context)
       call vsnip#expand()
+    else
+      let l:session = vsnip#get_session()
+      if !empty(l:session)
+        call l:session.jump()
+      endif
     endif
   catch /.*/
     echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })

@@ -17,7 +17,7 @@ endfunction
 " vsnip#available.
 "
 function! vsnip#available() abort
-  let l:expandable = !empty(s:get_context())
+  let l:expandable = !empty(vsnip#get_context())
   let l:jumpable = !empty(s:session) && s:session.jumpable()
   return l:expandable || l:jumpable
 endfunction
@@ -26,7 +26,7 @@ endfunction
 " vsnip#expand
 "
 function! vsnip#expand() abort
-  let l:context = s:get_context()
+  let l:context = vsnip#get_context()
   if !empty(l:context)
     let l:line = line('.')
     let l:col = col('.')
@@ -82,7 +82,7 @@ endfunction
 "
 " get_context.
 "
-function! s:get_context() abort
+function! vsnip#get_context() abort
   let l:before_text = getline('.')[0 : col('.') - 2]
   for l:source in vsnip#source#find(&filetype)
     for l:snippet in l:source
