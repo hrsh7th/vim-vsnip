@@ -34,6 +34,7 @@ function! vsnip#source#create(path) abort
             \ })
     endfor
   catch /.*/
+    echomsg string({ 'exception': v:exception, 'throwpint': v:throwpoint })
   endtry
   return sort(l:source, { a, b -> strlen(b.prefix[0]) - strlen(a.prefix[0]) })
 endfunction

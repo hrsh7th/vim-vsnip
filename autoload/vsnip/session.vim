@@ -253,7 +253,7 @@ function! s:Session.indent(text) abort
   let l:text = a:text
   let l:text = substitute(l:text, "\t", l:indent, 'g')
   let l:text = substitute(l:text, "\n\\zs", l:level, 'g')
-  let l:text = substitute(l:text, "\n\\s*\\ze\n", "\n", 'g')
+  let l:text = substitute(l:text, "\n\\s*\\ze\\(\n\\|$\\)", "\n", 'g')
   return l:text
 endfunction
 
