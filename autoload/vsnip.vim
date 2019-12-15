@@ -16,9 +16,9 @@ endfunction
 "
 " vsnip#available.
 "
-function! vsnip#available() abort
+function! vsnip#available(direction) abort
   let l:expandable = !empty(vsnip#get_context())
-  let l:jumpable = !empty(s:session) && s:session.jumpable()
+  let l:jumpable = !empty(s:session) && s:session.jumpable(a:direction)
   return l:expandable || l:jumpable
 endfunction
 
@@ -61,7 +61,7 @@ function! vsnip#anonymous(text) abort
         \   a:text
         \ )
   call s:session.insert()
-  call s:session.jump()
+  call s:session.jump(1)
   call vsnip#selected_text('')
 endfunction
 

@@ -39,11 +39,11 @@ let g:deoplete#enable_at_startup = 1
 "
 " vim-vsnip mapping.
 "
-imap <expr><C-j> vsnip#available()   ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>'
-smap <expr><C-j> vsnip#available()   ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>'
+imap <expr><C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>'
+smap <expr><C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-j>'
 
-imap <expr><Tab> vsnip#available()   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-imap <expr><S-Tab> vsnip#available() ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-smap <expr><Tab> vsnip#available()   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-smap <expr><S-Tab> vsnip#available() ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+imap <expr><Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+smap <expr><Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+imap <expr><S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+smap <expr><S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 
