@@ -8,7 +8,8 @@
       "\tconsole.$4($1$1$1);$0",
       "\ta$1, $1b, $6",
       "}"
-    ]
+    ],
+    "description": "complex example."
   },
   "Start end example": {
     "prefix": ["start-end-example"],
@@ -16,6 +17,22 @@
       "---",
       "${1:start_of_line}console.log(${2:middle_of_line})${0:end_of_line}",
       "---"
-    ]
+    ],
+    "description": "select start/middle/end of line."
+  },
+  "pr13": {
+    "prefix": "pr13",
+    "body": [
+      "FOO ${1:test}",
+      "BAZ ${3|baz,lol,luz|}",
+      "BAR ${2:bar}",
+      "LM ${TM_CURRENT_LINE}"
+    ],
+    "description": "tabstop order is FOO BAR BAZ."
+  },
+  "issue16": {
+    "prefix": "issue16",
+    "body": "const { ${1:a} } = ${2:props};${0}",
+    "description": "placeholder text length is 1."
   }
 }
