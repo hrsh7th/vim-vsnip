@@ -346,6 +346,9 @@ function! s:Snippet.position_to_offset(position) abort
   return l:offset
 endfunction
 
+"
+" debug
+"
 function! s:Snippet.debug() abort
   let l:fn = {}
   function! l:fn.traverse(range, node, parent) abort

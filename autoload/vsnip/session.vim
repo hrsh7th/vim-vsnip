@@ -130,7 +130,6 @@ function! s:Session.move(jump_point) abort
   startinsert
 endfunction
 
-
 "
 " on_text_changed.
 "
@@ -176,7 +175,7 @@ function! s:Session.on_text_changed() abort
     endif
 
     " snippet text is not changed.
-    if !self.is_dirty(l:buffer)
+    if !self.is_dirty(l:buffer, l:diff)
       return
     endif
 
@@ -211,15 +210,19 @@ endfunction
 "
 " is_dirty.
 "
-function! s:Session.is_dirty(buffer) abort
-  return self.snippet.text() !=# self.text_from_buffer(a:buffer)
+function! s:Session.is_dirty(buffer, diff) abort
+  return self.snippet.text() !=# self.text_from_buffer(a:buffer, a:diff)
 endfunction
 
 "
 " text_from_buffer.
 "
-function! s:Session.text_from_buffer(buffer) abort
+function! s:Session.text_from_buffer(buffer, diff) abort
   let l:range = self.snippet.range()
+
+  if a:diff.range.end.line == l:range.end.line
+    let l:range.end.character += strlen(a:diff.text)
+  endif
 
   let l:text = ''
   for l:i in range(l:range.start.line, l:range.end.line)
@@ -234,7 +237,7 @@ function! s:Session.text_from_buffer(buffer) abort
 
     " multi start.
     elseif l:i == l:range.start.line
-      let l:text .= a:buffer[l:i][l:range.start.character : -1] . "\n"
+      let l:text .= a:buffer[l:i][l:range.start.character : - 1] . "\n"
 
     " multi middle.
     elseif l:i != l:range.end.line
