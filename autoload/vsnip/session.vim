@@ -46,8 +46,12 @@ endfunction
 "
 " jumpable.
 "
-function! s:Session.jumpable() abort
-  let l:jumpable = !empty(self.snippet.get_next_jump_point(self.tabstop))
+function! s:Session.jumpable(direction) abort
+  if a:direction == 1
+    let l:jumpable = !empty(self.snippet.get_next_jump_point(self.tabstop))
+  else
+    let l:jumpable = !empty(self.snippet.get_prev_jump_point(self.tabstop))
+  endif
   if !l:jumpable
     call vsnip#deactivate()
   endif
@@ -57,8 +61,13 @@ endfunction
 "
 " jump.
 "
-function! s:Session.jump() abort
-  let l:jump_point = self.snippet.get_next_jump_point(self.tabstop)
+function! s:Session.jump(direction) abort
+  if a:direction == 1
+    let l:jump_point = self.snippet.get_next_jump_point(self.tabstop)
+  else
+    let l:jump_point = self.snippet.get_prev_jump_point(self.tabstop)
+  endif
+
   if empty(l:jump_point)
     call vsnip#deactivate()
     return

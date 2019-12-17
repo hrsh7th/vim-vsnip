@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "This aims to plugin like Visual Studio Code's Snippet feature.",
   "scripts": {
+    "open": "nvim -u .vimrc",
     "test": "themis .",
     "lint": "vint ."
   },

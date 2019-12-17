@@ -4,7 +4,7 @@ endif
 let g:loaded_vsnip = 1
 
 "
-" variable.
+" variable
 "
 let g:vsnip_extra_mapping = get(g:, 'vsnip_extra_mapping', v:true)
 let g:vsnip_snippet_dir = get(g:, 'vsnip_snippet_dir', expand('~/.vsnip'))
@@ -14,7 +14,7 @@ let g:vsnip_choice_delay = get(g:, 'vsnip_choice_delay', 500)
 let g:vsnip_namespace = get(g:, 'vsnip_namespace', 'vsnip:')
 
 "
-" command.
+" command
 "
 command! VsnipOpen call s:open_command('vsplit')
 command! VsnipOpenEdit call s:open_command('edit')
@@ -34,28 +34,73 @@ function! s:open_command(cmd)
 endfunction
 
 "
-" mapping.
+" extra mapping
 "
 if g:vsnip_extra_mapping
   snoremap <BS> <BS>i
 endif
 
+"
+" <Plug>(vsnip-expand-or-jump)
+"
 inoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
 snoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
 function! s:expand_or_jump()
+  let l:ctx = {}
+  function! l:ctx.callback() abort
+    let l:context = vsnip#get_context()
+    let l:session = vsnip#get_session()
+    if !empty(l:context)
+      call vsnip#expand()
+    elseif !empty(l:session) && l:session.jumpable(1)
+      call l:session.jump(1)
+    endif
+  endfunction
+  return s:map({ -> l:ctx.callback() })
+endfunction
+
+"
+" <Plug>(vsnip-expand)
+"
+inoremap <Plug>(vsnip-expand) <Esc>:<C-u>call <SID>expand()<CR>
+function! s:expand() abort
+  let l:ctx = {}
+  function! l:ctx.callback() abort
+    call vsnip#expand()
+  endfunction
+  return s:map({ -> l:ctx.callback() })
+endfunction
+
+"
+" <Plug>(vsnip-jump-next)
+" <Plug>(vsnip-jump-prev)
+"
+inoremap <Plug>(vsnip-jump-next) <Esc>:<C-u>call <SID>jump(1)<CR>
+snoremap <Plug>(vsnip-jump-next) <Esc>:<C-u>call <SID>jump(1)<CR>
+inoremap <Plug>(vsnip-jump-prev) <Esc>:<C-u>call <SID>jump(-1)<CR>
+snoremap <Plug>(vsnip-jump-prev) <Esc>:<C-u>call <SID>jump(-1)<CR>
+function! s:jump(direction) abort
+  let l:ctx = {}
+  let l:ctx.direction = a:direction
+  function! l:ctx.callback() abort
+    let l:session = vsnip#get_session()
+    if !empty(l:session) && l:session.jumpable(self.direction)
+      call l:session.jump(self.direction)
+    endif
+  endfunction
+  return s:map({ -> l:ctx.callback() })
+endfunction
+
+"
+" map
+"
+function! s:map(fn) abort
   let l:virtualedit = &virtualedit
   let &virtualedit = 'onemore'
 
-  " <Plug>(vsnip-expand-or-jump) uses `<Esc>`, So should correct cursor position.
-  normal! l
-
   try
-    let l:session = vsnip#get_session()
-    if !empty(l:session)
-      call l:session.jump()
-    else
-      call vsnip#expand()
-    endif
+    normal! l
+    call a:fn()
   catch /.*/
     echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
   endtry
@@ -73,7 +118,7 @@ augroup vsnip
 augroup END
 
 "
-" on_text_changed.
+" on_text_changed
 "
 function! s:on_text_changed() abort
   let l:session = vsnip#get_session()
@@ -83,7 +128,7 @@ function! s:on_text_changed() abort
 endfunction
 
 "
-" on_buf_write_post.
+" on_buf_write_post
 "
 function! s:on_buf_write_post() abort
   call vsnip#source#refresh(fnamemodify(bufname('%'), ':p'))
