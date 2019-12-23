@@ -11,7 +11,7 @@ let g:vsnip_snippet_dir = get(g:, 'vsnip_snippet_dir', expand('~/.vsnip'))
 let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])
 let g:vsnip_sync_delay = get(g:, 'vsnip_sync_delay', 0)
 let g:vsnip_choice_delay = get(g:, 'vsnip_choice_delay', 500)
-let g:vsnip_namespace = get(g:, 'vsnip_namespace', 'vsnip:')
+let g:vsnip_namespace = get(g:, 'vsnip_namespace', '')
 
 "
 " command

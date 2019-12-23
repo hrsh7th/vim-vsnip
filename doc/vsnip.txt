@@ -72,7 +72,7 @@ Sometimes choice completion menu is closed by auto-completion engine.
 You can use this variable to solve this conflict.
 
 
-let g:vsnip_namespace = 'vsnip_'~
+let g:vsnip_namespace = ''~
 Specify all snippet prefix's prefix.
 It useful when you use auto-completion.
 
