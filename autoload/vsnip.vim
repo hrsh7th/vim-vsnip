@@ -87,7 +87,7 @@ function! vsnip#get_context() abort
   let l:before_text = getline('.')[0 : col('.') - 2]
   for l:source in vsnip#source#find(&filetype)
     for l:snippet in l:source
-      for l:prefix in l:snippet.prefix
+      for l:prefix in (l:snippet.prefix + l:snippet.prefix_alias)
         let l:match = matchlist(l:before_text, printf('\%(\<\(\k\+\)\>\.\)\=\<\(\V%s\m\)\>$',
               \   escape(l:prefix, '\'),
               \ ))

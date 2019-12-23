@@ -26,9 +26,11 @@ function! vsnip#source#create(path) abort
     let l:file = type(l:file) == type([]) ? join(l:file, "\n") : l:file
     let l:file = iconv(l:file, 'utf-8', &encoding)
     for [l:label, l:snippet] in items(json_decode(l:file))
+      let [l:prefixes, l:prefixes_alias] = s:resolve_prefix(l:snippet.prefix)
       call add(l:source, {
             \   'label': l:label,
-            \   'prefix': s:resolve_prefix(l:snippet.prefix),
+            \   'prefix': l:prefixes,
+            \   'prefix_alias': l:prefixes_alias,
             \   'body': type(l:snippet.body) == type([]) ? l:snippet.body : [l:snippet.body],
             \   'description': get(l:snippet, 'description', '')
             \ })
@@ -44,16 +46,26 @@ endfunction
 "
 function! s:resolve_prefix(prefix) abort
   let l:prefixes = []
+  let l:prefixes_alias = []
+
   for l:prefix in type(a:prefix) == type([]) ? a:prefix : [a:prefix]
+    " namspace.
     if strlen(g:vsnip_namespace) > 0
       call add(l:prefixes, g:vsnip_namespace . l:prefix)
     endif
+
+    " prefix.
     call add(l:prefixes, l:prefix)
+
+    " alias.
     if l:prefix =~# '-'
-      call add(l:prefixes, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
+      call add(l:prefixes_alias, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
     endif
   endfor
 
-  return sort(l:prefixes, { a, b -> strlen(b) - strlen(a) })
+  return [
+        \   sort(l:prefixes, { a, b -> strlen(b) - strlen(a) }),
+        \   sort(l:prefixes_alias, { a, b -> strlen(b) - strlen(a) })
+        \ ]
 endfunction
 
