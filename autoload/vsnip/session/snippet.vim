@@ -199,7 +199,7 @@ function! s:Snippet.sync() abort
   if !l:fn2.found_final_tabstop
     let self.children += [vsnip#session#snippet#node#create_from_ast({
           \   'type': 'placeholder',
-          \   'id': 0,
+          \   'id': s:max_tabstop,
           \   'follower': v:false,
           \   'choice': [],
           \   'children': [{
