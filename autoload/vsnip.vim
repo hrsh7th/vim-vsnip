@@ -88,7 +88,8 @@ function! vsnip#get_context() abort
   for l:source in vsnip#source#find(&filetype)
     for l:snippet in l:source
       for l:prefix in (l:snippet.prefix + l:snippet.prefix_alias)
-        let l:match = matchlist(l:before_text, printf('\%(\<\(\k\+\)\>\.\)\=\<\(\V%s\m\)\>$',
+        let l:match = matchlist(l:before_text, printf('\%(\(\k\+\)\V%s\m\)\=\<\(\V%s\m\)\>$',
+              \   escape(g:vsnip_auto_select_trigger, '\'),
               \   escape(l:prefix, '\'),
               \ ))
 

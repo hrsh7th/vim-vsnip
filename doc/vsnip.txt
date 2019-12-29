@@ -83,6 +83,12 @@ VARIABLE                                                      *vsnip-variable*
 
 
 >
+  let g:vsnip_auto_select_trigger = ';'
+<
+    Specify auto select trigger character.
+
+
+>
   let g:vsnip_namespace = ''
 <
     Specify all snippet prefix's prefix.
