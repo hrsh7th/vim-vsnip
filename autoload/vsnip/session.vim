@@ -37,10 +37,6 @@ function! s:Session.insert() abort
         \   'newText': self.snippet.text()
         \ }])
   call self.store(changenr())
-
-  " move to end of snippet after snippet insertion.
-  let l:range = self.snippet.range()
-  call cursor(l:range.end.line + 1, l:range.end.character + 1)
 endfunction
 
 "
