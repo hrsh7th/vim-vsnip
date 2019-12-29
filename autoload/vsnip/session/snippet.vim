@@ -38,8 +38,6 @@ endfunction
 "
 " follow.
 "
-" TODO: Correct position of white-splace changes.
-"
 function! s:Snippet.follow(current_tabstop, diff) abort
   let a:diff.range = [
         \   self.position_to_offset(a:diff.range.start),
@@ -164,6 +162,7 @@ function! s:Snippet.sync() abort
   " sync placeholder.
   let l:fn2 = {}
   let l:fn2.self = self
+  let l:fn2.found_final_tabstop = v:false
   let l:fn2.group = {}
   function! l:fn2.traverse(range, node, parent) abort
     if a:node.type ==# 'placeholder'
@@ -187,6 +186,7 @@ function! s:Snippet.sync() abort
         let a:node.id = s:max_tabstop
       endif
 
+      let self.found_final_tabstop = self.found_final_tabstop || a:node.id == s:max_tabstop
     elseif a:node.type ==# 'variable'
       let l:index = index(a:parent.children, a:node)
       call remove(a:parent.children, l:index)
@@ -194,6 +194,21 @@ function! s:Snippet.sync() abort
     endif
   endfunction
   call self.traverse(self, self.children, l:fn2.traverse, 0)
+
+  " add 0 tabstop to end of snippet if has no 0 tabstop.
+  if !l:fn2.found_final_tabstop
+    let self.children += [vsnip#session#snippet#node#create_from_ast({
+          \   'type': 'placeholder',
+          \   'id': 0,
+          \   'follower': v:false,
+          \   'choice': [],
+          \   'children': [{
+          \     'type': 'text',
+          \     'raw': '',
+          \     'escaped': ''
+          \   }]
+          \ })]
+  endif
 
   return l:fn1.edits
 endfunction
