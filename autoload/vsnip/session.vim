@@ -226,7 +226,7 @@ function! s:Session.text_from_buffer(buffer, diff) abort
   let l:range = self.snippet.range()
 
   if a:diff.range.end.line == l:range.end.line
-    let l:range.end.character += strlen(a:diff.text)
+    let l:range.end.character = max([l:range.end.character, a:diff.range.end.character + strchars(a:diff.text)])
   endif
 
   let l:text = ''
