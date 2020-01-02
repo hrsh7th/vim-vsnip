@@ -34,5 +34,21 @@
     "prefix": "issue16",
     "body": "const { ${1:a} } = ${2:props};${0}",
     "description": "placeholder text length is 1."
+  },
+  "issue17": {
+    "prefix": "issue17",
+    "body": [
+      "while read f; do",
+      " $0",
+      "done < ${1:file_to_read}"
+    ],
+    "description": "While loop with read file snippet"
+  },
+  "issue26": {
+    "prefix": "issue26",
+    "body": [
+      "getbufline(${1:expr}, ${2:lnum})$0"
+    ],
+    "description": "Should work when the line is (((issue26)))"
   }
 }
