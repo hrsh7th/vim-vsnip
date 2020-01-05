@@ -139,6 +139,10 @@ endfunction
 " on_text_changed.
 "
 function! s:Session.on_text_changed() abort
+  if self.bufnr != bufnr('%')
+    return vsnip#deactivate()
+  endif
+
   let l:changenr = changenr()
 
   " save state.
