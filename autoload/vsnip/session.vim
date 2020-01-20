@@ -190,8 +190,13 @@ function! s:Session.on_text_changed() abort
 
     " if follow succeeded, sync placeholders and write back to the buffer.
     if self.snippet.follow(self.tabstop, l:diff)
-      undojoin | call vsnip#edits#text_edit#apply(self.bufnr, self.snippet.sync())
-      let self.buffer = getbufline(self.bufnr, '^', '$')
+      try
+        undojoin | call vsnip#edits#text_edit#apply(self.bufnr, self.snippet.sync())
+        let self.buffer = getbufline(self.bufnr, '^', '$')
+      catch /.*/
+        " TODO: More strict changenrs mangement.
+        call vsnip#deactivate()
+      endtry
     else
       call vsnip#deactivate()
     endif
