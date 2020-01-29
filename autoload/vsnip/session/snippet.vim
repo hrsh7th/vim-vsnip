@@ -39,6 +39,15 @@ endfunction
 " follow.
 "
 function! s:Snippet.follow(current_tabstop, diff) abort
+  let l:range = self.range()
+
+  " fix start position.
+  if a:diff.range.end.line < l:range.start.line
+    let l:lines = split(a:diff.text, "\n")
+    let self.position.line += len(l:lines) - (a:diff.range.end.line - a:diff.range.start.line)
+    return v:false
+  endif
+
   let a:diff.range = [
         \   self.position_to_offset(a:diff.range.start),
         \   self.position_to_offset(a:diff.range.end),

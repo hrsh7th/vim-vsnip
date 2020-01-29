@@ -136,6 +136,31 @@ function! s:Session.move(jump_point) abort
 endfunction
 
 "
+" on_insert_char_pre
+"
+function! s:Session.on_insert_char_pre() abort
+  let l:position = {
+  \   'line': line('.') - 1,
+  \   'character': col('.') - 1
+  \ }
+
+  let l:range = self.snippet.range()
+
+  " line check.
+  if l:position.line < l:range.start.line || l:range.end.line < l:position.line
+    call vsnip#deactivate()
+  endif
+
+  " col check.
+  if l:position.line == l:range.start.line && l:position.character < l:range.start.character
+    call vsnip#deactivate()
+  endif
+  if l:position.line == l:range.end.line && l:range.end.character < l:position.character
+    call vsnip#deactivate()
+  endif
+endfunction
+
+"
 " on_text_changed.
 "
 function! s:Session.on_text_changed() abort
@@ -168,22 +193,7 @@ function! s:Session.on_text_changed() abort
       return
     endif
 
-    " text edit is out of range.
-    let l:range = self.snippet.range()
-    if l:diff.range.end.line < l:range.start.line || l:range.end.line < l:diff.range.start.line
-      call vsnip#deactivate()
-      return
-    endif
-    if l:diff.range.end.line == l:range.start.line && l:diff.range.end.character < l:range.start.character
-      call vsnip#deactivate()
-      return
-    endif
-    if l:diff.range.start.line == l:range.end.line && l:range.end.character < l:diff.range.start.character
-      call vsnip#deactivate()
-      return
-    endif
-
-    " snippet text is not changed.
+    " ignore text changed that's occur by vsnip.
     if !self.is_dirty(l:buffer, l:diff)
       return
     endif
@@ -192,13 +202,9 @@ function! s:Session.on_text_changed() abort
     if self.snippet.follow(self.tabstop, l:diff)
       try
         undojoin | call vsnip#edits#text_edit#apply(self.bufnr, self.snippet.sync())
-        let self.buffer = getbufline(self.bufnr, '^', '$')
       catch /.*/
-        " TODO: More strict changenrs mangement.
-        call vsnip#deactivate()
       endtry
-    else
-      call vsnip#deactivate()
+      let self.buffer = getbufline(self.bufnr, '^', '$')
     endif
   endfunction
 
