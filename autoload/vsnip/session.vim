@@ -95,6 +95,10 @@ function! s:Session.choice(jump_point) abort
   let l:fn = {}
   let l:fn.jump_point = a:jump_point
   function! l:fn.next_tick() abort
+    if mode()[0] !=# 'i'
+      return
+    endif
+
     let l:col = 0
     let l:col += self.jump_point.range.end.character + 1
     let l:col -= strlen(self.jump_point.placeholder.text())
