@@ -272,10 +272,20 @@ endfunction
 function! s:Session.indent(text) abort
   let l:indent = !&expandtab ? "\t" : repeat(' ', &shiftwidth ? &shiftwidth : &tabstop)
   let l:level = matchstr(getline('.'), '^\s*')
-  let l:text = a:text
+  let l:text = s:normalize_eol(a:text)
   let l:text = substitute(l:text, "\t", l:indent, 'g')
   let l:text = substitute(l:text, "\n\\zs", l:level, 'g')
   let l:text = substitute(l:text, "\n\\s*\\ze\\(\n\\|$\\)", "\n", 'g')
+  return l:text
+endfunction
+
+"
+" normalize_eol
+"
+function! s:normalize_eol(text) abort
+  let l:text = a:text
+  let l:text = substitute(l:text, "\r\n", "\n", 'g')
+  let l:text = substitute(l:text, "\r", "\n", 'g')
   return l:text
 endfunction
 
