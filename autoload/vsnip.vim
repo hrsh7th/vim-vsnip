@@ -45,7 +45,7 @@ function! vsnip#expand() abort
           \   'newText': ''
           \ }])
     call cursor(l:line, l:col - l:context.length)
-    call vsnip#anonymous(join(l:context.snippet.body, "\n"))
+    call vsnip#anonymous(join(s:normalize_eof(l:context.snippet.body), "\n"))
   endif
 endfunction
 
@@ -117,3 +117,12 @@ function! vsnip#get_context() abort
   return {}
 endfunction
 
+"
+" normalize_eof
+"
+function! s:normalize_eof(text) abort
+  let l:text = a:text
+  let l:text = substitute(l:text, "\r\n", "\n", 'g')
+  let l:text = substitute(l:text, "\r", "\n", 'g')
+  return l:text
+endfunction
