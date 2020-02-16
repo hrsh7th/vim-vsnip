@@ -93,6 +93,16 @@ Describe vsnip#session#snippet#parser
             \ })
     End
 
+    It Should parse escaped text 3
+      let l:parsed = vsnip#session#snippet#parser#parse('\{\}')
+      call s:expect(len(l:parsed)).to_equal(1)
+      call s:expect(l:parsed[0]).to_equal({
+            \   'type': 'text',
+            \   'raw': '\{\}',
+            \   'escaped': '{}'
+            \ })
+    End
+
     It Should parse nested placeholder
       let l:parsed = vsnip#session#snippet#parser#parse('class $1${2: extends ${3:SuperClass}} { $0 }')
       call s:expect(len(l:parsed)).to_equal(6)
