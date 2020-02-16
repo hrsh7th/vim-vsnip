@@ -31,7 +31,7 @@ function! s:skip(stop) abort
         let l:pos += 1
         let l:char = s:getchar(a:text, l:pos)
         if index(self.stop + ['\'], l:char) == -1
-          return [v:false, v:null, l:pos] " invalid escape.
+          continue " ignore invalid escape char.
         endif
         let l:pos += 1
         let l:value .= l:char
