@@ -1,6 +1,7 @@
 let s:Snippet = vsnip#session#snippet#import()
 let s:TextEdit = vital#vsnip#import('VS.LSP.TextEdit')
 let s:Position = vital#vsnip#import('VS.LSP.Position')
+let s:Diff = vital#vsnip#import('VS.Text.Diff')
 
 "
 " import.
@@ -117,7 +118,7 @@ function! s:Session.select(jump_point) abort
   " Do not worry to first position of line, `select` has always have text.
   let l:pos = s:Position.lsp_to_vim('%', a:jump_point.range.end)
   call cursor([l:pos[0], l:pos[1] - 1])
-  let l:select_length = strlen(a:jump_point.placeholder.text()) - 1
+  let l:select_length = strchars(a:jump_point.placeholder.text()) - 1
   let l:cmd = mode()[0] ==# 'i' ? "\<Esc>l" : ''
   if l:select_length > 0
     let l:cmd .= printf('v%sh', l:select_length)
@@ -163,7 +164,7 @@ function! s:Session.on_text_changed() abort
   function! l:fn.debounce(timer_id) abort
     " compute diff.
     let l:buffer = getbufline(self.bufnr, '^', '$')
-    let l:diff = vsnip#edits#diff#compute(self.buffer, l:buffer)
+    let l:diff = s:Diff.compute(self.buffer, l:buffer)
     let self.buffer = l:buffer
     if l:diff.rangeLength == 0 && l:diff.text ==# ''
       return

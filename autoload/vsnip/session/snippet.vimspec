@@ -170,7 +170,7 @@ Describe vsnip#snippet
 
     It Should return position from offset
       let l:snippet = s:Snippet.new(s:start_position, "class クラス {\n\tpublic constructor() {\n\t\t$0\n\t}\n}")
-      call s:expect(l:snippet.offset_to_position(19)).to_equal({
+      call s:expect(l:snippet.offset_to_position(13)).to_equal({
             \   'line': 2,
             \   'character': 1
             \ })
@@ -185,7 +185,7 @@ Describe vsnip#snippet
       call s:expect(l:snippet.position_to_offset({
             \   'line': 2,
             \   'character': 1
-            \ })).to_equal(19)
+            \ })).to_equal(13)
     End
 
   End
