@@ -1,4 +1,7 @@
 let s:Session = vsnip#session#import()
+let s:TextEdit = vital#vsnip#import('VS.LSP.TextEdit')
+let s:Position = vital#vsnip#import('VS.LSP.Position')
+
 let s:session = v:null
 let s:selected_text = ''
 
@@ -29,22 +32,19 @@ endfunction
 function! vsnip#expand() abort
   let l:context = vsnip#get_context()
   if !empty(l:context)
-    let l:line = line('.')
-    let l:col = col('.')
-    call vsnip#edits#text_edit#apply(bufnr('%'), [{
-          \   'range': {
-          \     'start': {
-          \       'line': l:line - 1,
-          \       'character': l:col - 1 - l:context.length
-          \     },
-          \     'end': {
-          \       'line': l:line - 1,
-          \       'character': l:col - 1
-          \     }
-          \   },
-          \   'newText': ''
-          \ }])
-    call cursor(l:line, l:col - l:context.length)
+    let l:position = s:Position.cursor()
+    let l:text_edit = {
+    \   'range': {
+    \     'start': {
+    \       'line': l:position.line,
+    \       'character': l:position.character - l:context.length
+    \     },
+    \     'end': l:position
+    \   },
+    \   'newText': ''
+    \ }
+    call s:TextEdit.apply(bufnr('%'), [l:text_edit])
+    call cursor(s:Position.lsp_to_vim('%', l:text_edit.range.start))
     call vsnip#anonymous(join(l:context.snippet.body, "\n"))
   endif
 endfunction
@@ -53,14 +53,7 @@ endfunction
 " vsnip#anonymous.
 "
 function! vsnip#anonymous(text) abort
-  let s:session = s:Session.new(
-        \   bufnr('%'),
-        \   {
-        \     'line': line('.') - 1,
-        \     'character': col('.') - 1
-        \   },
-        \   a:text
-        \ )
+  let s:session = s:Session.new(bufnr('%'), s:Position.cursor(), a:text)
   call s:session.insert()
   call s:session.jump(1)
   call vsnip#selected_text('')
@@ -99,10 +92,10 @@ function! vsnip#get_context() abort
         endif
 
         " check selected text.
-        let l:length = strlen(l:prefix)
+        let l:length = strchars(l:prefix)
         if l:match[2] !=# ''
           let l:length += 1
-          let l:length += strlen(l:match[2])
+          let l:length += strchars(l:match[2])
           call vsnip#selected_text(l:match[2])
         endif
 
