@@ -1,4 +1,7 @@
 let s:Snippet = vsnip#session#snippet#import()
+let s:TextEdit = vital#vsnip#import('VS.LSP.TextEdit')
+let s:Position = vital#vsnip#import('VS.LSP.Position')
+let s:Diff = vital#vsnip#import('VS.Text.Diff')
 
 "
 " import.
@@ -29,7 +32,7 @@ endfunction
 "
 function! s:Session.insert() abort
   " insert snippet.
-  call vsnip#edits#text_edit#apply(self.bufnr, [{
+  call s:TextEdit.apply(self.bufnr, [{
         \   'range': {
         \     'start': self.snippet.position,
         \     'end': self.snippet.position
@@ -89,16 +92,14 @@ endfunction
 " choice.
 "
 function! s:Session.choice(jump_point) abort
-  call cursor(a:jump_point.range.end.line + 1, a:jump_point.range.end.character + 1)
+  call cursor(s:Position.lsp_to_vim('%', a:jump_point.range.end))
   startinsert
 
   let l:fn = {}
   let l:fn.jump_point = a:jump_point
   function! l:fn.next_tick() abort
-    let l:col = 0
-    let l:col += self.jump_point.range.end.character + 1
-    let l:col -= strlen(self.jump_point.placeholder.text())
-    call complete(l:col, map(copy(self.jump_point.placeholder.choice), { k, v -> {
+    let l:pos = s:Position.lsp_to_vim('%', self.jump_point.range.start)
+    call complete(l:pos[1], map(copy(self.jump_point.placeholder.choice), { k, v -> {
           \   'word': v.escaped,
           \   'abbr': v.escaped,
           \   'menu': '[vsnip]',
@@ -115,8 +116,9 @@ function! s:Session.select(jump_point) abort
   " `virtualedit=onemore` is restored by `plugin/vsnip.vim` before invoke `feedkeys` contents. (feedkeys is not synchronous.)
   " So using `range.end.character` as inclusive position in here.
   " Do not worry to first position of line, `select` has always have text.
-  call cursor(a:jump_point.range.end.line + 1, a:jump_point.range.end.character)
-  let l:select_length = strlen(a:jump_point.placeholder.text()) - 1
+  let l:pos = s:Position.lsp_to_vim('%', a:jump_point.range.end)
+  call cursor([l:pos[0], l:pos[1] - 1])
+  let l:select_length = strchars(a:jump_point.placeholder.text()) - 1
   let l:cmd = mode()[0] ==# 'i' ? "\<Esc>l" : ''
   if l:select_length > 0
     let l:cmd .= printf('v%sh', l:select_length)
@@ -131,7 +133,7 @@ endfunction
 " move.
 "
 function! s:Session.move(jump_point) abort
-  call cursor(a:jump_point.range.end.line + 1, a:jump_point.range.end.character + 1)
+  call cursor(s:Position.lsp_to_vim('%', a:jump_point.range.end))
   startinsert
 endfunction
 
@@ -162,7 +164,7 @@ function! s:Session.on_text_changed() abort
   function! l:fn.debounce(timer_id) abort
     " compute diff.
     let l:buffer = getbufline(self.bufnr, '^', '$')
-    let l:diff = vsnip#edits#diff#compute(self.buffer, l:buffer)
+    let l:diff = s:Diff.compute(self.buffer, l:buffer)
     let self.buffer = l:buffer
     if l:diff.rangeLength == 0 && l:diff.text ==# ''
       return
@@ -191,7 +193,7 @@ function! s:Session.on_text_changed() abort
     " if follow succeeded, sync placeholders and write back to the buffer.
     if self.snippet.follow(self.tabstop, l:diff)
       try
-        undojoin | call vsnip#edits#text_edit#apply(self.bufnr, self.snippet.sync())
+        undojoin | call s:TextEdit.apply(self.bufnr, self.snippet.sync())
         let self.buffer = getbufline(self.bufnr, '^', '$')
       catch /.*/
         " TODO: More strict changenrs mangement.
@@ -235,7 +237,7 @@ function! s:Session.text_from_buffer(buffer, diff) abort
   let l:range = self.snippet.range()
 
   if a:diff.range.end.line == l:range.end.line
-    let l:range.end.character = max([l:range.end.character, a:diff.range.end.character + strchars(a:diff.text)])
+    let l:range.end.character = max([l:range.end.character, a:diff.range.end.character + strchars(a:diff.text) + 1])
   endif
 
   let l:text = ''
@@ -246,12 +248,12 @@ function! s:Session.text_from_buffer(buffer, diff) abort
 
     " same line.
     if l:i == l:range.start.line && l:i == l:range.end.line
-      let l:text = a:buffer[l:i][l:range.start.character : l:range.end.character - 1]
+      let l:text = strcharpart(a:buffer[l:i], l:range.start.character, l:range.end.character - l:range.start.character)
       break
 
     " multi start.
     elseif l:i == l:range.start.line
-      let l:text .= a:buffer[l:i][l:range.start.character : - 1] . "\n"
+      let l:text .= strcharpart(a:buffer[l:i], l:range.start.character, strchars(a:buffer[l:i]) - l:range.start.character) . "\n"
 
     " multi middle.
     elseif l:i != l:range.end.line
@@ -259,7 +261,7 @@ function! s:Session.text_from_buffer(buffer, diff) abort
 
     " multi end.
     elseif l:i == l:range.end.line
-      let l:text .= a:buffer[l:i][0 : l:range.end.character - 1]
+      let l:text .= strcharpart(a:buffer[l:i], 0, l:range.end.character)
     endif
   endfor
 
@@ -272,20 +274,10 @@ endfunction
 function! s:Session.indent(text) abort
   let l:indent = !&expandtab ? "\t" : repeat(' ', &shiftwidth ? &shiftwidth : &tabstop)
   let l:level = matchstr(getline('.'), '^\s*')
-  let l:text = s:normalize_eol(a:text)
+  let l:text = a:text
   let l:text = substitute(l:text, "\t", l:indent, 'g')
   let l:text = substitute(l:text, "\n\\zs", l:level, 'g')
   let l:text = substitute(l:text, "\n\\s*\\ze\\(\n\\|$\\)", "\n", 'g')
-  return l:text
-endfunction
-
-"
-" normalize_eol
-"
-function! s:normalize_eol(text) abort
-  let l:text = a:text
-  let l:text = substitute(l:text, "\r\n", "\n", 'g')
-  let l:text = substitute(l:text, "\r", "\n", 'g')
   return l:text
 endfunction
 

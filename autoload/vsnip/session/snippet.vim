@@ -31,7 +31,7 @@ function! s:Snippet.range() abort
   " TODO: Should fix end range for next line?
   return {
         \   'start': self.offset_to_position(0),
-        \   'end': self.offset_to_position(strlen(self.text()))
+        \   'end': self.offset_to_position(strchars(self.text()))
         \ }
 endfunction
 
@@ -108,9 +108,9 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     let l:start = a:diff.range[0] - l:target.range[0] - 1
     let l:end = a:diff.range[1] - l:target.range[0]
     let l:value = ''
-    let l:value .= l:start >= 0 ? l:target.node.value[0: l:start] : ''
+    let l:value .= l:start >= 0 ? strcharpart(l:target.node.value, 0, l:start + 1) : ''
     let l:value .= a:diff.text
-    let l:value .= l:target.node.value[l:end : -1]
+    let l:value .= strcharpart(l:target.node.value, l:end, strchars(l:target.node.value) - l:end)
     let l:target.node.value = l:value
 
     if get(l:target.parent, 'follower', v:false)
@@ -310,7 +310,7 @@ function! s:Snippet.traverse(parent, children, callback, pos) abort
   let l:children = copy(a:children)
   for l:i in range(0, len(l:children) - 1)
     let l:node = l:children[l:i]
-    let l:length = strlen(l:node.text())
+    let l:length = strchars(l:node.text())
 
     " child.
     let l:skip = a:callback([l:pos, l:pos + l:length], l:node, a:parent)
@@ -352,7 +352,7 @@ function! s:Snippet.offset_to_position(offset) abort
       let l:character = -1
     endif
 
-    let l:width = strlen(l:char)
+    let l:width = strchars(l:char)
     let l:character += l:width
     let l:offset += l:width
     let l:i += 1
@@ -381,10 +381,10 @@ function! s:Snippet.position_to_offset(position) abort
   let l:i = 0
   while l:i <= min([a:position.line, len(l:lines) - 1])
     if l:i != a:position.line
-      let l:offset += strlen(l:lines[l:i]) + 1
+      let l:offset += strchars(l:lines[l:i]) + 1
     elseif l:i == a:position.line
       if a:position.character > 0
-        let l:offset += strlen(l:lines[l:i][0 : a:position.character - 1])
+        let l:offset += strchars(strcharpart(l:lines[l:i], 0, a:position.character))
       endif
     endif
 
