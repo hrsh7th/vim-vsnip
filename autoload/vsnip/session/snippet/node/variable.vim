@@ -47,7 +47,7 @@ function! s:Variable.resolve() abort
     return expand('%:p:t')
 
   elseif self.name ==# 'TM_FILENAME_BASE'
-    return substitute(expand('%:p:t'), '\..*$', '', 'g')
+    return substitute(expand('%:p:t'), '^\@<!\..*$', '', '')
 
   elseif self.name ==# 'TM_DIRECTORY'
     return expand('%:p:h:t')
