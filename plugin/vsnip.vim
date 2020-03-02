@@ -44,8 +44,8 @@ endif
 "
 " <Plug>(vsnip-expand-or-jump)
 "
-inoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
-snoremap <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
+inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
+snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
 function! s:expand_or_jump()
   let l:ctx = {}
   function! l:ctx.callback() abort
@@ -63,7 +63,7 @@ endfunction
 "
 " <Plug>(vsnip-expand)
 "
-inoremap <Plug>(vsnip-expand) <Esc>:<C-u>call <SID>expand()<CR>
+inoremap <silent> <Plug>(vsnip-expand) <Esc>:<C-u>call <SID>expand()<CR>
 function! s:expand() abort
   let l:ctx = {}
   function! l:ctx.callback() abort
@@ -76,10 +76,10 @@ endfunction
 " <Plug>(vsnip-jump-next)
 " <Plug>(vsnip-jump-prev)
 "
-inoremap <Plug>(vsnip-jump-next) <Esc>:<C-u>call <SID>jump(1)<CR>
-snoremap <Plug>(vsnip-jump-next) <Esc>:<C-u>call <SID>jump(1)<CR>
-inoremap <Plug>(vsnip-jump-prev) <Esc>:<C-u>call <SID>jump(-1)<CR>
-snoremap <Plug>(vsnip-jump-prev) <Esc>:<C-u>call <SID>jump(-1)<CR>
+inoremap <silent> <Plug>(vsnip-jump-next) <Esc>:<C-u>call <SID>jump(1)<CR>
+snoremap <silent> <Plug>(vsnip-jump-next) <Esc>:<C-u>call <SID>jump(1)<CR>
+inoremap <silent> <Plug>(vsnip-jump-prev) <Esc>:<C-u>call <SID>jump(-1)<CR>
+snoremap <silent> <Plug>(vsnip-jump-prev) <Esc>:<C-u>call <SID>jump(-1)<CR>
 function! s:jump(direction) abort
   let l:ctx = {}
   let l:ctx.direction = a:direction
