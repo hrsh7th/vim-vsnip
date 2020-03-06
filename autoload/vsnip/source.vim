@@ -20,24 +20,31 @@ endfunction
 " vsnip#source#create.
 "
 function! vsnip#source#create(path) abort
-  let l:source = []
   try
     let l:file = readfile(a:path)
     let l:file = type(l:file) == type([]) ? join(l:file, "\n") : l:file
     let l:file = iconv(l:file, 'utf-8', &encoding)
-    for [l:label, l:snippet] in items(json_decode(l:file))
-      let [l:prefixes, l:prefixes_alias] = s:resolve_prefix(l:snippet.prefix)
-      call add(l:source, {
-            \   'label': l:label,
-            \   'prefix': l:prefixes,
-            \   'prefix_alias': l:prefixes_alias,
-            \   'body': type(l:snippet.body) == type([]) ? l:snippet.body : [l:snippet.body],
-            \   'description': get(l:snippet, 'description', '')
-            \ })
-    endfor
+    let l:json = json_decode(l:file)
+
+    if type(l:json) != type({})
+      throw printf('%s is not valid json.', a:path)
+    endif
   catch /.*/
+    echomsg printf('Parsing error occurred on: %s', a:path)
     echomsg string({ 'exception': v:exception, 'throwpint': v:throwpoint })
   endtry
+
+  let l:source = []
+  for [l:label, l:snippet] in items(l:json)
+    let [l:prefixes, l:prefixes_alias] = s:resolve_prefix(l:snippet.prefix)
+    call add(l:source, {
+    \   'label': l:label,
+    \   'prefix': l:prefixes,
+    \   'prefix_alias': l:prefixes_alias,
+    \   'body': type(l:snippet.body) == type([]) ? l:snippet.body : [l:snippet.body],
+    \   'description': get(l:snippet, 'description', '')
+    \ })
+  endfor
   return sort(l:source, { a, b -> strlen(b.prefix[0]) - strlen(a.prefix[0]) })
 endfunction
 
