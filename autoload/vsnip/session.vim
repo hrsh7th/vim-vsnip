@@ -43,6 +43,34 @@ function! s:Session.insert() abort
 endfunction
 
 "
+" merge.
+"
+function! s:Session.merge(session) abort
+  " Fix tabstop1
+  let l:offset = 1
+  for l:node in a:session.snippet.get_jumpable_nodes()
+    let l:node.id = self.tabstop + l:offset
+    let l:offset += 1
+  endfor
+  let l:tail = l:node
+
+  " Fix tabstop2
+  let l:offset = 1
+  for l:node in self.snippet.get_jumpable_nodes()
+    if l:node.id <= self.tabstop
+      continue
+    endif
+    let l:node.id = l:tail.id + l:offset
+    let l:offset += 1
+  endfor
+
+  call self.snippet.insert_after(
+  \   self.snippet.get_node_by_position(a:session.snippet.position),
+  \   a:session.snippet.children
+  \ )
+endfunction
+
+"
 " jumpable.
 "
 function! s:Session.jumpable(direction) abort
@@ -50,9 +78,6 @@ function! s:Session.jumpable(direction) abort
     let l:jumpable = !empty(self.snippet.get_next_jump_point(self.tabstop))
   else
     let l:jumpable = !empty(self.snippet.get_prev_jump_point(self.tabstop))
-  endif
-  if !l:jumpable
-    call vsnip#deactivate()
   endif
   return l:jumpable
 endfunction
@@ -68,7 +93,6 @@ function! s:Session.jump(direction) abort
   endif
 
   if empty(l:jump_point)
-    call vsnip#deactivate()
     return
   endif
 
@@ -98,13 +122,15 @@ function! s:Session.choice(jump_point) abort
   let l:fn = {}
   let l:fn.jump_point = a:jump_point
   function! l:fn.next_tick() abort
-    let l:pos = s:Position.lsp_to_vim('%', self.jump_point.range.start)
-    call complete(l:pos[1], map(copy(self.jump_point.placeholder.choice), { k, v -> {
-          \   'word': v.escaped,
-          \   'abbr': v.escaped,
-          \   'menu': '[vsnip]',
-          \   'kind': 'Choice'
-          \ } }))
+    if mode()[0] ==# 'i'
+      let l:pos = s:Position.lsp_to_vim('%', self.jump_point.range.start)
+      call complete(l:pos[1], map(copy(self.jump_point.placeholder.choice), { k, v -> {
+            \   'word': v.escaped,
+            \   'abbr': v.escaped,
+            \   'menu': '[vsnip]',
+            \   'kind': 'Choice'
+            \ } }))
+    endif
   endfunction
   call timer_start(g:vsnip_choice_delay, { -> l:fn.next_tick() })
 endfunction
@@ -135,6 +161,13 @@ endfunction
 function! s:Session.move(jump_point) abort
   call cursor(s:Position.lsp_to_vim('%', a:jump_point.range.end))
   startinsert
+endfunction
+
+"
+" force_sync
+"
+function! s:Session.force_sync() abort
+  let self.buffer = getbufline(self.bufnr, '^', '$')
 endfunction
 
 "
@@ -237,7 +270,7 @@ function! s:Session.text_from_buffer(buffer, diff) abort
   let l:range = self.snippet.range()
 
   if a:diff.range.end.line == l:range.end.line
-    let l:range.end.character = max([l:range.end.character, a:diff.range.end.character + strchars(a:diff.text)])
+    let l:range.end.character += strchars(a:diff.text) - a:diff.rangeLength
   endif
 
   let l:text = ''

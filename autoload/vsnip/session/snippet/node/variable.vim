@@ -11,7 +11,7 @@ function! s:Variable.new(ast) abort
   return extend(deepcopy(s:Variable), {
         \   'type': 'variable',
         \   'name': a:ast.name,
-        \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', []))
+        \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
         \ })
 endfunction
 

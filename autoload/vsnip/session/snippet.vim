@@ -221,6 +221,22 @@ function! s:Snippet.text() abort
 endfunction
 
 "
+" get_jumpable_nodes
+"
+function! s:Snippet.get_jumpable_nodes() abort
+  let l:fn =  {}
+  let l:fn.nodes = []
+  function! l:fn.traverse(range, node, parent) abort
+    if a:node.type ==# 'placeholder' && !a:node.follower
+      call add(self.nodes, a:node)
+    endif
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0)
+
+  return sort(l:fn.nodes, { a, b -> a.id - b.id })
+endfunction
+
+"
 " get_next_jump_point.
 "
 function! s:Snippet.get_next_jump_point(current_tabstop) abort
@@ -282,6 +298,41 @@ function! s:Snippet.get_prev_jump_point(current_tabstop) abort
   endif
 
   return l:fn.jump_point
+endfunction
+
+"
+" insert_after
+"
+function! s:Snippet.insert_after(node, nodes) abort
+  let l:fn = {}
+  let l:fn.node = a:node
+  let l:fn.nodes = a:nodes
+  function! l:fn.traverse(range, node, parent) abort
+    if a:node is self.node
+      let l:idx = index(a:parent.children, a:node)
+      for l:node in reverse(self.nodes)
+        call insert(a:parent.children, l:node, l:idx + 1)
+      endfor
+      return v:true
+    endif
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0)
+endfunction
+
+"
+" get_node_by_position
+"
+function! s:Snippet.get_node_by_position(position) abort
+  let l:fn = {}
+  let l:fn.offset = self.position_to_offset(a:position)
+  let l:fn.returns = v:null
+  function! l:fn.traverse(range, node, parent) abort
+    if a:range[0] <= self.offset && self.offset <= a:range[1] && a:parent.type ==# 'placeholder'
+      let self.returns = a:node
+    endif
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0)
+  return l:fn.returns
 endfunction
 
 "
@@ -398,8 +449,19 @@ endfunction
 "
 function! s:Snippet.debug() abort
   let l:fn = {}
+  let l:fn.self = self
   function! l:fn.traverse(range, node, parent) abort
-    echomsg string(a:node)
+    let l:level = ''
+    let l:parent = a:parent
+    while v:true
+      if empty(l:parent)
+        break
+      endif
+      let l:level .= '   '
+      let l:parent = self.self.get_parent(l:parent)
+    endwhile
+    echomsg l:level . string(extend({ 'children': [] }, a:node, 'keep'))
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)
 endfunction
+
