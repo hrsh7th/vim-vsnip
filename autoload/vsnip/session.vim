@@ -46,6 +46,10 @@ endfunction
 " merge.
 "
 function! s:Session.merge(session) abort
+  call self.on_text_changed()
+  call a:session.insert()
+  call self.force_sync()
+
   " Fix tabstop1
   let l:offset = 1
   for l:node in a:session.snippet.get_jumpable_nodes()
@@ -56,18 +60,26 @@ function! s:Session.merge(session) abort
 
   " Fix tabstop2
   let l:offset = 1
+  let l:tabstop_map = {}
   for l:node in self.snippet.get_jumpable_nodes()
-    if l:node.id <= self.tabstop
-      continue
+    let l:id = l:node.id
+    if l:node.id > self.tabstop
+      if !has_key(l:tabstop_map, l:node.id)
+        let l:node.id = l:tail.id + l:offset
+        let l:offset += 1
+      else
+        let l:node.id = l:tabstop_map[l:node.id]
+      endif
     endif
-    let l:node.id = l:tail.id + l:offset
-    let l:offset += 1
+    let l:tabstop_map[l:id] = l:node.id
   endfor
 
   call self.snippet.insert_after(
   \   self.snippet.get_node_by_position(a:session.snippet.position),
   \   a:session.snippet.children
   \ )
+
+  call s:TextEdit.apply(self.bufnr, self.snippet.sync())
 endfunction
 
 "

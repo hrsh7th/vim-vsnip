@@ -60,14 +60,6 @@ function! vsnip#anonymous(text) abort
     let s:session = l:session
     call s:session.insert()
   else
-    " Apply diff for prefix text removing.
-    call s:session.on_text_changed()
-
-    " Ignore diff for nested snippet insertion (because it will be merged).
-    call l:session.insert()
-    call l:session.force_sync()
-
-    " Merge snippet
     call s:session.merge(l:session)
   endif
   call s:session.jump(1)

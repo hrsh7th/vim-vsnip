@@ -178,7 +178,7 @@ function! s:Snippet.sync() abort
       else
         " sync.
         let a:node.follower = v:true
-        let a:node.children = deepcopy(self.group[a:node.id].children)
+        let a:node.children = [vsnip#session#snippet#node#create_text(self.group[a:node.id].text())]
       endif
 
       " fix 0-tabstop to max tabstop.
