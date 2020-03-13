@@ -221,9 +221,9 @@ function! s:Snippet.text() abort
 endfunction
 
 "
-" get_jumpable_nodes
+" get_placeholder_nodes
 "
-function! s:Snippet.get_jumpable_nodes() abort
+function! s:Snippet.get_placeholder_nodes() abort
   let l:fn =  {}
   let l:fn.nodes = []
   function! l:fn.traverse(range, node, parent) abort

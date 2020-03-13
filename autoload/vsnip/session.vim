@@ -53,7 +53,7 @@ function! s:Session.merge(session) abort
   " Fix tabstop1
   let l:offset = 1
   let l:tabstop_map = {}
-  for l:node in a:session.snippet.get_jumpable_nodes()
+  for l:node in a:session.snippet.get_placeholder_nodes()
     if !has_key(l:tabstop_map, l:node.id)
       let l:tabstop_map[l:node.id] = self.tabstop + l:offset
     endif
@@ -65,7 +65,7 @@ function! s:Session.merge(session) abort
   " Fix tabstop2
   let l:offset = 1
   let l:tabstop_map = {}
-  for l:node in self.snippet.get_jumpable_nodes()
+  for l:node in self.snippet.get_placeholder_nodes()
     if l:node.id > self.tabstop
       if !has_key(l:tabstop_map, l:node.id)
         let l:tabstop_map[l:node.id] = l:tail.id + l:offset
