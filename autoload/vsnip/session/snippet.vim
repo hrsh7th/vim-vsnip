@@ -227,7 +227,7 @@ function! s:Snippet.get_jumpable_nodes() abort
   let l:fn =  {}
   let l:fn.nodes = []
   function! l:fn.traverse(range, node, parent) abort
-    if a:node.type ==# 'placeholder' && !a:node.follower
+    if a:node.type ==# 'placeholder'
       call add(self.nodes, a:node)
     endif
   endfunction
