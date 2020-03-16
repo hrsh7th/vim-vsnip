@@ -322,8 +322,6 @@ function! s:Snippet.insert_node(position, nodes) abort
         let l:after = vsnip#session#snippet#node#create_text(a:node.value[self.offset - a:range[0] : -1])
         let l:inserts = [l:after] + l:inserts
         let l:inserts = l:inserts + [l:before]
-      else
-        let l:inserts = l:inserts + [a:node]
       endif
 
       " insert nodes.
