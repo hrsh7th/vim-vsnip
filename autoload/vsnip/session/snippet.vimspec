@@ -190,34 +190,26 @@ Describe vsnip#snippet
 
   End
 
-  Describe #get_node_by_position
-
-    It Should return node 1
-      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1:012345})')
-      call s:expect(l:snippet.get_node_by_position({
-      \   'line': 1,
-      \   'character': 13
-      \ }).text()).to_equal('012345')
-    End
-
-  End
-
-  Describe #insert_after
+  Describe #insert_node
 
     It Should insert node 1
-      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1})')
-      let l:node = l:snippet.get_node_by_position({
-      \   'line': 1,
-      \   'character': 13
-      \ })
-      call l:snippet.insert_after(l:node, [
-      \   vsnip#session#snippet#node#create_from_ast({ 'type': 'text', 'escaped': '__1' }),
-      \   vsnip#session#snippet#node#create_from_ast({ 'type': 'text', 'escaped': '__2' })
-      \ ])
-      let l:parent = l:snippet.get_parent(l:node)
-      call s:expect(l:parent.children[0].text()).to_equal('')
-      call s:expect(l:parent.children[1].text()).to_equal('__1')
-      call s:expect(l:parent.children[2].text()).to_equal('__2')
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1}, ${2:${1}})')
+      call l:snippet.insert_node({ 'line': 1, 'character': 13 }, s:Snippet.new(s:start_position, 'console.log(${3}, ${4:${3}})').children)
+      call s:expect(l:snippet.text()).to_equal('console.log(console.log(, ), )')
+    End
+
+    It Should insert node 2
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1}, ${2:${1}})')
+      call l:snippet.insert_node({ 'line': 1, 'character': 15 }, s:Snippet.new(s:start_position, 'console.log()').children)
+      call s:expect(l:snippet.text()).to_equal('console.log(, console.log())')
+      call s:expect(len(l:snippet.get_placeholder_nodes())).to_equal(5)
+    End
+
+    It Should insert node 3
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(aiueo)')
+      call l:snippet.insert_node({ 'line': 1, 'character': 15 }, s:Snippet.new(s:start_position, '___').children)
+      call s:expect(l:snippet.text()).to_equal('console.log(ai___ueo)')
+      call themis#log(l:snippet.get_placeholder_nodes())
     End
 
   End

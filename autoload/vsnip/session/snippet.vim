@@ -47,7 +47,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:fn = {}
   let l:fn.diff = a:diff
   let l:fn.candidates = []
-  function! l:fn.traverse(range, node, parent) abort
+  function! l:fn.traverse(range, node, parent, depth) abort
     let l:is_before = a:range[1] < self.diff.range[0]
     let l:is_after = self.diff.range[1] < a:range[0]
 
@@ -78,7 +78,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
 
     return v:false
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
   if len(l:fn.candidates) == 0
     return v:false
@@ -140,7 +140,7 @@ function! s:Snippet.sync() abort
   let l:fn1.self = self
   let l:fn1.group = {}
   let l:fn1.edits = []
-  function! l:fn1.traverse(range, node, parent) abort
+  function! l:fn1.traverse(range, node, parent, depth) abort
     if a:node.type !=# 'placeholder'
       return v:false
     endif
@@ -157,14 +157,14 @@ function! s:Snippet.sync() abort
             \ })
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn1.traverse, 0)
+  call self.traverse(self, self.children, l:fn1.traverse, 0, 0)
 
   " sync placeholder.
   let l:fn2 = {}
   let l:fn2.self = self
   let l:fn2.found_final_tabstop = v:false
   let l:fn2.group = {}
-  function! l:fn2.traverse(range, node, parent) abort
+  function! l:fn2.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder'
       " append text node when placeholder has no children.
       if len(a:node.children) == 0
@@ -193,7 +193,7 @@ function! s:Snippet.sync() abort
       call insert(a:parent.children, vsnip#session#snippet#node#create_text(a:node.text()), l:index)
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn2.traverse, 0)
+  call self.traverse(self, self.children, l:fn2.traverse, 0, 0)
 
   " add 0 tabstop to end of snippet if has no 0 tabstop.
   if !l:fn2.found_final_tabstop
@@ -226,12 +226,12 @@ endfunction
 function! s:Snippet.get_placeholder_nodes() abort
   let l:fn =  {}
   let l:fn.nodes = []
-  function! l:fn.traverse(range, node, parent) abort
+  function! l:fn.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder'
       call add(self.nodes, a:node)
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
   return sort(l:fn.nodes, { a, b -> a.id - b.id })
 endfunction
@@ -243,7 +243,7 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
   let l:fn = {}
   let l:fn.current_tabstop = a:current_tabstop
   let l:fn.self = self
-  function! l:fn.traverse(range, node, parent) abort
+  function! l:fn.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder' && self.current_tabstop < a:node.id
       if has_key(self, 'jump_point') && self.jump_point.placeholder.id <= a:node.id
         return v:false
@@ -258,7 +258,7 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
             \ }
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
   " can't detect next jump point.
   if !has_key(l:fn, 'jump_point')
@@ -275,7 +275,7 @@ function! s:Snippet.get_prev_jump_point(current_tabstop) abort
   let l:fn = {}
   let l:fn.current_tabstop = a:current_tabstop
   let l:fn.self = self
-  function! l:fn.traverse(range, node, parent) abort
+  function! l:fn.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder' && self.current_tabstop > a:node.id
       if has_key(self, 'jump_point') && self.jump_point.placeholder.id >= a:node.id
         return v:false
@@ -290,7 +290,7 @@ function! s:Snippet.get_prev_jump_point(current_tabstop) abort
             \ }
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
   " can't detect next jump point.
   if !has_key(l:fn, 'jump_point')
@@ -301,50 +301,94 @@ function! s:Snippet.get_prev_jump_point(current_tabstop) abort
 endfunction
 
 "
+" normalize
+"
+function! s:Snippet.normalize() abort
+  let l:fn = {}
+  let l:fn.recent = {
+  \   'range': [-1, -1],
+  \   'node': v:null,
+  \   'parent': v:null
+  \ }
+  function! l:fn.traverse(range, node, parent, depth) abort
+    " Check same depth.
+    if !empty(self.recent.node) && self.recent.depth == a:depth
+
+      " Check duplicate placeholder.
+      if self.recent.node.type ==# 'placeholder' && a:node.type ==# 'placeholder'
+        " same range.
+        if self.recent.range[0] == a:range[0] && self.recent.range[1] == a:range[1]
+          call remove(a:parent.children, index(a:parent.children, a:node))
+        endif
+      endif
+
+      " Check duplicate text.
+      if self.recent.node.type ==# 'text' && a:node.type ==# 'text'
+        call remove(a:parent.children, index(a:parent.children, a:node))
+        let self.recent.node.value .= a:node.value
+      endif
+    endif
+
+    let self.recent = {
+    \   'range': a:range,
+    \   'node': a:node,
+    \   'parent': a:parent,
+    \   'depth': a:depth,
+    \ }
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+endfunction
+
+"
 " insert_node
 "
 function! s:Snippet.insert_node(position, nodes) abort
+  let l:offset = self.position_to_offset(a:position)
+
   let l:fn1 = {}
-  let l:fn1.offset = self.position_to_offset(a:position)
+  let l:fn1.offset = l:offset
   let l:fn1.nodes = a:nodes
-  function! l:fn1.traverse(range, node, parent) abort
-    if a:range[0] <= self.offset && self.offset <= a:range[1] && a:parent.type ==# 'placeholder' && a:node.type ==# 'text'
-      let l:idx = index(a:parent.children, a:node)
-
-      " remove target node.
-      call remove(a:parent.children, l:idx)
-
-      let l:inserts = reverse(self.nodes)
-
-      " split target node.
-      if a:node.value !=# ''
-        let l:before = vsnip#session#snippet#node#create_text(a:node.value[0 : self.offset - a:range[0] - 1])
-        let l:after = vsnip#session#snippet#node#create_text(a:node.value[self.offset - a:range[0] : -1])
-        let l:inserts = [l:after] + l:inserts + [l:before]
+  let l:fn1.returns = v:null
+  function! l:fn1.traverse(range, node, parent, depth) abort
+    if a:range[0] <= self.offset && self.offset <= a:range[1] && a:node.type ==# 'text'
+      " prefer more deeper node.
+      if empty(self.returns) || self.returns.depth <= a:depth
+        let self.returns = {
+        \   'range': a:range,
+        \   'node': a:node,
+        \   'parent': a:parent,
+        \   'depth': a:depth,
+        \ }
       endif
-
-      " insert nodes.
-      for l:node in l:inserts
-        call insert(a:parent.children, l:node, l:idx)
-      endfor
-      return v:true
-    endif
-
-  endfunction
-  call self.traverse(self, self.children, l:fn1.traverse, 0)
-
-  let l:fn2 = {}
-  let l:fn2.range = [-1, -1]
-  let l:fn2.node = v:null
-  function! l:fn2.traverse(range, node, parent) abort
-    if a:range[1] - a:range[0] == 0 && a:node.type ==# 'placeholder' && !a:node.follower
-      if self.range[0] ==# a:range[0] && self.range[1] == a:range[1]
-        call remove(a:parent.children, index(a:parent.children, a:node))
-      endif
-      let self.range = a:range
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn2.traverse, 0)
+  call self.traverse(self, self.children, l:fn1.traverse, 0, 0)
+
+  if !empty(l:fn1.returns)
+    let l:range = l:fn1.returns.range
+    let l:node = l:fn1.returns.node
+    let l:parent = l:fn1.returns.parent
+    let l:idx = index(l:parent.children, l:node)
+
+    " remove target node.
+    call remove(l:parent.children, l:idx)
+
+    let l:inserts = reverse(a:nodes)
+
+    " split target node.
+    if l:node.value !=# ''
+      let l:before = vsnip#session#snippet#node#create_text(l:node.value[0 : l:offset - l:range[0] - 1])
+      let l:after = vsnip#session#snippet#node#create_text(l:node.value[l:offset - l:range[0] : -1])
+      let l:inserts = [l:after] + l:inserts + [l:before]
+    endif
+
+    " insert nodes.
+    for l:node in l:inserts
+      call insert(l:parent.children, l:node, l:idx)
+    endfor
+  endif
+
+  call self.normalize()
 endfunction
 
 "
@@ -354,20 +398,20 @@ function! s:Snippet.get_parent(node) abort
   let l:fn = {}
   let l:fn.node = a:node
   let l:fn.parent = v:null
-  function! l:fn.traverse(range, node, parent) abort
+  function! l:fn.traverse(range, node, parent, depth) abort
     if self.node == a:node
       let self.parent = a:parent
       return v:true
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
   return l:fn.parent
 endfunction
 
 "
 " traverse.
 "
-function! s:Snippet.traverse(parent, children, callback, pos) abort
+function! s:Snippet.traverse(parent, children, callback, pos, depth) abort
   let l:pos = a:pos
   let l:skip = v:false
   let l:children = copy(a:children)
@@ -376,14 +420,14 @@ function! s:Snippet.traverse(parent, children, callback, pos) abort
     let l:length = strchars(l:node.text())
 
     " child.
-    let l:skip = a:callback([l:pos, l:pos + l:length], l:node, a:parent)
+    let l:skip = a:callback([l:pos, l:pos + l:length], l:node, a:parent, a:depth)
     if l:skip
       return l:skip
     endif
 
     " child.children.
     if has_key(l:node, 'children') && len(l:node.children) > 0
-      let l:skip = self.traverse(l:node, l:node.children, a:callback, l:pos)
+      let l:skip = self.traverse(l:node, l:node.children, a:callback, l:pos, a:depth + 1)
       if l:skip
         return l:skip
       endif
@@ -468,7 +512,7 @@ function! s:Snippet.debug() abort
 
   let l:fn = {}
   let l:fn.self = self
-  function! l:fn.traverse(range, node, parent) abort
+  function! l:fn.traverse(range, node, parent, depth) abort
     let l:level = ''
     let l:parent = a:parent
     while v:true
@@ -480,6 +524,7 @@ function! s:Snippet.debug() abort
     endwhile
     echomsg l:level . string(extend({ 'children': [], 'new': '', 'text': '', }, a:node, 'keep'))
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  echomsg ' '
 endfunction
 
