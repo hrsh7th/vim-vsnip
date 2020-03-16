@@ -304,10 +304,10 @@ endfunction
 " insert_node
 "
 function! s:Snippet.insert_node(position, nodes) abort
-  let l:fn = {}
-  let l:fn.offset = self.position_to_offset(a:position)
-  let l:fn.nodes = a:nodes
-  function! l:fn.traverse(range, node, parent) abort
+  let l:fn1 = {}
+  let l:fn1.offset = self.position_to_offset(a:position)
+  let l:fn1.nodes = a:nodes
+  function! l:fn1.traverse(range, node, parent) abort
     if a:range[0] <= self.offset && self.offset <= a:range[1] && a:parent.type ==# 'placeholder' && a:node.type ==# 'text'
       let l:idx = index(a:parent.children, a:node)
 
@@ -331,7 +331,20 @@ function! s:Snippet.insert_node(position, nodes) abort
     endif
 
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
+  call self.traverse(self, self.children, l:fn1.traverse, 0)
+
+  let l:fn2 = {}
+  let l:fn2.range = [-1, -1]
+  let l:fn2.node = v:null
+  function! l:fn2.traverse(range, node, parent) abort
+    if a:range[1] - a:range[0] == 0 && a:node.type ==# 'placeholder' && !a:node.follower
+      if self.range[0] ==# a:range[0] && self.range[1] == a:range[1]
+        call remove(a:parent.children, index(a:parent.children, a:node))
+      endif
+      let self.range = a:range
+    endif
+  endfunction
+  call self.traverse(self, self.children, l:fn2.traverse, 0)
 endfunction
 
 "
