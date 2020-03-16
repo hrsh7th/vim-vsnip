@@ -46,9 +46,7 @@ endfunction
 " merge.
 "
 function! s:Session.merge(session) abort
-  call self.on_text_changed()
   call a:session.insert()
-  call self.force_sync()
 
   " Fix tabstop1
   let l:offset = 1
@@ -75,10 +73,7 @@ function! s:Session.merge(session) abort
     endif
   endfor
 
-  call self.snippet.insert_after(
-  \   self.snippet.get_node_by_position(a:session.snippet.position),
-  \   a:session.snippet.children
-  \ )
+  call self.snippet.insert_node(deepcopy(a:session.snippet.position), a:session.snippet.children)
 
   call s:TextEdit.apply(self.bufnr, self.snippet.sync())
 endfunction
@@ -115,11 +110,11 @@ function! s:Session.jump(direction) abort
   if len(l:jump_point.placeholder.choice) > 0
     call self.choice(l:jump_point)
 
-  " select.
+    " select.
   elseif l:jump_point.range.start.character != l:jump_point.range.end.character
     call self.select(l:jump_point)
 
-  " move.
+    " move.
   else
     call self.move(l:jump_point)
   endif
@@ -177,9 +172,9 @@ function! s:Session.move(jump_point) abort
 endfunction
 
 "
-" force_sync
+" refresh
 "
-function! s:Session.force_sync() abort
+function! s:Session.refresh() abort
   let self.buffer = getbufline(self.bufnr, '^', '$')
 endfunction
 
@@ -218,17 +213,17 @@ function! s:Session.on_text_changed() abort
 
     " text edit is out of range.
     let l:range = self.snippet.range()
-    if l:diff.range.end.line < l:range.start.line || l:range.end.line < l:diff.range.start.line
-      call vsnip#deactivate()
-      return
+    if l:diff.range.start.line < l:range.start.line
+      return vsnip#deactivate()
     endif
-    if l:diff.range.end.line == l:range.start.line && l:diff.range.end.character < l:range.start.character
-      call vsnip#deactivate()
-      return
+    if l:range.end.line < l:diff.range.end.line
+      return vsnip#deactivate()
     endif
-    if l:diff.range.start.line == l:range.end.line && l:range.end.character < l:diff.range.start.character
-      call vsnip#deactivate()
-      return
+    if l:diff.range.start.line == l:range.start.line && l:diff.range.start.character < l:range.start.character
+      return vsnip#deactivate()
+    endif
+    if l:diff.range.end.line == l:range.end.line && l:range.end.character < l:diff.range.end.character
+      return vsnip#deactivate()
     endif
 
     " snippet text is not changed.
@@ -240,7 +235,7 @@ function! s:Session.on_text_changed() abort
     if self.snippet.follow(self.tabstop, l:diff)
       try
         undojoin | call s:TextEdit.apply(self.bufnr, self.snippet.sync())
-        let self.buffer = getbufline(self.bufnr, '^', '$')
+        call self.refresh()
       catch /.*/
         " TODO: More strict changenrs mangement.
         call vsnip#deactivate()
@@ -285,6 +280,7 @@ function! s:Session.text_from_buffer(buffer, diff) abort
   if a:diff.range.end.line == l:range.end.line
     let l:range.end.character += strchars(a:diff.text) - a:diff.rangeLength
   endif
+  let l:range.end.line += len(split(a:diff.text, "\n", v:true)) - ((a:diff.range.end.line - a:diff.range.start.line) + 1)
 
   let l:text = ''
   for l:i in range(l:range.start.line, l:range.end.line)

@@ -301,38 +301,40 @@ function! s:Snippet.get_prev_jump_point(current_tabstop) abort
 endfunction
 
 "
-" insert_after
+" insert_node
 "
-function! s:Snippet.insert_after(node, nodes) abort
+function! s:Snippet.insert_node(position, nodes) abort
   let l:fn = {}
-  let l:fn.node = a:node
+  let l:fn.offset = self.position_to_offset(a:position)
   let l:fn.nodes = a:nodes
   function! l:fn.traverse(range, node, parent) abort
-    if a:node is self.node
+    if a:range[0] <= self.offset && self.offset <= a:range[1] && a:parent.type ==# 'placeholder' && a:node.type ==# 'text'
       let l:idx = index(a:parent.children, a:node)
-      for l:node in reverse(self.nodes)
-        call insert(a:parent.children, l:node, l:idx + 1)
+
+      " remove target node.
+      call remove(a:parent.children, l:idx)
+
+      let l:inserts = reverse(self.nodes)
+
+      " split target node.
+      if a:node.value !=# ''
+        let l:before = vsnip#session#snippet#node#create_text(a:node.value[0 : self.offset - a:range[0] - 1])
+        let l:after = vsnip#session#snippet#node#create_text(a:node.value[self.offset - a:range[0] : -1])
+        let l:inserts = [l:after] + l:inserts
+        let l:inserts = l:inserts + [l:before]
+      else
+        let l:inserts = l:inserts + [a:node]
+      endif
+
+      " insert nodes.
+      for l:node in l:inserts
+        call insert(a:parent.children, l:node, l:idx)
       endfor
       return v:true
     endif
-  endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0)
-endfunction
 
-"
-" get_node_by_position
-"
-function! s:Snippet.get_node_by_position(position) abort
-  let l:fn = {}
-  let l:fn.offset = self.position_to_offset(a:position)
-  let l:fn.returns = v:null
-  function! l:fn.traverse(range, node, parent) abort
-    if a:range[0] <= self.offset && self.offset <= a:range[1] && a:parent.type ==# 'placeholder'
-      let self.returns = a:node
-    endif
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)
-  return l:fn.returns
 endfunction
 
 "
@@ -448,6 +450,12 @@ endfunction
 " debug
 "
 function! s:Snippet.debug() abort
+  echomsg 'snippet.text()'
+  for l:line in split(self.text(), "\n", v:true)
+    echomsg l:line
+  endfor
+  echomsg '-----'
+
   let l:fn = {}
   let l:fn.self = self
   function! l:fn.traverse(range, node, parent) abort
@@ -460,7 +468,7 @@ function! s:Snippet.debug() abort
       let l:level .= '   '
       let l:parent = self.self.get_parent(l:parent)
     endwhile
-    echomsg l:level . string(extend({ 'children': [] }, a:node, 'keep'))
+    echomsg l:level . string(extend({ 'children': [], 'new': '', 'text': '', }, a:node, 'keep'))
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0)
 endfunction
