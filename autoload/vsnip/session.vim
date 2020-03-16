@@ -280,7 +280,6 @@ function! s:Session.text_from_buffer(buffer, diff) abort
   if a:diff.range.end.line == l:range.end.line
     let l:range.end.character += strchars(a:diff.text) - a:diff.rangeLength
   endif
-  let l:range.end.line += len(split(a:diff.text, "\n", v:true)) - ((a:diff.range.end.line - a:diff.range.start.line) + 1)
 
   let l:text = ''
   for l:i in range(l:range.start.line, l:range.end.line)

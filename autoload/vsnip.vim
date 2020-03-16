@@ -62,8 +62,9 @@ function! vsnip#anonymous(text) abort
   else
     call s:session.on_text_changed()
     call s:session.merge(l:session)
-    call s:session.refresh()
   endif
+
+  call s:session.refresh()
   call s:session.jump(1)
 endfunction
 
