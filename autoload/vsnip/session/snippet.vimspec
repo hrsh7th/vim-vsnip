@@ -190,6 +190,25 @@ Describe vsnip#snippet
 
   End
 
+  Describe #normalize
+
+    It Should normalize 1
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1}${2})')
+      call s:expect(len(l:snippet.children)).to_equal(5)
+      call l:snippet.normalize()
+      call s:expect(len(l:snippet.children)).to_equal(4)
+    End
+
+    It Should normalize 2
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log')
+      call insert(l:snippet.children, vsnip#session#snippet#node#create_text('___'), 1)
+      call s:expect(len(l:snippet.children)).to_equal(3)
+      call l:snippet.normalize()
+      call s:expect(len(l:snippet.children)).to_equal(2)
+    End
+
+  End
+
   Describe #insert_node
 
     It Should insert node 1
@@ -209,7 +228,12 @@ Describe vsnip#snippet
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(aiueo)')
       call l:snippet.insert_node({ 'line': 1, 'character': 15 }, s:Snippet.new(s:start_position, '___').children)
       call s:expect(l:snippet.text()).to_equal('console.log(ai___ueo)')
-      call themis#log(l:snippet.get_placeholder_nodes())
+    End
+
+    It Should insert node 4
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(aiueo)')
+      call l:snippet.insert_node({ 'line': 1, 'character': 18 }, [vsnip#session#snippet#node#create_text('___')])
+      call s:expect(l:snippet.text()).to_equal('console.log(aiueo___)')
     End
 
   End

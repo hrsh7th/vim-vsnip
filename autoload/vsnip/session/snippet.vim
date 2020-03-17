@@ -305,31 +305,29 @@ endfunction
 "
 function! s:Snippet.normalize() abort
   let l:fn = {}
-  let l:fn.recent = {
-  \   'range': [-1, -1],
-  \   'node': v:null,
-  \   'parent': v:null
-  \ }
+  let l:fn.placeholder = v:null
+  let l:fn.text = v:null
   function! l:fn.traverse(range, node, parent, depth) abort
-    " Check same depth.
-    if !empty(self.recent.node) && self.recent.depth == a:depth
-
-      " Check duplicate placeholder.
-      if self.recent.node.type ==# 'placeholder' && a:node.type ==# 'placeholder'
-        " same range.
-        if self.recent.range[0] == a:range[0] && self.recent.range[1] == a:range[1]
+    " Check placeholder.
+    if !empty(self.placeholder) && self.placeholder.depth == a:depth
+      if self.placeholder.node.type ==# 'placeholder' && a:node.type ==# 'placeholder'
+        if self.placeholder.range[0] == a:range[0] && self.placeholder.range[1] == a:range[1]
           call remove(a:parent.children, index(a:parent.children, a:node))
+          return
         endif
-      endif
-
-      " Check duplicate text.
-      if self.recent.node.type ==# 'text' && a:node.type ==# 'text'
-        call remove(a:parent.children, index(a:parent.children, a:node))
-        let self.recent.node.value .= a:node.value
       endif
     endif
 
-    let self.recent = {
+    " Check text.
+    if !empty(self.text) && self.text.depth == a:depth
+      if self.text.node.type ==# 'text' && a:node.type ==# 'text'
+        let self.text.node.value .= a:node.value
+        call remove(a:parent.children, index(a:parent.children, a:node))
+        return
+      endif
+    endif
+
+    let self[a:node.type] = {
     \   'range': a:range,
     \   'node': a:node,
     \   'parent': a:parent,
@@ -377,8 +375,8 @@ function! s:Snippet.insert_node(position, nodes) abort
 
     " split target node.
     if l:node.value !=# ''
-      let l:before = vsnip#session#snippet#node#create_text(l:node.value[0 : l:offset - l:range[0] - 1])
-      let l:after = vsnip#session#snippet#node#create_text(l:node.value[l:offset - l:range[0] : -1])
+      let l:before = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, 0, l:offset - l:range[0]))
+      let l:after = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, l:offset - l:range[0], strchars(l:node.value) - l:offset - l:range[0]))
       let l:inserts = [l:after] + l:inserts + [l:before]
     endif
 
