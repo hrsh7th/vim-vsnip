@@ -53,10 +53,19 @@ endfunction
 " vsnip#anonymous.
 "
 function! vsnip#anonymous(text) abort
-  let s:session = s:Session.new(bufnr('%'), s:Position.cursor(), a:text)
-  call s:session.insert()
-  call s:session.jump(1)
+  let l:session = s:Session.new(bufnr('%'), s:Position.cursor(), a:text)
   call vsnip#selected_text('')
+
+  if empty(s:session)
+    let s:session = l:session
+    call s:session.insert()
+  else
+    call s:session.on_text_changed()
+    call s:session.merge(l:session)
+  endif
+
+  call s:session.refresh()
+  call s:session.jump(1)
 endfunction
 
 "

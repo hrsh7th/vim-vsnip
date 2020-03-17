@@ -20,6 +20,9 @@ vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/
 # Features
 
 - VSCode's snippet format support.
+- Nested snippet expansion
+    - You can expand snippet even if you already activated other snippet.
+    - Those snippet are merged one snippeet and works fine.
 - Load snippet from VSCode's extension.
     - You can load snippet via `Plug 'microsoft/vscode-python'` etc.
     - If you use `dein.nvim`, You should set `merged` flag to 0.
