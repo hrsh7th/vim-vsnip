@@ -7,7 +7,7 @@ vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/
 
 # DEMO
 
-![vsnip-demo](https://user-images.githubusercontent.com/629908/70024306-0d1a3b00-15dd-11ea-87ec-d5c648b763ab.gif)
+![nested-snippet-expansion](https://user-images.githubusercontent.com/629908/76817423-1e165180-6846-11ea-95a1-d827afa744d8.gif)
 
 
 # Concept
