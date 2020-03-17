@@ -312,8 +312,7 @@ function! s:Snippet.normalize() abort
     if !empty(self.placeholder) && self.placeholder.depth == a:depth
       if self.placeholder.node.type ==# 'placeholder' && a:node.type ==# 'placeholder'
         if self.placeholder.range[0] == a:range[0] && self.placeholder.range[1] == a:range[1]
-          call remove(a:parent.children, index(a:parent.children, a:node))
-          return
+          call remove(self.placeholder.parent.children, index(self.placeholder.parent.children, self.placeholder.node))
         endif
       endif
     endif
@@ -375,8 +374,9 @@ function! s:Snippet.insert_node(position, nodes) abort
 
     " split target node.
     if l:node.value !=# ''
-      let l:before = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, 0, l:offset - l:range[0]))
-      let l:after = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, l:offset - l:range[0], strchars(l:node.value) - l:offset - l:range[0]))
+      let l:off = l:offset - l:range[0]
+      let l:before = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, 0, l:off))
+      let l:after = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, l:off, strchars(l:node.value) - l:off))
       let l:inserts = [l:after] + l:inserts + [l:before]
     endif
 
