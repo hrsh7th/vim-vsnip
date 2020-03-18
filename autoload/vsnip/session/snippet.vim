@@ -149,12 +149,12 @@ function! s:Snippet.sync() abort
       let self.group[a:node.id] = a:node
     else
       call add(self.edits, {
-            \   'range': {
-            \     'start': self.self.offset_to_position(a:range[0]),
-            \     'end': self.self.offset_to_position(a:range[1])
-            \   },
-            \   'newText': self.group[a:node.id].text()
-            \ })
+      \   'node': self.group[a:node.id],
+      \   'range': {
+      \     'start': self.self.offset_to_position(a:range[0]),
+      \     'end': self.self.offset_to_position(a:range[1])
+      \   },
+      \ })
     endif
   endfunction
   call self.traverse(self, self.children, l:fn1.traverse, 0, 0)
@@ -209,6 +209,11 @@ function! s:Snippet.sync() abort
           \   }]
           \ })]
   endif
+
+  " Use synced text.
+  for l:edit in l:fn1.edits
+    let l:edit.newText = l:edit.node.text()
+  endfor
 
   return l:fn1.edits
 endfunction
