@@ -61,7 +61,12 @@ function! vsnip#anonymous(text) abort
     call s:session.insert()
   else
     call s:session.on_text_changed()
-    call s:session.merge(l:session)
+    if !empty(s:session)
+      call s:session.merge(l:session)
+    else
+      let s:session = l:session
+      call s:session.insert()
+    endif
   endif
 
   call s:session.refresh()
