@@ -30,6 +30,7 @@ function! vsnip#source#create(path) abort
       throw printf('%s is not valid json.', a:path)
     endif
   catch /.*/
+    let l:json = {}
     echomsg printf('Parsing error occurred on: %s', a:path)
     echomsg string({ 'exception': v:exception, 'throwpint': v:throwpoint })
   endtry
