@@ -104,6 +104,10 @@ function! s:Variable.resolve() abort
     return '//' " TODO
   endif
 
-  return join(map(copy(self.children), { k, v -> v.text() }), '')
+  if len(self.children) != 0
+    return join(map(copy(self.children), { k, v -> v.text() }), '')
+  endif
+
+  return self.name
 endfunction
 
