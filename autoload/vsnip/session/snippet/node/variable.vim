@@ -3,15 +3,55 @@ function! vsnip#session#snippet#node#variable#import() abort
 endfunction
 
 let s:Variable = {}
+let s:known_variables = [
+      \   'TM_SELECTED_TEXT',
+      \   'TM_CURRENT_LINE',
+      \   'TM_CURRENT_WORD',
+      \   'TM_LINE_INDEX',
+      \   'TM_LINE_NUMBER',
+      \   'TM_FILENAME',
+      \   'TM_FILENAME_BASE',
+      \   'TM_DIRECTORY',
+      \   'TM_FILEPATH',
+      \   'CLIPBOARD',
+      \   'WORKSPACE_NAME',
+      \   'CURRENT_YEAR',
+      \   'CURRENT_YEAR_SHORT',
+      \   'CURRENT_MONTH',
+      \   'CURRENT_MONTH_NAME',
+      \   'CURRENT_MONTH_NAME_SHORT',
+      \   'CURRENT_DATE',
+      \   'CURRENT_DAY_NAME',
+      \   'CURRENT_DAY_NAME_SHORT',
+      \   'CURRENT_HOUR',
+      \   'CURRENT_MINUTE',
+      \   'CURRENT_SECOND',
+      \   'BLOCK_COMMENT_START',
+      \   'BLOCK_COMMENT_END',
+      \   'LINE_COMMENT',
+      \ ]
 
 "
 " new.
 "
 function! s:Variable.new(ast) abort
-  return extend(deepcopy(s:Variable), {
-        \   'type': 'variable',
-        \   'name': a:ast.name,
-        \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
+  if index(s:known_variables, a:ast.name) >= 0
+    return extend(deepcopy(s:Variable), {
+          \   'type': 'variable',
+          \   'name': a:ast.name,
+          \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
+          \ })
+  endif
+  return extend(deepcopy(vsnip#session#snippet#node#placeholder#import()), {
+        \   'type': 'placeholder',
+        \   'id': a:ast.name,
+        \   'follower': v:false,
+        \   'choice': [],
+        \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [{
+        \     'type': 'text',
+        \     'raw': a:ast.name,
+        \     'escaped': a:ast.name,
+        \   }])),
         \ })
 endfunction
 
@@ -21,7 +61,6 @@ endfunction
 function! s:Variable.text() abort
   return self.resolve()
 endfunction
-
 
 "
 " resolve.
@@ -104,10 +143,6 @@ function! s:Variable.resolve() abort
     return '//' " TODO
   endif
 
-  if len(self.children) != 0
-    return join(map(copy(self.children), { k, v -> v.text() }), '')
-  endif
-
-  return self.name
+  return join(map(copy(self.children), { k, v -> v.text() }), '')
 endfunction
 

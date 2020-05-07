@@ -150,6 +150,20 @@ Describe vsnip#session#snippet#parser
             \ })
     End
 
+    It Should parse variable
+      let l:parsed = vsnip#session#snippet#parser#parse('${variable:default}')
+      call s:expect(len(l:parsed)).to_equal(1)
+      call s:expect(l:parsed[0]).to_equal({
+            \   'type': 'variable',
+            \   'name': 'variable',
+            \   'children': [{
+            \     'type': 'text',
+            \     'raw': 'default',
+            \     'escaped': 'default',
+            \   }]
+            \ })
+    End
+
   End
 
 End
