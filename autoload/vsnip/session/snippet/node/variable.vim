@@ -3,39 +3,41 @@ function! vsnip#session#snippet#node#variable#import() abort
 endfunction
 
 let s:Variable = {}
-let s:known_variables = [
-      \   'TM_SELECTED_TEXT',
-      \   'TM_CURRENT_LINE',
-      \   'TM_CURRENT_WORD',
-      \   'TM_LINE_INDEX',
-      \   'TM_LINE_NUMBER',
-      \   'TM_FILENAME',
-      \   'TM_FILENAME_BASE',
-      \   'TM_DIRECTORY',
-      \   'TM_FILEPATH',
-      \   'CLIPBOARD',
-      \   'WORKSPACE_NAME',
-      \   'CURRENT_YEAR',
-      \   'CURRENT_YEAR_SHORT',
-      \   'CURRENT_MONTH',
-      \   'CURRENT_MONTH_NAME',
-      \   'CURRENT_MONTH_NAME_SHORT',
-      \   'CURRENT_DATE',
-      \   'CURRENT_DAY_NAME',
-      \   'CURRENT_DAY_NAME_SHORT',
-      \   'CURRENT_HOUR',
-      \   'CURRENT_MINUTE',
-      \   'CURRENT_SECOND',
-      \   'BLOCK_COMMENT_START',
-      \   'BLOCK_COMMENT_END',
-      \   'LINE_COMMENT',
-      \ ]
+  " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
+" TODO: BLOCK_COMMENT_START, BLOCK_COMMENT_END, LINE_COMMENT
+let s:known_variables = {
+      \   'TM_SELECTED_TEXT': { -> vsnip#selected_text()},
+      \   'TM_CURRENT_LINE': { -> getline('.')},
+      \   'TM_CURRENT_WORD': { -> ''},
+      \   'TM_LINE_INDEX': { -> line('.') - 1},
+      \   'TM_LINE_NUMBER': { -> line('.')},
+      \   'TM_FILENAME': { -> expand('%:p:t')},
+      \   'TM_FILENAME_BASE': { -> substitute(expand('%:p:t'), '^\@<!\..*$', '', '')},
+      \   'TM_DIRECTORY': { -> expand('%:p:h:t')},
+      \   'TM_FILEPATH': { -> expand('%:p')},
+      \   'CLIPBOARD': { -> getreg(v:register)},
+      \   'WORKSPACE_NAME': { -> ''},
+      \   'CURRENT_YEAR': { -> strftime('%Y')},
+      \   'CURRENT_YEAR_SHORT': { -> strftime('%y')},
+      \   'CURRENT_MONTH': { -> strftime('%m')},
+      \   'CURRENT_MONTH_NAME': { -> strftime('%B')},
+      \   'CURRENT_MONTH_NAME_SHORT': { -> strftime('%b')},
+      \   'CURRENT_DATE': { -> strftime('%d')},
+      \   'CURRENT_DAY_NAME': { -> strftime('%A')},
+      \   'CURRENT_DAY_NAME_SHORT': { -> strftime('%a')},
+      \   'CURRENT_HOUR': { -> strftime('%H')},
+      \   'CURRENT_MINUTE': { -> strftime('%M')},
+      \   'CURRENT_SECOND': { -> strftime('%S')},
+      \   'BLOCK_COMMENT_START': { -> '/**'},
+      \   'BLOCK_COMMENT_END': { -> '*/'},
+      \   'LINE_COMMENT': { -> '//'},
+      \ }
 
 "
 " new.
 "
 function! s:Variable.new(ast) abort
-  if index(s:known_variables, a:ast.name) >= 0
+  if has_key(s:known_variables, a:ast.name)
     return extend(deepcopy(s:Variable), {
           \   'type': 'variable',
           \   'name': a:ast.name,
@@ -66,81 +68,8 @@ endfunction
 " resolve.
 "
 function! s:Variable.resolve() abort
-  " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
-  if self.name ==# 'TM_SELECTED_TEXT'
-    return vsnip#selected_text()
-
-  elseif self.name ==# 'TM_CURRENT_LINE'
-    return getline('.')
-
-  elseif self.name ==# 'TM_CURRENT_WORD'
-    return ''
-
-  elseif self.name ==# 'TM_LINE_INDEX'
-    return line('.') - 1
-
-  elseif self.name ==# 'TM_LINE_NUMBER'
-    return line('.')
-
-  elseif self.name ==# 'TM_FILENAME'
-    return expand('%:p:t')
-
-  elseif self.name ==# 'TM_FILENAME_BASE'
-    return substitute(expand('%:p:t'), '^\@<!\..*$', '', '')
-
-  elseif self.name ==# 'TM_DIRECTORY'
-    return expand('%:p:h:t')
-
-  elseif self.name ==# 'TM_FILEPATH'
-    return expand('%:p')
-
-  elseif self.name ==# 'CLIPBOARD'
-    return getreg(v:register)
-
-  elseif self.name ==# 'WORKSPACE_NAME'
-    return ''
-
-  elseif self.name ==# 'CURRENT_YEAR'
-    return strftime('%Y')
-
-  elseif self.name ==# 'CURRENT_YEAR_SHORT'
-    return strftime('%y')
-
-  elseif self.name ==# 'CURRENT_MONTH'
-    return strftime('%m')
-
-  elseif self.name ==# 'CURRENT_MONTH_NAME'
-    return strftime('%B')
-
-  elseif self.name ==# 'CURRENT_MONTH_NAME_SHORT'
-    return strftime('%b')
-
-  elseif self.name ==# 'CURRENT_DATE'
-    return strftime('%d')
-
-  elseif self.name ==# 'CURRENT_DAY_NAME'
-    return strftime('%A')
-
-  elseif self.name ==# 'CURRENT_DAY_NAME_SHORT'
-    return strftime('%a')
-
-  elseif self.name ==# 'CURRENT_HOUR'
-    return strftime('%H')
-
-  elseif self.name ==# 'CURRENT_MINUTE'
-    return strftime('%M')
-
-  elseif self.name ==# 'CURRENT_SECOND'
-    return strftime('%S')
-
-  elseif self.name ==# 'BLOCK_COMMENT_START'
-    return '/**' " TODO
-
-  elseif self.name ==# 'BLOCK_COMMENT_END'
-    return '*/' " TODO
-
-  elseif self.name ==# 'LINE_COMMENT'
-    return '//' " TODO
+  if has_key(s:known_variables, self.name)
+    return s:known_variables[self.name]()
   endif
 
   return join(map(copy(self.children), { k, v -> v.text() }), '')
