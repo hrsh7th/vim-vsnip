@@ -44,16 +44,16 @@ function! s:Variable.new(ast) abort
           \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
           \ })
   endif
+
+  let l:children = has_key(a:ast, 'children') ?
+        \ vsnip#session#snippet#node#create_from_ast(a:ast.children) :
+        \ [vsnip#session#snippet#node#create_text(a:ast.name)]
   return extend(deepcopy(vsnip#session#snippet#node#placeholder#import()), {
         \   'type': 'placeholder',
         \   'id': a:ast.name,
         \   'follower': v:false,
         \   'choice': [],
-        \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [{
-        \     'type': 'text',
-        \     'raw': a:ast.name,
-        \     'escaped': a:ast.name,
-        \   }])),
+        \   'children': l:children,
         \ })
 endfunction
 
