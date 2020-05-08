@@ -3,7 +3,7 @@ function! vsnip#session#snippet#node#variable#import() abort
 endfunction
 
 let s:Variable = {}
-  " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
+" @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
 " TODO: BLOCK_COMMENT_START, BLOCK_COMMENT_END, LINE_COMMENT
 let s:known_variables = {
       \   'TM_SELECTED_TEXT': { -> vsnip#selected_text()},
@@ -45,6 +45,8 @@ function! s:Variable.new(ast) abort
           \ })
   endif
 
+  " When a variable is unknown (that is, its name isn't defined) the name of the variable is inserted and it is transformed into a placeholder.
+  " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
   let l:children = has_key(a:ast, 'children') ?
         \ vsnip#session#snippet#node#create_from_ast(a:ast.children) :
         \ [vsnip#session#snippet#node#create_text(a:ast.name)]

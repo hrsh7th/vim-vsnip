@@ -173,12 +173,12 @@ function! s:Snippet.sync() abort
       endif
 
       " variable placeholder
-      if type(a:node.id) == 1 && !has_key(self.variable_placeholder, a:node.id)
+      if type(a:node.id) == type('') && !has_key(self.variable_placeholder, a:node.id)
         let self.variable_placeholder[a:node.id] = len(self.variable_placeholder) + 1
         let a:node.id = s:max_tabstop - self.variable_placeholder[a:node.id]
         let self.group[a:node.id] =  a:node
 
-      elseif type(a:node.id) == 1
+      elseif type(a:node.id) == type('')
         let a:node.id = s:max_tabstop - self.variable_placeholder[a:node.id]
         let a:node.follower = v:true
         let a:node.children = [vsnip#session#snippet#node#create_text(self.group[a:node.id].text())]

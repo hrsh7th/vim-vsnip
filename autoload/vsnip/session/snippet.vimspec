@@ -134,6 +134,11 @@ Describe vsnip#snippet
       call l:snippet.sync()
       call s:expect(l:snippet.text()).to_equal('console.log(___ult, ___ult)')
     End
+
+    It Should sync known variable
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${CURRENT_YEAR})')
+      call s:expect(l:snippet.text()).to_equal('console.log(' . strftime('%Y') . ')')
+    End
   End
 
   Describe #text
