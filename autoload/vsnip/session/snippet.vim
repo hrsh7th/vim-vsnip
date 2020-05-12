@@ -195,15 +195,15 @@ function! s:Snippet.sync() abort
         let a:node.choice = []
 
         if !has_key(self.variable_placeholder, a:node.name)
-          let self.variable_placeholder[a:node.name] = len(self.variable_placeholder) + 1
-          let a:node.id = s:max_tabstop - self.variable_placeholder[a:node.name]
+          let self.variable_placeholder[a:node.name] = s:max_tabstop - (len(self.variable_placeholder) + 1)
+          let a:node.id = self.variable_placeholder[a:node.name]
           let a:node.follower = v:false
           let a:node.children = empty(a:node.children) ?
                 \ [vsnip#session#snippet#node#create_text(a:node.name)] :
                 \ a:node.children
           let self.group[a:node.id] =  a:node
         else
-          let a:node.id = s:max_tabstop - self.variable_placeholder[a:node.name]
+          let a:node.id = self.variable_placeholder[a:node.name]
           let a:node.follower = v:true
           let a:node.children = [vsnip#session#snippet#node#create_text(self.group[a:node.id].text())]
         endif
