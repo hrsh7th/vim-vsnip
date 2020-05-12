@@ -37,25 +37,11 @@ let s:known_variables = {
 " new.
 "
 function! s:Variable.new(ast) abort
-  if has_key(s:known_variables, a:ast.name)
-    return extend(deepcopy(s:Variable), {
-          \   'type': 'variable',
-          \   'name': a:ast.name,
-          \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
-          \ })
-  endif
-
-  " When a variable is unknown (that is, its name isn't defined) the name of the variable is inserted and it is transformed into a placeholder.
-  " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
-  let l:children = has_key(a:ast, 'children') ?
-        \ vsnip#session#snippet#node#create_from_ast(a:ast.children) :
-        \ [vsnip#session#snippet#node#create_text(a:ast.name)]
-  return extend(deepcopy(vsnip#session#snippet#node#placeholder#import()), {
-        \   'type': 'placeholder',
-        \   'id': a:ast.name,
-        \   'follower': v:false,
-        \   'choice': [],
-        \   'children': l:children,
+  return extend(deepcopy(s:Variable), {
+        \   'type': 'variable',
+        \   'name': a:ast.name,
+        \   'unknown': !has_key(s:known_variables, a:ast.name),
+        \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
         \ })
 endfunction
 
@@ -76,4 +62,3 @@ function! s:Variable.resolve() abort
 
   return join(map(copy(self.children), { k, v -> v.text() }), '')
 endfunction
-

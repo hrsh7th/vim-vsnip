@@ -23,4 +23,3 @@ endfunction
 function! s:Placeholder.text() abort
   return join(map(copy(self.children), { k, v -> v.text() }), '')
 endfunction
-

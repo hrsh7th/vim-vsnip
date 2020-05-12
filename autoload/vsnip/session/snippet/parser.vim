@@ -133,9 +133,6 @@ let s:variable2 = s:map(s:seq(s:dollar, s:open, s:varname, s:close), { value -> 
       \   'type': 'variable',
       \   'name': value[2]
       \ } })
-
-" Can't understand this, So currently unsupport.
-
 let s:variable3 = s:map(s:seq(
       \   s:dollar,
       \   s:open,
@@ -148,7 +145,6 @@ let s:variable3 = s:map(s:seq(
       \   'name': value[2],
       \   'children': [value[4]]
       \ } })
-
 let s:variable4 = s:map(s:seq(s:dollar, s:open, s:varname, s:transform, s:close), { value -> {
       \   'type': 'variable',
       \   'name': value[2],
@@ -218,4 +214,3 @@ let s:choice = s:map(s:seq(
 " parser.
 "
 let s:parser = s:many(s:or(s:any, s:text(['$'])))
-
