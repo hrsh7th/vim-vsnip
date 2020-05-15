@@ -164,6 +164,7 @@ function! s:Snippet.sync() abort
   let l:fn2.self = self
   let l:fn2.found_final_tabstop = v:false
   let l:fn2.group = {}
+  let l:fn2.variable_placeholder = {}
   function! l:fn2.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder'
       " append text node when placeholder has no children.
@@ -188,9 +189,29 @@ function! s:Snippet.sync() abort
 
       let self.found_final_tabstop = self.found_final_tabstop || a:node.id == s:max_tabstop
     elseif a:node.type ==# 'variable'
-      let l:index = index(a:parent.children, a:node)
-      call remove(a:parent.children, l:index)
-      call insert(a:parent.children, vsnip#session#snippet#node#create_text(a:node.text()), l:index)
+      " variable placeholder
+      if a:node.unknown
+        let a:node.type = 'placeholder'
+        let a:node.choice = []
+
+        if !has_key(self.variable_placeholder, a:node.name)
+          let self.variable_placeholder[a:node.name] = s:max_tabstop - (len(self.variable_placeholder) + 1)
+          let a:node.id = self.variable_placeholder[a:node.name]
+          let a:node.follower = v:false
+          let a:node.children = empty(a:node.children) ?
+                \ [vsnip#session#snippet#node#create_text(a:node.name)] :
+                \ a:node.children
+          let self.group[a:node.id] =  a:node
+        else
+          let a:node.id = self.variable_placeholder[a:node.name]
+          let a:node.follower = v:true
+          let a:node.children = [vsnip#session#snippet#node#create_text(self.group[a:node.id].text())]
+        endif
+      else
+        let l:index = index(a:parent.children, a:node)
+        call remove(a:parent.children, l:index)
+        call insert(a:parent.children, vsnip#session#snippet#node#create_text(a:node.text()), l:index)
+      endif
     endif
   endfunction
   call self.traverse(self, self.children, l:fn2.traverse, 0, 0)
@@ -530,4 +551,3 @@ function! s:Snippet.debug() abort
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
   echomsg ' '
 endfunction
-

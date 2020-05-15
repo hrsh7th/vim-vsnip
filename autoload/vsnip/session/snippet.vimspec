@@ -111,6 +111,34 @@ Describe vsnip#snippet
       call s:expect(l:snippet.text()).to_equal('console.log(___ult, ___ult)')
     End
 
+    It Should sync variable placeholder 1
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${variable:default}, $variable)')
+      call s:expect(l:snippet.text()).to_equal('console.log(default, default)')
+    End
+
+    It Should sync variable placeholder 2
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${variable:default}, $variable)')
+      call l:snippet.follow(0, {
+            \   'range': {
+            \     'start': {
+            \       'line': 1,
+            \       'character': 13
+            \     },
+            \     'end': {
+            \       'line': 1,
+            \       'character': 17
+            \     }
+            \   },
+            \   'text': '___'
+            \ })
+      call l:snippet.sync()
+      call s:expect(l:snippet.text()).to_equal('console.log(___ult, ___ult)')
+    End
+
+    It Should sync known variable
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${CURRENT_YEAR})')
+      call s:expect(l:snippet.text()).to_equal('console.log(' . strftime('%Y') . ')')
+    End
   End
 
   Describe #text
@@ -339,4 +367,3 @@ Describe vsnip#snippet
   End
 
 End
-
