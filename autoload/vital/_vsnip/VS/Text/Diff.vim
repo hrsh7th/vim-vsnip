@@ -11,12 +11,62 @@ delfunction s:_SID
 " compute
 "
 function! s:compute(old, new) abort
-  let l:old = a:old + ['']
-  let l:new = a:new + ['']
+  let l:old = a:old
+  let l:new = a:new
 
   let l:old_len = len(l:old)
   let l:new_len = len(l:new)
   let l:min_len = min([l:old_len, l:new_len])
+
+  " empty -> empty
+  if l:old_len == 0 && l:new_len == 0
+    return {
+    \   'range': {
+    \     'start': {
+    \       'line': 0,
+    \       'character': 0,
+    \     },
+    \     'end': {
+    \       'line': 0,
+    \       'character': 0,
+    \     }
+    \   },
+    \   'text': '',
+    \   'rangeLength': 0
+    \ }
+  " not empty -> empty
+  elseif l:old_len != 0 && l:new_len == 0
+    return {
+    \   'range': {
+    \     'start': {
+    \       'line': 0,
+    \       'character': 0,
+    \     },
+    \     'end': {
+    \       'line': l:old_len - 1,
+    \       'character': strchars(l:old[-1]),
+    \     }
+    \   },
+    \   'text': '',
+    \   'rangeLength': strchars(join(l:old, "\n"))
+    \ }
+  " empty -> not empty
+  elseif l:old_len == 0 && l:new_len != 0
+    return {
+    \   'range': {
+    \     'start': {
+    \       'line': 0,
+    \       'character': 0,
+    \     },
+    \     'end': {
+    \       'line': 0,
+    \       'character': 0,
+    \     }
+    \   },
+    \   'text': join(l:new, "\n"),
+    \   'rangeLength': 0
+    \ }
+  endif
 
   let l:first_line = 0
   while l:first_line < l:min_len - 1

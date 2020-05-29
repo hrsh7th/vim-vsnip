@@ -4,7 +4,7 @@
 function! s:_SID() abort
   return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze__SID$')
 endfunction
-execute join(['function! vital#_vsnip#VS#LSP#TextEdit#import() abort', printf("return map({'_vital_depends': '', 'apply': '', '_vital_loaded': ''}, \"vital#_vsnip#function('<SNR>%s_' . v:key)\")", s:_SID()), 'endfunction'], "\n")
+execute join(['function! vital#_vsnip#VS#LSP#TextEdit#import() abort', printf("return map({'_vital_depends': '', 'fixeol': '', 'apply': '', '_vital_loaded': ''}, \"vital#_vsnip#function('<SNR>%s_' . v:key)\")", s:_SID()), 'endfunction'], "\n")
 delfunction s:_SID
 " ___vital___
 "
@@ -12,6 +12,7 @@ delfunction s:_SID
 "
 function! s:_vital_loaded(V) abort
   let s:Text = a:V.import('VS.LSP.Text')
+  let s:Position = a:V.import('VS.LSP.Position')
 endfunction
 
 "
@@ -22,63 +23,95 @@ function! s:_vital_depends() abort
 endfunction
 
 "
+" fixeol
+"
+let s:_fixeol = v:false
+function! s:fixeol(bool) abort
+  let s:_fixeol = a:bool
+endfunction
+
+"
 " apply
 "
 function! s:apply(path, text_edits) abort
   let l:current_bufname = bufname('%')
   let l:target_bufname = a:path
-  let l:cursor_pos = getpos('.')[1 : 3]
-  let l:cursor_offset = 0
-  let l:topline = line('w0')
+  let l:cursor_position = s:Position.cursor()
 
   call s:_switch(l:target_bufname)
   for l:text_edit in s:_normalize(a:text_edits)
-    let l:cursor_offset += s:_apply(bufnr(l:target_bufname), l:text_edit, l:cursor_pos)
+    call s:_apply(bufnr(l:target_bufname), l:text_edit, l:cursor_position)
   endfor
   call s:_switch(l:current_bufname)
 
   if bufnr(l:current_bufname) == bufnr(l:target_bufname)
-    let l:length = strlen(getline(l:cursor_pos[0])) + 1
-    let l:cursor_pos[2] = max([0, l:cursor_pos[1] + l:cursor_pos[2] - l:length])
-    let l:cursor_pos[1] = min([l:length, l:cursor_pos[1] + l:cursor_pos[2]])
-    call cursor(l:cursor_pos)
-    call winrestview({ 'topline': l:topline + l:cursor_offset })
+    try
+      call cursor(s:Position.lsp_to_vim('%', l:cursor_position))
+    catch /.*/
+      echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
+    endtry
   endif
 endfunction
 
 "
 " _apply
 "
-function! s:_apply(bufnr, text_edit, cursor_pos) abort
+function! s:_apply(bufnr, text_edit, cursor_position) abort
   " create before/after line.
   let l:start_line = getline(a:text_edit.range.start.line + 1)
   let l:end_line = getline(a:text_edit.range.end.line + 1)
   let l:before_line = strcharpart(l:start_line, 0, a:text_edit.range.start.character)
   let l:after_line = strcharpart(l:end_line, a:text_edit.range.end.character, strchars(l:end_line) - a:text_edit.range.end.character)
 
-  " create new lines.
-  let l:new_lines = s:Text.split_by_eol(a:text_edit.newText)
-  let l:new_lines[0] = l:before_line . l:new_lines[0]
-  let l:new_lines[-1] = l:new_lines[-1] . l:after_line
-  let l:new_lines_len = len(l:new_lines)
+  " create lines.
+  let l:lines = s:Text.split_by_eol(a:text_edit.newText)
+  let l:lines[0] = l:before_line . l:lines[0]
+  let l:lines[-1] = l:lines[-1] . l:after_line
 
-  " fix cursor pos
-  let l:cursor_offset = 0
-  if a:text_edit.range.end.line + 1 < a:cursor_pos[0]
-    let l:cursor_offset = l:new_lines_len - (a:text_edit.range.end.line - a:text_edit.range.start.line) - 1
-    let a:cursor_pos[0] += l:cursor_offset
+  " fix eol.
+  let l:buf_len = len(getbufline(a:bufnr, '^', '$'))
+  let l:fixeol = s:_fixeol
+  let l:fixeol = l:fixeol && &fixendofline
+  let l:fixeol = l:fixeol && l:lines[-1] ==# ''
+  let l:fixeol = l:fixeol && l:buf_len <= a:text_edit.range.end.line
+  let l:fixeol = l:fixeol && a:text_edit.range.end.character == 0
+  if l:fixeol
+    call remove(l:lines, -1)
   endif
 
-  " append new lines.
-  call append(a:text_edit.range.start.line, l:new_lines)
+  let l:lines_len = len(l:lines)
+  let l:range_len = (a:text_edit.range.end.line - a:text_edit.range.start.line) + 1
 
-  " remove old lines
-  execute printf('%s,%sdelete _',
-  \   l:new_lines_len + a:text_edit.range.start.line + 1,
-  \   min([l:new_lines_len + a:text_edit.range.end.line + 1, line('$')])
-  \ )
+  " fix cursor
+  if a:text_edit.range.end.line <= a:cursor_position.line && a:text_edit.range.end.character <= a:cursor_position.character
+    " fix cursor col
+    if a:text_edit.range.end.line == a:cursor_position.line
+      let l:end_character = strchars(l:lines[-1]) - strchars(l:after_line)
+      let l:end_offset = a:cursor_position.character - a:text_edit.range.end.character
+      let a:cursor_position.character = l:end_character + l:end_offset
+    endif
 
-  return l:cursor_offset
+    " fix cursor line
+    let a:cursor_position.line += l:lines_len - l:range_len
+  endif
+
+  " append or delete lines.
+  if l:lines_len > l:range_len
+    call append(a:text_edit.range.end.line, repeat([''], l:lines_len - l:range_len))
+  elseif l:lines_len < l:range_len
+    let l:offset = l:range_len - l:lines_len
+    call s:_delete(a:bufnr, a:text_edit.range.end.line - l:offset + 1, a:text_edit.range.end.line)
+  endif
+
+  " set lines.
+  let l:i = 0
+  while l:i < len(l:lines)
+    let l:lnum = a:text_edit.range.start.line + l:i + 1
+    if get(getbufline(a:bufnr, l:lnum), 0, v:null) !=# l:lines[l:i]
+      call setline(l:lnum, l:lines[l:i])
+    endif
+    let l:i += 1
+  endwhile
 endfunction
 
 "
@@ -145,6 +178,20 @@ function! s:_switch(path) abort
     execute printf('keepalt keepjumps %sbuffer!', bufnr(a:path))
   else
     execute printf('keepalt keepjumps edit! %s', fnameescape(a:path))
+  endif
+endfunction
+
+"
+" _delete
+"
+function! s:_delete(bufnr, start, end) abort
+  if exists('*deletebufline')
+    call deletebufline(a:bufnr, a:start, a:end)
+  else
+    let l:foldenable = &foldenable
+    setlocal nofoldenable
+    execute printf('%s,%sdelete _', a:start, a:end)
+    let &foldenable = l:foldenable
   endif
 endfunction
 
