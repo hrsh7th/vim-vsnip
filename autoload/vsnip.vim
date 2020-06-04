@@ -133,24 +133,26 @@ function! vsnip#get_complete_items(bufnr) abort
 
   for l:source in vsnip#source#find(getbufvar(a:bufnr, '&filetype', ''))
     for l:snippet in l:source
-      let l:candidate = {
-      \   'word': l:snippet.prefix[0],
-      \   'abbr': l:snippet.prefix[0],
-      \   'kind': join(['Snippet', l:snippet.label, l:snippet.description], ' '),
-      \   'menu': '[v]',
-      \   'dup': 1,
-      \   'user_data': json_encode({
-      \     'vsnip': {
-      \       'snippet': l:snippet.body
-      \     }
-      \   })
-      \ }
+      for l:prefix in l:snippet.prefix
+        let l:candidate = {
+        \   'word': l:prefix,
+        \   'abbr': l:prefix,
+        \   'kind': join(['Snippet', l:snippet.label, l:snippet.description], ' '),
+        \   'menu': '[v]',
+        \   'dup': 1,
+        \   'user_data': json_encode({
+        \     'vsnip': {
+        \       'snippet': l:snippet.body
+        \     }
+        \   })
+        \ }
 
-      if has_key(l:snippet, 'description') && strlen(l:snippet.description) > 0
-        let l:candidate.menu .= printf(': %s', l:snippet.description)
-      endif
+        if has_key(l:snippet, 'description') && strlen(l:snippet.description) > 0
+          let l:candidate.menu .= printf(': %s', l:snippet.description)
+        endif
 
-      call add(l:candidates, l:candidate)
+        call add(l:candidates, l:candidate)
+      endfor
     endfor
   endfor
 
