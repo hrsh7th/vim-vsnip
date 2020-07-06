@@ -68,6 +68,10 @@ function! s:_apply(bufnr, text_edit, cursor_position) abort
   let l:lines[0] = l:before_line . l:lines[0]
   let l:lines[-1] = l:lines[-1] . l:after_line
 
+  " save length.
+  let l:lines_len = len(l:lines)
+  let l:range_len = (a:text_edit.range.end.line - a:text_edit.range.start.line) + 1
+
   " fix eol.
   let l:buf_len = len(getbufline(a:bufnr, '^', '$'))
   let l:fixeol = s:_fixeol
@@ -79,14 +83,11 @@ function! s:_apply(bufnr, text_edit, cursor_position) abort
     call remove(l:lines, -1)
   endif
 
-  let l:lines_len = len(l:lines)
-  let l:range_len = (a:text_edit.range.end.line - a:text_edit.range.start.line) + 1
-
   " fix cursor
-  if a:text_edit.range.end.line <= a:cursor_position.line && a:text_edit.range.end.character <= a:cursor_position.character
+  if a:text_edit.range.end.line <= a:cursor_position.line
     " fix cursor col
-    if a:text_edit.range.end.line == a:cursor_position.line
-      let l:end_character = strchars(l:lines[-1]) - strchars(l:after_line)
+    if a:text_edit.range.end.line == a:cursor_position.line && a:text_edit.range.end.character <= a:cursor_position.character
+      let l:end_character = strchars(get(l:lines, -1, '')) - strchars(l:after_line)
       let l:end_offset = a:cursor_position.character - a:text_edit.range.end.character
       let a:cursor_position.character = l:end_character + l:end_offset
     endif
@@ -99,8 +100,7 @@ function! s:_apply(bufnr, text_edit, cursor_position) abort
   if l:lines_len > l:range_len
     call append(a:text_edit.range.end.line, repeat([''], l:lines_len - l:range_len))
   elseif l:lines_len < l:range_len
-    let l:offset = l:range_len - l:lines_len
-    call s:_delete(a:bufnr, a:text_edit.range.end.line - l:offset + 1, a:text_edit.range.end.line)
+    call s:_delete(a:bufnr, a:text_edit.range.start.line + l:lines_len, a:text_edit.range.end.line)
   endif
 
   " set lines.
@@ -131,9 +131,9 @@ endfunction
 function! s:_range(text_edits) abort
   for l:text_edit in a:text_edits
     if l:text_edit.range.start.line > l:text_edit.range.end.line || (
-          \   l:text_edit.range.start.line == l:text_edit.range.end.line &&
-          \   l:text_edit.range.start.character > l:text_edit.range.end.character
-          \ )
+    \   l:text_edit.range.start.line == l:text_edit.range.end.line &&
+    \   l:text_edit.range.start.character > l:text_edit.range.end.character
+    \ )
       let l:text_edit.range = { 'start': l:text_edit.range.end, 'end': l:text_edit.range.start }
     endif
   endfor
