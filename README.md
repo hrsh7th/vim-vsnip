@@ -62,6 +62,7 @@ smap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab
 imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 " Save current visual selection to use as $TM_SELECTED_TEXT in the next snippet
+" See https://github.com/hrsh7th/vim-vsnip/pull/50
 xmap         <C-l>  <Plug>(vsnip-set-selected-text)
 ```
 
