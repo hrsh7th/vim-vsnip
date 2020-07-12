@@ -94,15 +94,19 @@ function! s:jump(direction) abort
 endfunction
 
 "
-" <Plug>(vsnip-set-selected-text)
+" <Plug>(vsnip-select-text)
 "
-xnoremap <silent> <Plug>(vsnip-set-selected-text) :<C-u>call <SID>get_visual_text(visualmode())<CR>gvs
+nnoremap <silent> <Plug>(vsnip-select-text) :set operatorfunc=<SID>get_visual_text<CR>g@
+snoremap <silent> <Plug>(vsnip-select-text) <C-g>:<C-u>call <SID>get_visual_text(visualmode())<CR>gv<C-g>
+xnoremap <silent> <Plug>(vsnip-select-text) :<C-u>call <SID>get_visual_text(visualmode())<CR>gv
 function! s:get_visual_text(type) abort
   let reg_v = @v
   if a:type ==# 'v'
     normal! `<v`>"vy
   elseif a:type ==# 'V'
     normal! '[V']"vy
+  elseif a:type ==# 'char'
+    normal! `[v`]"vy
   else
     return
   endif
