@@ -352,6 +352,8 @@ function! s:Snippet.normalize() abort
       endif
     endif
 
+    let self.placeholder = v:null
+    let self.text = v:null
     let self[a:node.type] = {
     \   'range': a:range,
     \   'node': a:node,

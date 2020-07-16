@@ -225,7 +225,7 @@ Describe vsnip#snippet
       let l:text = l:snippet.text()
       call s:expect(len(l:snippet.children)).to_equal(5)
       call l:snippet.normalize()
-      call s:expect(len(l:snippet.children)).to_equal(4)
+      call s:expect(len(l:snippet.children)).to_equal(5)
       call s:expect(l:text).to_equal(l:snippet.text())
     End
 
