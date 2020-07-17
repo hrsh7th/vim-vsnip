@@ -239,6 +239,17 @@ Describe vsnip#snippet
       call s:expect(l:text).to_equal(l:snippet.text())
     End
 
+    It Should normalize 3
+      let l:snippet = s:Snippet.new(s:start_position, '${1:i}${2:++}')
+      let l:text = l:snippet.text()
+      call s:expect(len(l:snippet.children)).to_equal(3)
+      call l:snippet.normalize()
+      call s:expect(len(l:snippet.children)).to_equal(3)
+      call s:expect(l:snippet.children[0].children[0]['value']).to_equal('i')
+      call s:expect(l:snippet.children[1].children[0]['value']).to_equal('++')
+      call s:expect(l:text).to_equal(l:snippet.text())
+    End
+
   End
 
   Describe #insert_node
