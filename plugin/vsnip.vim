@@ -17,15 +17,19 @@ let g:vsnip_namespace = get(g:, 'vsnip_namespace', '')
 "
 " command
 "
-command! VsnipOpen call s:open_command('vsplit')
-command! VsnipOpenEdit call s:open_command('edit')
-command! VsnipOpenVsplit call s:open_command('vsplit')
-command! VsnipOpenSplit call s:open_command('split')
-function! s:open_command(cmd)
+command! -bang VsnipOpen call s:open_command(<bang>0, 'vsplit')
+command! -bang VsnipOpenEdit call s:open_command(<bang>0, 'edit')
+command! -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vsplit')
+command! -bang VsnipOpenSplit call s:open_command(<bang>0, 'split')
+function! s:open_command(bang, cmd)
   let l:candidates = split(&filetype, '\.') + ['global']
-  let l:idx = inputlist(['Select type: '] + map(copy(l:candidates), { k, v -> printf('%s: %s', k + 1, v) }))
-  if l:idx == 0
-    return
+  if a:bang
+    let l:idx = 1
+  else
+    let l:idx = inputlist(['Select type: '] + map(copy(l:candidates), { k, v -> printf('%s: %s', k + 1, v) }))
+    if l:idx == 0
+      return
+    endif
   endif
 
   execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.json',
