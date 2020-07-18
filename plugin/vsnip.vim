@@ -112,7 +112,7 @@ function! s:get_visual_text(type) abort
   else
     return
   endif
-  call vsnip#selected_text(@v)
+  call vsnip#selected_text(substitute(@v, '\n$', '', ''))
   let @v = reg_v
 endfunction
 
