@@ -241,13 +241,9 @@ Describe vsnip#snippet
 
     It Should normalize 3
       let l:snippet = s:Snippet.new(s:start_position, '${1:i}${2:++}')
-      let l:text = l:snippet.text()
-      call s:expect(len(l:snippet.children)).to_equal(3)
-      call l:snippet.normalize()
-      call s:expect(len(l:snippet.children)).to_equal(3)
-      call s:expect(l:snippet.children[0].children[0]['value']).to_equal('i')
-      call s:expect(l:snippet.children[1].children[0]['value']).to_equal('++')
-      call s:expect(l:text).to_equal(l:snippet.text())
+      let l:children = deepcopy(l:snippet.children)
+      call l:snippet.normalize()  " Don't change anything
+      call s:expect(l:snippet.children).to_equal(l:children)
     End
 
   End
