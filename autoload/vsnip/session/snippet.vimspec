@@ -160,6 +160,12 @@ Describe vsnip#snippet
       call s:expect(l:snippet.text()).to_equal('THIS_IS_SELECTED_TEXT')
     End
 
+    It Should return text3
+      call vsnip#selected_text('')
+      let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT:default}')
+      call s:expect(l:snippet.text()).to_equal('default')
+    End
+
   End
 
   Describe #range
