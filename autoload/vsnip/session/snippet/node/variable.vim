@@ -38,11 +38,11 @@ let s:known_variables = {
 "
 function! s:Variable.new(ast) abort
   return extend(deepcopy(s:Variable), {
-        \   'type': 'variable',
-        \   'name': a:ast.name,
-        \   'unknown': !has_key(s:known_variables, a:ast.name),
-        \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
-        \ })
+  \   'type': 'variable',
+  \   'name': a:ast.name,
+  \   'unknown': !has_key(s:known_variables, a:ast.name),
+  \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
+  \ })
 endfunction
 
 "
@@ -68,4 +68,15 @@ function! s:Variable.resolve() abort
   endif
 
   return join(map(copy(self.children), { k, v -> v.text() }), '')
+endfunction
+
+"
+" to_string
+"
+function! s:Variable.to_string() abort
+  return printf('%s(name=%s, unknown=%s, resolved=%s)',
+  \   self.type,
+  \   self.unknown ? 'true' : 'false',
+  \   self.resolve()
+  \ )
 endfunction

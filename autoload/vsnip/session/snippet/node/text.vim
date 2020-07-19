@@ -9,9 +9,9 @@ let s:Text = {}
 "
 function! s:Text.new(ast) abort
   return extend(deepcopy(s:Text), {
-        \   'type': 'text',
-        \   'value': a:ast.escaped,
-        \ })
+  \   'type': 'text',
+  \   'value': a:ast.escaped,
+  \ })
 endfunction
 
 "
@@ -21,3 +21,12 @@ function! s:Text.text() abort
   return self.value
 endfunction
 
+"
+" to_string
+"
+function! s:Text.to_string() abort
+  return printf('%s(%s)',
+  \   self.type,
+  \   self.value
+  \ )
+endfunction

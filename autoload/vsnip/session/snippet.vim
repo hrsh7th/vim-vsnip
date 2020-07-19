@@ -546,7 +546,7 @@ function! s:Snippet.debug() abort
       let l:level .= '   '
       let l:parent = self.self.get_parent(l:parent)
     endwhile
-    echomsg l:level . string(extend({ 'children': [], 'new': '', 'text': '', }, a:node, 'keep'))
+    echomsg l:level . a:node.to_string()
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
   echomsg ' '

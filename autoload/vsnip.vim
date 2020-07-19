@@ -124,7 +124,6 @@ function! vsnip#get_context() abort
   return {}
 endfunction
 
-
 "
 " vsnip#get_complete_items
 "
@@ -159,3 +158,11 @@ function! vsnip#get_complete_items(bufnr) abort
   return l:candidates
 endfunction
 
+"
+" vsnip#debug
+"
+function! vsnip#debug() abort
+  if !empty(s:session)
+    call s:session.snippet.debug()
+  endif
+endfunction
