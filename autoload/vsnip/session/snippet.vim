@@ -331,28 +331,20 @@ endfunction
 "
 function! s:Snippet.normalize() abort
   let l:fn = {}
-  let l:fn.placeholder = v:null
   let l:fn.text = v:null
   function! l:fn.traverse(range, node, parent, depth) abort
-    " Check placeholder.
-    if !empty(self.placeholder) && self.placeholder.depth == a:depth
-      if self.placeholder.node.type ==# 'placeholder' && a:node.type ==# 'placeholder'
-        if self.placeholder.range[0] == a:range[0] && self.placeholder.range[1] == a:range[1]
-          call remove(self.placeholder.parent.children, index(self.placeholder.parent.children, self.placeholder.node))
-        endif
-      endif
+    if a:node.type !=# 'text'
+      let self.text = v:null
+      return
     endif
 
-    " Check text.
     if !empty(self.text) && self.text.depth == a:depth
-      if self.text.node.type ==# 'text' && a:node.type ==# 'text'
-        let self.text.node.value .= a:node.value
-        call remove(a:parent.children, index(a:parent.children, a:node))
-        return
-      endif
+      let self.text.node.value .= a:node.value
+      call remove(a:parent.children, index(a:parent.children, a:node))
+      return
     endif
 
-    let self[a:node.type] = {
+    let self.text = {
     \   'range': a:range,
     \   'node': a:node,
     \   'parent': a:parent,
