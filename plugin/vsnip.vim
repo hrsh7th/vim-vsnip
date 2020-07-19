@@ -105,6 +105,8 @@ function! s:get_visual_text(type) abort
     normal! `<v`>"vy
   elseif a:type ==# 'V'
     normal! '<V'>"vy
+  elseif a:type ==? ''
+    normal! `<`>"vy
   elseif a:type ==# 'char'
     normal! `[v`]"vy
   elseif a:type ==# 'line'
