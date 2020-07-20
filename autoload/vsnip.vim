@@ -21,9 +21,16 @@ endfunction
 "
 function! vsnip#available(...) abort
   let l:direction = get(a:000, 0, 1)
-  let l:expandable = !empty(vsnip#get_context())
+  let l:expandable = vsnip#expandable()
   let l:jumpable = !empty(s:session) && s:session.jumpable(l:direction)
   return l:expandable || l:jumpable
+endfunction
+
+"
+" vsnip#expandable.
+"
+function! vsnip#expandable() abort
+  return !empty(vsnip#get_context())
 endfunction
 
 "
