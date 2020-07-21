@@ -96,24 +96,43 @@ endfunction
 "
 " <Plug>(vsnip-select-text)
 "
-nnoremap <silent> <Plug>(vsnip-select-text) :set operatorfunc=<SID>get_visual_text<CR>g@
-snoremap <silent> <Plug>(vsnip-select-text) <C-g>:<C-u>call <SID>get_visual_text(visualmode())<CR>gv<C-g>
-xnoremap <silent> <Plug>(vsnip-select-text) :<C-u>call <SID>get_visual_text(visualmode())<CR>gv
-function! s:get_visual_text(type) abort
+nnoremap <silent> <Plug>(vsnip-select-text) :set operatorfunc=<SID>vsnip_select_text_normal<CR>g@
+snoremap <silent> <Plug>(vsnip-select-text) <C-g>:<C-u>call <SID>vsnip_visual_text(visualmode())<CR>gv<C-g>
+xnoremap <silent> <Plug>(vsnip-select-text) :<C-u>call <SID>vsnip_visual_text(visualmode())<CR>gv
+function! s:vsnip_select_text_normal(type) abort
+  call s:vsnip_set_text(a:type, 'y')
+endfunction
+
+"
+" <Plug>(vsnip-cut-text)
+"
+nnoremap <silent> <Plug>(vsnip-cut-text) :set operatorfunc=<SID>vsnip_cut_text_normal<CR>g@
+snoremap <silent> <Plug>(vsnip-cut-text) <C-g>:<C-u>call <SID>vsnip_visual_text(visualmode())<CR>gv"_c
+xnoremap <silent> <Plug>(vsnip-cut-text) :<C-u>call <SID>vsnip_visual_text(visualmode())<CR>gv"_c
+
+function! s:vsnip_cut_text_normal(type) abort
+  call s:vsnip_set_text(a:type, 'd')
+  call feedkeys('a', 'n')
+endfunction
+function! s:vsnip_visual_text(type) abort
+  call s:vsnip_set_text(a:type, 'y')
+endfunction
+function! s:vsnip_set_text(type, copy) abort
   let reg_v = @v
   if a:type ==# 'v'
-    normal! `<v`>"vy
+    let select = '`<v`>"v'
   elseif a:type ==# 'V'
-    normal! '<V'>"vy
+    let select = "'<V'>\"v"
   elseif a:type ==? ''
-    normal! `<`>"vy
+    let select = '`<`>"v'
   elseif a:type ==# 'char'
-    normal! `[v`]"vy
+    let select = '`[v`]"v'
   elseif a:type ==# 'line'
-    normal! '[V']"vy
+    let select = "'[V']\"v"
   else
     return
   endif
+  execute 'normal! '.select.a:copy
   call vsnip#selected_text(substitute(@v, '\n$', '', ''))
   let @v = reg_v
 endfunction

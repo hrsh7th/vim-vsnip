@@ -109,6 +109,9 @@ The below example uses '<Tab>' key.
   smap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
   imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
   smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+  nmap        <C-j>   <Plug>(vsnip-cut-text)
+  xmap        <C-j>   <Plug>(vsnip-cut-text)
+  smap        <C-j>   <Plug>(vsnip-cut-text)
   nmap        <C-l>   <Plug>(vsnip-select-text)
   xmap        <C-l>   <Plug>(vsnip-select-text)
   smap        <C-l>   <Plug>(vsnip-select-text)
