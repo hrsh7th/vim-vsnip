@@ -84,16 +84,15 @@ function! s:_apply(bufnr, text_edit, cursor_position) abort
   endif
 
   " fix cursor
-  if a:text_edit.range.end.line <= a:cursor_position.line
-    " fix cursor col
-    if a:text_edit.range.end.line == a:cursor_position.line && a:text_edit.range.end.character <= a:cursor_position.character
-      let l:end_character = strchars(get(l:lines, -1, '')) - strchars(l:after_line)
-      let l:end_offset = a:cursor_position.character - a:text_edit.range.end.character
-      let a:cursor_position.character = l:end_character + l:end_offset
-    endif
-
+  if a:text_edit.range.end.line < a:cursor_position.line
     " fix cursor line
     let a:cursor_position.line += l:lines_len - l:range_len
+  elseif a:text_edit.range.end.line == a:cursor_position.line && a:text_edit.range.end.character <= a:cursor_position.character
+    " fix cursor line and col
+    let a:cursor_position.line += l:lines_len - l:range_len
+    let l:end_character = strchars(get(l:lines, -1, '')) - strchars(l:after_line)
+    let l:end_offset = a:cursor_position.character - a:text_edit.range.end.character
+    let a:cursor_position.character = l:end_character + l:end_offset
   endif
 
   " append or delete lines.

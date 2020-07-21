@@ -14,12 +14,12 @@ let s:Snippet = {}
 "
 function! s:Snippet.new(position, text) abort
   let l:snippet = extend(deepcopy(s:Snippet), {
-        \   'type': 'snippet',
-        \   'position': a:position,
-        \   'children': vsnip#session#snippet#node#create_from_ast(
-        \     vsnip#session#snippet#parser#parse(a:text)
-        \   )
-        \ })
+  \   'type': 'snippet',
+  \   'position': a:position,
+  \   'children': vsnip#session#snippet#node#create_from_ast(
+  \     vsnip#session#snippet#parser#parse(a:text)
+  \   )
+  \ })
   call l:snippet.sync()
   return l:snippet
 endfunction
@@ -30,9 +30,9 @@ endfunction
 function! s:Snippet.range() abort
   " TODO: Should fix end range for next line?
   return {
-        \   'start': self.offset_to_position(0),
-        \   'end': self.offset_to_position(strchars(self.text()))
-        \ }
+  \   'start': self.offset_to_position(0),
+  \   'end': self.offset_to_position(strchars(self.text()))
+  \ }
 endfunction
 
 "
@@ -40,9 +40,9 @@ endfunction
 "
 function! s:Snippet.follow(current_tabstop, diff) abort
   let a:diff.range = [
-        \   self.position_to_offset(a:diff.range.start),
-        \   self.position_to_offset(a:diff.range.end),
-        \ ]
+  \   self.position_to_offset(a:diff.range.start),
+  \   self.position_to_offset(a:diff.range.end),
+  \ ]
 
   let l:fn = {}
   let l:fn.diff = a:diff
@@ -70,10 +70,10 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     " expect:       ^
     if a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
       call add(self.candidates, {
-            \   'range': a:range,
-            \   'node': a:node,
-            \   'parent': a:parent
-            \ })
+      \   'range': a:range,
+      \   'node': a:node,
+      \   'parent': a:parent
+      \ })
     endif
 
     return v:false
@@ -84,6 +84,9 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     return v:false
   endif
 
+  " TODO:
+  " - This algorithm does not respect current tabstop for nested placeholder.
+  " - We should improve this algorithm and remove text unneeded follower-node to text-node conversion from L115.
   let l:target = v:null
   for l:candidate in l:fn.candidates
     if l:candidate.node.type ==# 'placelhoder' && l:candidate.range[0] ==# a:diff.range[0] && a:diff.range[1] ==# l:candidate.range[1]
@@ -97,21 +100,26 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     endif
   endfor
 
+  " Follow node text.
+  let l:start = a:diff.range[0] - l:target.range[0] - 1
+  let l:end = a:diff.range[1] - l:target.range[0]
+  let l:old_text = l:target.node.text()
+  let l:new_text = ''
+  let l:new_text .= l:start >= 0 ? strcharpart(l:old_text, 0, l:start + 1) : ''
+  let l:new_text .= a:diff.text
+  let l:new_text .= strcharpart(l:old_text, l:end, strchars(l:old_text) - l:end)
+
   if l:target.node.type ==# 'placeholder'
-    let l:target.node.children = [vsnip#session#snippet#node#create_text(a:diff.text)]
-    if l:target.node.follower
-      let l:index = index(l:target.parent.children, l:target.node)
-      call remove(l:target.parent.children, l:index)
-      call insert(l:target.parent.children, vsnip#session#snippet#node#create_text(l:target.node.text()), l:index)
+    let l:target.node.children = [vsnip#session#snippet#node#create_text(l:new_text)]
+
+    if get(l:target.node, 'follower', v:false)
+      let l:parent = self.get_parent(l:target.node)
+      let l:index = index(l:parent.children, l:target.node)
+      call remove(l:parent.children, l:index)
+      call insert(l:parent.children, vsnip#session#snippet#node#create_text(l:target.node.text()), l:index)
     endif
   else
-    let l:start = a:diff.range[0] - l:target.range[0] - 1
-    let l:end = a:diff.range[1] - l:target.range[0]
-    let l:value = ''
-    let l:value .= l:start >= 0 ? strcharpart(l:target.node.value, 0, l:start + 1) : ''
-    let l:value .= a:diff.text
-    let l:value .= strcharpart(l:target.node.value, l:end, strchars(l:target.node.value) - l:end)
-    let l:target.node.value = l:value
+    let l:target.node.value = l:new_text
 
     if get(l:target.parent, 'follower', v:false)
       let l:parent = self.get_parent(l:target.parent)
@@ -199,8 +207,8 @@ function! s:Snippet.sync() abort
           let a:node.id = self.variable_placeholder[a:node.name]
           let a:node.follower = v:false
           let a:node.children = empty(a:node.children) ?
-                \ [vsnip#session#snippet#node#create_text(a:node.name)] :
-                \ a:node.children
+          \ [vsnip#session#snippet#node#create_text(a:node.name)] :
+          \ a:node.children
           let self.group[a:node.id] =  a:node
         else
           let a:node.id = self.variable_placeholder[a:node.name]
@@ -219,16 +227,16 @@ function! s:Snippet.sync() abort
   " add 0 tabstop to end of snippet if has no 0 tabstop.
   if !l:fn2.found_final_tabstop
     let self.children += [vsnip#session#snippet#node#create_from_ast({
-          \   'type': 'placeholder',
-          \   'id': s:max_tabstop,
-          \   'follower': v:false,
-          \   'choice': [],
-          \   'children': [{
-          \     'type': 'text',
-          \     'raw': '',
-          \     'escaped': ''
-          \   }]
-          \ })]
+    \   'type': 'placeholder',
+    \   'id': s:max_tabstop,
+    \   'follower': v:false,
+    \   'choice': [],
+    \   'children': [{
+    \     'type': 'text',
+    \     'raw': '',
+    \     'escaped': ''
+    \   }]
+    \ })]
   endif
 
   " Use synced text.
@@ -276,12 +284,12 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
       endif
 
       let self.jump_point = {
-            \   'range': {
-            \     'start': self.self.offset_to_position(a:range[0]),
-            \     'end': self.self.offset_to_position(a:range[1]),
-            \   },
-            \   'placeholder': a:node
-            \ }
+      \   'range': {
+      \     'start': self.self.offset_to_position(a:range[0]),
+      \     'end': self.self.offset_to_position(a:range[1]),
+      \   },
+      \   'placeholder': a:node
+      \ }
     endif
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
@@ -308,12 +316,12 @@ function! s:Snippet.get_prev_jump_point(current_tabstop) abort
       endif
 
       let self.jump_point = {
-            \   'range': {
-            \     'start': self.self.offset_to_position(a:range[0]),
-            \     'end': self.self.offset_to_position(a:range[1]),
-            \   },
-            \   'placeholder': a:node
-            \ }
+      \   'range': {
+      \     'start': self.self.offset_to_position(a:range[0]),
+      \     'end': self.self.offset_to_position(a:range[1]),
+      \   },
+      \   'placeholder': a:node
+      \ }
     endif
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
@@ -331,28 +339,20 @@ endfunction
 "
 function! s:Snippet.normalize() abort
   let l:fn = {}
-  let l:fn.placeholder = v:null
   let l:fn.text = v:null
   function! l:fn.traverse(range, node, parent, depth) abort
-    " Check placeholder.
-    if !empty(self.placeholder) && self.placeholder.depth == a:depth
-      if self.placeholder.node.type ==# 'placeholder' && a:node.type ==# 'placeholder'
-        if self.placeholder.range[0] == a:range[0] && self.placeholder.range[1] == a:range[1]
-          call remove(self.placeholder.parent.children, index(self.placeholder.parent.children, self.placeholder.node))
-        endif
-      endif
+    if a:node.type !=# 'text'
+      let self.text = v:null
+      return
     endif
 
-    " Check text.
     if !empty(self.text) && self.text.depth == a:depth
-      if self.text.node.type ==# 'text' && a:node.type ==# 'text'
-        let self.text.node.value .= a:node.value
-        call remove(a:parent.children, index(a:parent.children, a:node))
-        return
-      endif
+      let self.text.node.value .= a:node.value
+      call remove(a:parent.children, index(a:parent.children, a:node))
+      return
     endif
 
-    let self[a:node.type] = {
+    let self.text = {
     \   'range': a:range,
     \   'node': a:node,
     \   'parent': a:parent,
@@ -490,9 +490,9 @@ function! s:Snippet.offset_to_position(offset) abort
   endwhile
 
   return {
-        \   'line': l:line + self.position.line,
-        \   'character': l:line == 0 ? (self.position.character + l:character) : l:character
-        \ }
+  \   'line': l:line + self.position.line,
+  \   'character': l:line == 0 ? (self.position.character + l:character) : l:character
+  \ }
 endfunction
 
 "
@@ -546,7 +546,7 @@ function! s:Snippet.debug() abort
       let l:level .= '   '
       let l:parent = self.self.get_parent(l:parent)
     endwhile
-    echomsg l:level . string(extend({ 'children': [], 'new': '', 'text': '', }, a:node, 'keep'))
+    echomsg l:level . a:node.to_string()
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
   echomsg ' '
