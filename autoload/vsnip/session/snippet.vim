@@ -45,57 +45,32 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   \ ]
 
   let l:fn = {}
+  let l:fn.current_tabstop = a:current_tabstop
   let l:fn.diff = a:diff
-  let l:fn.candidates = []
+  let l:fn.target = v:null
   function! l:fn.traverse(range, node, parent, depth) abort
-    let l:is_before = a:range[1] < self.diff.range[0]
-    let l:is_after = self.diff.range[1] < a:range[0]
-
-    " diff:      s-----e
-    " text:   1-----2-----3-----4
-    " expect:                ^
-    if l:is_before && !l:is_after
-      return v:false
-    endif
-
-    " diff:            s-----e
-    " text:   1-----2-----3-----4
-    " expect:    ^
-    if !l:is_before && l:is_after
-      return v:false
-    endif
-
     " diff:     s-------e
     " text:   1-----------2
     " expect:       ^
     if a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
-      call add(self.candidates, {
+      let self.target = {
       \   'range': a:range,
       \   'node': a:node,
-      \   'parent': a:parent
-      \ })
+      \   'parent': a:parent,
+      \ }
+      " Stop traversing when acceptable node is current tabstop.
+      return a:node.type ==# 'placeholder' && a:node.id == self.current_tabstop
     endif
 
     return v:false
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
-  if len(l:fn.candidates) == 0
+  if empty(l:fn.target)
     return v:false
   endif
 
-  " Detect patching target node.
-  let l:target = v:null
-  for l:candidate in l:fn.candidates
-    " Prefer current placeholder.
-    if l:candidate.node.type ==# 'placeholder' && l:candidate.node.id == a:current_tabstop
-      let l:target = l:candidate
-      break
-    endif 
-
-    " Use as fallback to final candidate.
-    let l:target = l:candidate
-  endfor
+  let l:target = l:fn.target
 
   " Create patched new text.
   let l:start = a:diff.range[0] - l:target.range[0] - 1
