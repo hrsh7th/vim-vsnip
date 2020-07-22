@@ -125,7 +125,8 @@ xnoremap <silent> <Plug>(vsnip-cut-text) :<C-u>call <SID>vsnip_visual_text(visua
 
 function! s:vsnip_cut_text_normal(type) abort
   call s:vsnip_set_text(a:type, 'd')
-  call feedkeys('a', 'n')
+  let insertmode = s:virtualedit_in_normal() ? 'i' : 'a'
+  call feedkeys(insertmode, 'n')
 endfunction
 function! s:vsnip_visual_text(type) abort
   call s:vsnip_set_text(a:type, 'y')
@@ -139,6 +140,7 @@ function! s:vsnip_set_text(type, copy) abort
   elseif a:type ==? ''
     let select = '`<`>"v'
   elseif a:type ==# 'char'
+        \ || (a:type ==# 'line' && s:virtualedit_in_normal())
     let select = '`[v`]"v'
   elseif a:type ==# 'line'
     let select = "'[V']\"v"
@@ -148,6 +150,9 @@ function! s:vsnip_set_text(type, copy) abort
   execute 'normal! '.select.a:copy
   call vsnip#selected_text(substitute(@v, '\n$', '', ''))
   let @v = reg_v
+endfunction
+function! s:virtualedit_in_normal() abort
+  return &virtualedit =~? '\<all\>'
 endfunction
 
 "
