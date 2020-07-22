@@ -84,23 +84,20 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     return v:false
   endif
 
-  " TODO:
-  " - This algorithm does not respect current tabstop for nested placeholder.
-  " - We should improve this algorithm and remove text unneeded follower-node to text-node conversion from L115.
+  " Detect patching target node.
   let l:target = v:null
   for l:candidate in l:fn.candidates
-    if l:candidate.node.type ==# 'placelhoder' && l:candidate.range[0] ==# a:diff.range[0] && a:diff.range[1] ==# l:candidate.range[1]
+    " Prefer current placeholder.
+    if l:candidate.node.type ==# 'placeholder' && l:candidate.node.id == a:current_tabstop
       let l:target = l:candidate
       break
-    else
-      let l:target = l:candidate
-      if l:target.parent.type ==# 'placeholder' && l:target.parent.id == a:current_tabstop
-        break
-      endif
-    endif
+    endif 
+
+    " Use as fallback to final candidate.
+    let l:target = l:candidate
   endfor
 
-  " Follow node text.
+  " Create patched new text.
   let l:start = a:diff.range[0] - l:target.range[0] - 1
   let l:end = a:diff.range[1] - l:target.range[0]
   let l:old_text = l:target.node.text()
@@ -109,25 +106,24 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:new_text .= a:diff.text
   let l:new_text .= strcharpart(l:old_text, l:end, strchars(l:old_text) - l:end)
 
-  if l:target.node.type ==# 'placeholder'
-    let l:target.node.children = [vsnip#session#snippet#node#create_text(l:new_text)]
-
-    if get(l:target.node, 'follower', v:false)
-      let l:parent = self.get_parent(l:target.node)
-      let l:index = index(l:parent.children, l:target.node)
-      call remove(l:parent.children, l:index)
-      call insert(l:parent.children, vsnip#session#snippet#node#create_text(l:target.node.text()), l:index)
-    endif
+  " Apply patched new text.
+  let l:node = l:target.node
+  if l:node.type ==# 'placeholder'
+    let l:node.children = [vsnip#session#snippet#node#create_text(l:new_text)]
   else
-    let l:target.node.value = l:new_text
-
-    if get(l:target.parent, 'follower', v:false)
-      let l:parent = self.get_parent(l:target.parent)
-      let l:index = index(l:parent.children, l:target.parent)
-      call remove(l:parent.children, l:index)
-      call insert(l:parent.children, vsnip#session#snippet#node#create_text(l:target.parent.text()), l:index)
-    endif
+    let l:node.value = l:new_text
   endif
+
+  " Convert to text node when edited node is follower node.
+  while !empty(l:node)
+    let l:parent = self.get_parent(l:node)
+    if get(l:node, 'follower', v:false)
+      let l:index = index(l:parent.children, l:node)
+      call remove(l:parent.children, l:index)
+      call insert(l:parent.children, vsnip#session#snippet#node#create_text(l:node.text()), l:index)
+    endif
+    let l:node = l:parent
+  endwhile
 
   return v:true
 endfunction
