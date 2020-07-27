@@ -61,6 +61,17 @@ imap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab
 smap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
 imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+" Select text to use as $TM_SELECTED_TEXT in the next snippet.
+" See https://github.com/hrsh7th/vim-vsnip/pull/50
+" These mappings will behave like normal `c`. They select the text, remove it
+" and place you in insert mode.
+nmap        <C-j>   <Plug>(vsnip-cut-text)
+xmap        <C-j>   <Plug>(vsnip-cut-text)
+smap        <C-j>   <Plug>(vsnip-cut-text)
+" This will select the text and your in the exact same mode as before.
+nmap        <C-l>   <Plug>(vsnip-select-text)
+xmap        <C-l>   <Plug>(vsnip-select-text)
+smap        <C-l>   <Plug>(vsnip-select-text)
 ```
 
 ### 3. Create your own snippet
