@@ -76,7 +76,7 @@ endfunction
 " <Plug>(vsnip-expand)
 "
 inoremap <silent> <Plug>(vsnip-expand) <Esc>:<C-u>call <SID>expand()<CR>
-snoremap <silent> <Plug>(vsnip-expand) <C-g>o<Esc>:<C-u>call <SID>expand()<CR>
+snoremap <silent> <Plug>(vsnip-expand) <C-g><Esc>:<C-u>call <SID>expand()<CR>
 function! s:expand() abort
   let l:ctx = {}
   function! l:ctx.callback() abort

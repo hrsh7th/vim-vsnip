@@ -159,7 +159,7 @@ function! s:Session.select(jump_point) abort
   else
     let l:cmd .= 'v'
   endif
-  let l:cmd .= "\<C-g>"
+  let l:cmd .= "o\<C-g>"
   call feedkeys(l:cmd, 'nt')
 endfunction
 
