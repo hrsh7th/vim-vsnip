@@ -93,8 +93,8 @@ function! s:resolve_prefix(prefix) abort
   endfor
 
   return [
-        \   sort(l:prefixes, { a, b -> strlen(b) - strlen(a) }),
-        \   sort(l:prefixes_alias, { a, b -> strlen(b) - strlen(a) })
-        \ ]
+  \   sort(l:prefixes, { a, b -> strlen(b) - strlen(a) }),
+  \   sort(l:prefixes_alias, { a, b -> strlen(b) - strlen(a) })
+  \ ]
 endfunction
 

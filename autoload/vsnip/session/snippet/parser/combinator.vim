@@ -1,15 +1,15 @@
 function! vsnip#session#snippet#parser#combinator#import() abort
   return {
-        \   'skip': function('s:skip'),
-        \   'token': function('s:token'),
-        \   'many': function('s:many'),
-        \   'or': function('s:or'),
-        \   'seq': function('s:seq'),
-        \   'pattern': function('s:pattern'),
-        \   'lazy': function('s:lazy'),
-        \   'option': function('s:option'),
-        \   'map': function('s:map')
-        \ }
+  \   'skip': function('s:skip'),
+  \   'token': function('s:token'),
+  \   'many': function('s:many'),
+  \   'or': function('s:or'),
+  \   'seq': function('s:seq'),
+  \   'pattern': function('s:pattern'),
+  \   'lazy': function('s:lazy'),
+  \   'option': function('s:option'),
+  \   'map': function('s:map')
+  \ }
 endfunction
 
 "

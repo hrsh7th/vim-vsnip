@@ -31,31 +31,24 @@ endfunction
 function s:Snippet.init() abort
   let l:fn = {}
   let l:fn.self = self
-  let l:fn.found_final_tabstop = v:false
   let l:fn.group = {}
-  let l:fn.sync_targets = []
   let l:fn.variable_placeholder = {}
+  let l:fn.has_final_tabstop = v:false
   function! l:fn.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder'
-      " append text node when placeholder has no children.
-      if len(a:node.children) == 0
-        let a:node.children = [vsnip#session#snippet#node#create_text('')]
-      endif
-
-      " sync same tabstop placeholders.
+      " Mark as follower placeholder.
       if !has_key(self.group, a:node.id)
         let self.group[a:node.id] = a:node
       else
         let a:node.follower = v:true
       endif
 
-      " fix 0-tabstop to max tabstop.
-      if a:node.id == 0
-        let a:node.id = s:max_tabstop
+      " Mark as having final tabstop
+      if a:node.is_final
+        let self.has_final_tabstop = v:true
       endif
-
-      let self.found_final_tabstop = self.found_final_tabstop || a:node.id == s:max_tabstop
     elseif a:node.type ==# 'variable'
+      " TODO refactor
       " variable placeholder
       if a:node.unknown
         let a:node.type = 'placeholder'
@@ -65,9 +58,7 @@ function s:Snippet.init() abort
           let self.variable_placeholder[a:node.name] = s:max_tabstop - (len(self.variable_placeholder) + 1)
           let a:node.id = self.variable_placeholder[a:node.name]
           let a:node.follower = v:false
-          let a:node.children = empty(a:node.children) ?
-          \ [vsnip#session#snippet#node#create_text(a:node.name)] :
-          \ a:node.children
+          let a:node.children = empty(a:node.children) ? [vsnip#session#snippet#node#create_text(a:node.name)] : a:node.children
           let self.group[a:node.id] =  a:node
         else
           let a:node.id = self.variable_placeholder[a:node.name]
@@ -83,11 +74,11 @@ function s:Snippet.init() abort
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
-  " add 0 tabstop to end of snippet if has no 0 tabstop.
-  if !l:fn.found_final_tabstop
+  " Append ${MAX_TABSTOP} for the end of snippet.
+  if !l:fn.has_final_tabstop
     let self.children += [vsnip#session#snippet#node#create_from_ast({
     \   'type': 'placeholder',
-    \   'id': s:max_tabstop,
+    \   'id': 0,
     \   'follower': v:false,
     \   'choice': [],
     \   'children': [{
@@ -117,16 +108,20 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     " text:   1-----------2
     " expect:       ^
     if a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
-      let self.target = {
-      \   'range': a:range,
-      \   'node': a:node,
-      \   'parent': a:parent,
-      \ }
+      let l:should_update = v:false
+      let l:should_update = l:should_update || empty(self.target)
+      let l:should_update = l:should_update || a:node.type ==# 'placeholder'
+      let l:should_update = l:should_update || (self.target.node.type ==# 'text' && (self.target.range[1] == self.diff.range[0] || self.diff.range[1] == a:range[0]))
+      if l:should_update
+        let self.target = {
+        \   'range': a:range,
+        \   'node': a:node,
+        \   'parent': a:parent,
+        \ }
+      endif
       " Stop traversing when acceptable node is current tabstop.
-      return a:node.type ==# 'placeholder' && a:node.id == self.current_tabstop
+      return self.target.node.type ==# 'placeholder' && self.target.node.id == self.current_tabstop
     endif
-
-    return v:false
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
@@ -154,7 +149,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   endif
 
   " Convert to text node when edited node is follower node.
-  while !empty(l:node)
+  while !empty(l:node) && l:node.type !=# 'snippet'
     let l:parent = self.get_parent(l:node)
     if get(l:node, 'follower', v:false)
       let l:index = index(l:parent.children, l:node)
@@ -179,17 +174,17 @@ endfunction
 "
 function! s:Snippet.sync() abort
   let l:fn = {}
-  let l:fn.group = {}
+  let l:fn.new_texts = {}
   let l:fn.sync_targets = []
   function! l:fn.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder'
-      if !has_key(self.group, a:node.id)
-        let self.group[a:node.id] = a:node
+      if !has_key(self.new_texts, a:node.id)
+        let self.new_texts[a:node.id] = a:node.text()
       else
         call add(self.sync_targets, {
         \   'range': a:range,
         \   'node': a:node,
-        \   'from': self.group[a:node.id],
+        \   'new_text': self.new_texts[a:node.id],
         \ })
       endif
     endif
@@ -199,20 +194,19 @@ function! s:Snippet.sync() abort
   " Create text_edits.
   let l:text_edits = []
   for l:target in l:fn.sync_targets
-    let l:new_text = l:target.from.text()
-    if l:new_text !=# l:target.node.text()
+    if l:target.new_text !=# l:target.node.text()
       call add(l:text_edits, {
       \   'node': l:target.node,
       \   'range': {
       \     'start': self.offset_to_position(l:target.range[0]),
       \     'end': self.offset_to_position(l:target.range[1]),
       \   },
-      \   'newText': l:new_text
+      \   'newText': l:target.new_text
       \ })
     endif
   endfor
 
-  " Sync placeholder text after created text_edits.
+  " Sync placeholder text after created text_edits (the reason for doing it as separate is to avoid using a modified range).
   for l:text_edit in l:text_edits
     let l:text_edit.node.children = [vsnip#session#snippet#node#create_text(l:text_edit.newText)]
   endfor
@@ -224,7 +218,6 @@ endfunction
 " range.
 "
 function! s:Snippet.range() abort
-  " TODO: Should fix end range for next line?
   return {
   \   'start': self.offset_to_position(0),
   \   'end': self.offset_to_position(strchars(self.text()))

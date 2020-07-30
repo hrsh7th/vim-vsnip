@@ -17,14 +17,15 @@ let s:Session = {}
 "
 function! s:Session.new(bufnr, position, text) abort
   return extend(deepcopy(s:Session), {
-        \   'bufnr': a:bufnr,
-        \   'buffer': getbufline(a:bufnr, '^', '$'),
-        \   'timer_id': -1,
-        \   'snippet': s:Snippet.new(a:position, self.indent(a:text)),
-        \   'tabstop': -1,
-        \   'changenr': changenr(),
-        \   'changenrs': {},
-        \ })
+  \   'bufnr': a:bufnr,
+  \   'buffer': getbufline(a:bufnr, '^', '$'),
+  \   'timer_id': -1,
+  \   'changedtick': getbufvar(a:bufnr, 'changedtick', 0),
+  \   'snippet': s:Snippet.new(a:position, self.indent(a:text)),
+  \   'tabstop': -1,
+  \   'changenr': changenr(),
+  \   'changenrs': {},
+  \ })
 endfunction
 
 "
@@ -33,12 +34,12 @@ endfunction
 function! s:Session.insert() abort
   " insert snippet.
   call s:TextEdit.apply(self.bufnr, [{
-        \   'range': {
-        \     'start': self.snippet.position,
-        \     'end': self.snippet.position
-        \   },
-        \   'newText': self.snippet.text()
-        \ }])
+  \   'range': {
+  \     'start': self.snippet.position,
+  \     'end': self.snippet.position
+  \   },
+  \   'newText': self.snippet.text()
+  \ }])
   call self.store(changenr())
 endfunction
 
@@ -48,7 +49,7 @@ endfunction
 function! s:Session.merge(session) abort
   call a:session.insert()
 
-  " Fix tabstop1
+  " increase new snippet's tabstop by current snippet's current tabstop
   let l:offset = 1
   let l:tabstop_map = {}
   for l:node in a:session.snippet.get_placeholder_nodes()
@@ -60,7 +61,7 @@ function! s:Session.merge(session) abort
   endfor
   let l:tail = l:node
 
-  " Fix tabstop2
+  " re-assign current snippet's tabstop by new snippet's final tabstop
   let l:offset = 1
   let l:tabstop_map = {}
   for l:node in self.snippet.get_placeholder_nodes()
@@ -94,6 +95,8 @@ endfunction
 " jump.
 "
 function! s:Session.jump(direction) abort
+  call self.flush_changes()
+
   if a:direction == 1
     let l:jump_point = self.snippet.get_next_jump_point(self.tabstop)
   else
@@ -133,11 +136,11 @@ function! s:Session.choice(jump_point) abort
     if mode()[0] ==# 'i'
       let l:pos = s:Position.lsp_to_vim('%', self.jump_point.range.start)
       call complete(l:pos[1], map(copy(self.jump_point.placeholder.choice), { k, v -> {
-            \   'word': v.escaped,
-            \   'abbr': v.escaped,
-            \   'menu': '[vsnip]',
-            \   'kind': 'Choice'
-            \ } }))
+      \   'word': v.escaped,
+      \   'abbr': v.escaped,
+      \   'menu': '[vsnip]',
+      \   'kind': 'Choice'
+      \ } }))
     endif
   endfunction
   call timer_start(g:vsnip_choice_delay, { -> l:fn.next_tick() })
@@ -201,56 +204,48 @@ function! s:Session.on_text_changed() abort
     endif
   endif
 
-  let l:fn = {}
-  function! l:fn.debounce(timer_id) abort
-    " compute diff.
-    let l:buffer = getbufline(self.bufnr, '^', '$')
-    let l:diff = s:Diff.compute(self.buffer, l:buffer)
-    let self.buffer = l:buffer
-    if l:diff.rangeLength == 0 && l:diff.text ==# ''
-      return
-    endif
-
-    " text edit is out of range.
-    let l:range = self.snippet.range()
-    if l:diff.range.start.line < l:range.start.line
-      return vsnip#deactivate()
-    endif
-    if l:range.end.line < l:diff.range.end.line
-      return vsnip#deactivate()
-    endif
-    if l:diff.range.start.line == l:range.start.line && l:diff.range.start.character < l:range.start.character
-      return vsnip#deactivate()
-    endif
-    if l:diff.range.end.line == l:range.end.line && l:range.end.character < l:diff.range.end.character
-      return vsnip#deactivate()
-    endif
-
-    " snippet text is not changed.
-    if !self.is_dirty(l:buffer, l:diff)
-      return
-    endif
-
-    " if follow succeeded, sync placeholders and write back to the buffer.
-    if self.snippet.follow(self.tabstop, l:diff)
-      try
-        undojoin | call s:TextEdit.apply(self.bufnr, self.snippet.sync())
-        call self.refresh()
-      catch /.*/
-        " TODO: More strict changenrs mangement.
-        call vsnip#deactivate()
-      endtry
-    else
-      call vsnip#deactivate()
-    endif
-  endfunction
-
-  " if delay is not zero, should debounce.
   if g:vsnip_sync_delay == 0
-    call call(l:fn.debounce, [0], self)
+    call self.flush_changes()
   else
     call timer_stop(self.timer_id)
-    let self.timer_id = timer_start(g:vsnip_sync_delay, function(l:fn.debounce, [], self), { 'repeat': 1 })
+    let self.timer_id = timer_start(g:vsnip_sync_delay, { -> self.flush_changes() }, { 'repeat': 1 })
+  endif
+endfunction
+
+"
+" flush_changes
+"
+function! s:Session.flush_changes() abort
+  let l:changedtick = getbufvar(self.bufnr, 'changedtick', 0)
+  if self.changedtick == l:changedtick
+    return
+  endif
+  let self.changedtick = l:changedtick
+
+  " compute diff.
+  let l:buffer = getbufline(self.bufnr, '^', '$')
+  let l:diff = s:Diff.compute(self.buffer, l:buffer)
+  let self.buffer = l:buffer
+  if l:diff.rangeLength == 0 && l:diff.text ==# ''
+    return
+  endif
+
+  " snippet text is not changed.
+  if !self.is_dirty(l:buffer, l:diff)
+    return
+  endif
+
+  " if follow succeeded, sync placeholders and write back to the buffer.
+  if self.snippet.follow(self.tabstop, l:diff)
+    try
+      undojoin | call s:TextEdit.apply(self.bufnr, self.snippet.sync())
+      call self.refresh()
+    catch /.*/
+      " TODO: More strict changenrs mangement.
+      call vsnip#deactivate()
+    endtry
+  else
+    call vsnip#deactivate()
   endif
 endfunction
 
@@ -259,9 +254,9 @@ endfunction
 "
 function! s:Session.store(changenr) abort
   let self.changenrs[a:changenr] = {
-        \   'tabstop': self.tabstop,
-        \   'snippet': deepcopy(self.snippet)
-        \ }
+  \   'tabstop': self.tabstop,
+  \   'snippet': deepcopy(self.snippet)
+  \ }
 endfunction
 
 "
@@ -292,15 +287,15 @@ function! s:Session.text_from_buffer(buffer, diff) abort
       let l:text = strcharpart(a:buffer[l:i], l:range.start.character, l:range.end.character - l:range.start.character)
       break
 
-    " multi start.
+      " multi start.
     elseif l:i == l:range.start.line
       let l:text .= strcharpart(a:buffer[l:i], l:range.start.character, strchars(a:buffer[l:i]) - l:range.start.character) . "\n"
 
-    " multi middle.
+      " multi middle.
     elseif l:i != l:range.end.line
       let l:text .= a:buffer[l:i] . "\n"
 
-    " multi end.
+      " multi end.
     elseif l:i == l:range.end.line
       let l:text .= strcharpart(a:buffer[l:i], 0, l:range.end.character)
     endif

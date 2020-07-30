@@ -63,17 +63,15 @@ function! vsnip#anonymous(text) abort
   let l:session = s:Session.new(bufnr('%'), s:Position.cursor(), a:text)
   call vsnip#selected_text('')
 
+  if !empty(s:session)
+    call s:session.flush_changes() " try to sync buffer content because vsnip#expand maybe remove prefix
+  endif
+
   if empty(s:session)
     let s:session = l:session
     call s:session.insert()
   else
-    call s:session.on_text_changed()
-    if !empty(s:session)
-      call s:session.merge(l:session)
-    else
-      let s:session = l:session
-      call s:session.insert()
-    endif
+    call s:session.merge(l:session)
   endif
 
   call s:session.refresh()

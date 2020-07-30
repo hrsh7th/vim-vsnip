@@ -41,9 +41,9 @@ function! s:open_command(bang, cmd)
   endif
 
   execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.json',
-        \   g:vsnip_snippet_dir,
-        \   l:candidates[l:idx - 1]
-        \ )))
+  \   g:vsnip_snippet_dir,
+  \   l:candidates[l:idx - 1]
+  \ )))
 endfunction
 
 "
@@ -139,7 +139,7 @@ function! s:vsnip_set_text(type, copy) abort
   elseif a:type ==? ''
     let select = '`<`>"v'
   elseif a:type ==# 'char'
-        \ || (a:type ==# 'line' && s:virtualedit_in_normal())
+  \ || (a:type ==# 'line' && s:virtualedit_in_normal())
     let select = '`[v`]"v'
   elseif a:type ==# 'line'
     let select = "'[V']\"v"
