@@ -179,6 +179,7 @@ endfunction
 "
 function! s:Session.refresh() abort
   let self.buffer = getbufline(self.bufnr, '^', '$')
+  let self.changedtick = getbufvar(self.bufnr, 'changedtick', 0)
 endfunction
 
 "
@@ -230,11 +231,6 @@ function! s:Session.flush_changes() abort
     return
   endif
 
-  " snippet text is not changed.
-  if !self.is_dirty(l:buffer, l:diff)
-    return
-  endif
-
   " if follow succeeded, sync placeholders and write back to the buffer.
   if self.snippet.follow(self.tabstop, l:diff)
     try
@@ -257,51 +253,6 @@ function! s:Session.store(changenr) abort
   \   'tabstop': self.tabstop,
   \   'snippet': deepcopy(self.snippet)
   \ }
-endfunction
-
-"
-" is_dirty.
-"
-function! s:Session.is_dirty(buffer, diff) abort
-  return self.snippet.text() !=# self.text_from_buffer(a:buffer, a:diff)
-endfunction
-
-"
-" text_from_buffer.
-"
-function! s:Session.text_from_buffer(buffer, diff) abort
-  let l:range = self.snippet.range()
-
-  if a:diff.range.end.line == l:range.end.line
-    let l:range.end.character += strchars(a:diff.text) - a:diff.rangeLength
-  endif
-
-  let l:text = ''
-  for l:i in range(l:range.start.line, l:range.end.line)
-    if len(a:buffer) <= l:i
-      return v:true
-    endif
-
-    " same line.
-    if l:i == l:range.start.line && l:i == l:range.end.line
-      let l:text = strcharpart(a:buffer[l:i], l:range.start.character, l:range.end.character - l:range.start.character)
-      break
-
-      " multi start.
-    elseif l:i == l:range.start.line
-      let l:text .= strcharpart(a:buffer[l:i], l:range.start.character, strchars(a:buffer[l:i]) - l:range.start.character) . "\n"
-
-      " multi middle.
-    elseif l:i != l:range.end.line
-      let l:text .= a:buffer[l:i] . "\n"
-
-      " multi end.
-    elseif l:i == l:range.end.line
-      let l:text .= strcharpart(a:buffer[l:i], 0, l:range.end.character)
-    endif
-  endfor
-
-  return l:text
 endfunction
 
 "
