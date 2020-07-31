@@ -111,7 +111,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
       let l:should_update = v:false
       let l:should_update = l:should_update || empty(self.target)
       let l:should_update = l:should_update || a:node.type ==# 'placeholder'
-      let l:should_update = l:should_update || (self.target.node.type ==# 'text' && (self.target.range[1] == self.diff.range[0] || self.diff.range[1] == a:range[0]))
+      let l:should_update = l:should_update || self.target.node.type ==# 'text' && self.diff.range[0] == self.diff.range[1]
       if l:should_update
         let self.target = {
         \   'range': a:range,
@@ -198,7 +198,7 @@ function! s:Snippet.sync() abort
     endif
   endfor
 
-  " Sync placeholder text after created text_edits (the reason for doing it as separate is to avoid using a modified range).
+  " Sync placeholder text after created text_edits (the reason is to avoid using a modified range).
   for l:text_edit in l:text_edits
     let l:text_edit.node.children = [vsnip#session#snippet#node#create_text(l:text_edit.newText)]
   endfor
@@ -306,6 +306,8 @@ endfunction
 "
 " normalize
 "
+" - merge adjacent text-nodes
+"
 function! s:Snippet.normalize() abort
   let l:fn = {}
   let l:fn.text = v:null
@@ -334,18 +336,18 @@ endfunction
 "
 " insert_node
 "
-function! s:Snippet.insert_node(position, nodes) abort
+function! s:Snippet.insert_node(position, nodes_to_insert) abort
   let l:offset = self.position_to_offset(a:position)
 
-  let l:fn1 = {}
-  let l:fn1.offset = l:offset
-  let l:fn1.nodes = a:nodes
-  let l:fn1.returns = v:null
-  function! l:fn1.traverse(range, node, parent, depth) abort
+  " Search target node for inserting nodes.
+  let l:fn = {}
+  let l:fn.offset = l:offset
+  let l:fn.target = v:null
+  function! l:fn.traverse(range, node, parent, depth) abort
     if a:range[0] <= self.offset && self.offset <= a:range[1] && a:node.type ==# 'text'
       " prefer more deeper node.
-      if empty(self.returns) || self.returns.depth <= a:depth
-        let self.returns = {
+      if empty(self.target) || self.target.depth <= a:depth
+        let self.target = {
         \   'range': a:range,
         \   'node': a:node,
         \   'parent': a:parent,
@@ -354,32 +356,31 @@ function! s:Snippet.insert_node(position, nodes) abort
       endif
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn1.traverse, 0, 0)
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
-  if !empty(l:fn1.returns)
-    let l:range = l:fn1.returns.range
-    let l:node = l:fn1.returns.node
-    let l:parent = l:fn1.returns.parent
-    let l:idx = index(l:parent.children, l:node)
-
-    " remove target node.
-    call remove(l:parent.children, l:idx)
-
-    let l:inserts = reverse(a:nodes)
-
-    " split target node.
-    if l:node.value !=# ''
-      let l:off = l:offset - l:range[0]
-      let l:before = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, 0, l:off))
-      let l:after = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, l:off, strchars(l:node.value) - l:off))
-      let l:inserts = [l:after] + l:inserts + [l:before]
-    endif
-
-    " insert nodes.
-    for l:node in l:inserts
-      call insert(l:parent.children, l:node, l:idx)
-    endfor
+  " This condition is unexpected normally
+  let l:target = l:fn.target
+  if empty(l:target)
+    return
   endif
+
+  " Remove target text node
+  let l:idx = index(l:target.parent.children, l:target.node)
+  call remove(l:target.parent.children, l:idx)
+
+  " Should insert into existing text node when position is middle of node
+  let l:nodes_to_insert = reverse(a:nodes_to_insert)
+  if l:target.node.value !=# ''
+    let l:off = l:offset - l:target.range[0]
+    let l:before = vsnip#session#snippet#node#create_text(strcharpart(l:target.node.value, 0, l:off))
+    let l:after = vsnip#session#snippet#node#create_text(strcharpart(l:target.node.value, l:off, strchars(l:target.node.value) - l:off))
+    let l:nodes_to_insert = [l:after] + l:nodes_to_insert + [l:before]
+  endif
+
+  " Insert nodes.
+  for l:node in l:nodes_to_insert
+    call insert(l:target.parent.children, l:node, l:idx)
+  endfor
 
   call self.normalize()
 endfunction
