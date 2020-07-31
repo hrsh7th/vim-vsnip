@@ -2,8 +2,6 @@
 
 VSCode(LSP)'s snippet feature in vim.
 
-vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ). (e.g. [vim-lsp](https://github.com/prabirshrestha/vim-lsp))
-
 
 # DEMO
 
@@ -13,21 +11,31 @@ vsnip can integrate some other plugins via [vim-vsnip-integ](https://github.com/
 # Concept
 
 - Standard features written in Pure Vim script.
-- Support VSCode(LSP)'s snippet format.
-- Some LSP client integration.
+- Implement LSP snippet format
+- Support LSP-client and completion-engine by [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ)
+  - LSP-client
+    - [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
+    - [vim-lsc](https://github.com/natebosch/vim-lsc)
+    - [LanguageClient-neovim](https://github.com/autozimu/LanguageClient-neovim)
+    - [neovim built-in lsp](https://github.com/neovim/neovim)
+    - [vim-lamp](https://github.com/hrsh7th/vim-lamp)
+  - completion-engine
+    - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
+    - [asyncomplete.vim](https://github.com/prabirshrestha/asyncomplete.vim)
+    - [vim-mucomplete](https://github.com/lifepillar/vim-mucomplete)
+    - [completion-nvim](https://github.com/haorenW1025/completion-nvim)
 
 
 # Features
 
-- VSCode's snippet format support.
+- Nested placeholders
+  - You can define snippet like `console.log($1${2:, $1})$0`
 - Nested snippet expansion
-    - You can expand snippet even if you already activated other snippet.
-    - Those snippet are merged one snippeet and works fine.
-- Load snippet from VSCode's extension.
-    - You can load snippet via `Plug 'microsoft/vscode-python'` etc.
-    - If you use `dein.nvim`, You should set `merged` flag to 0.
-- Some LSP client integration.
-    - You can find how to integrate those plugins in [here](https://github.com/hrsh7th/vim-vsnip-integ).
+    - You can expand snippet even if you already activated other snippet (it will be merged as one snippet)
+- Load snippet from VSCode extension
+    - If you install VSCode extension via `Plug 'microsoft/vscode-python'`, vsnip will load those snippets.
+- Support many LSP-client & completion-engine
+    - You can get how to integrate those plugins in [here](https://github.com/hrsh7th/vim-vsnip-integ).
 
 
 # Usage
@@ -47,36 +55,39 @@ NeoBundle 'hrsh7th/vim-vsnip'
 NeoBundle 'hrsh7th/vim-vsnip-integ'
 ```
 
+
 ### 2. Setting
 
 ```viml
-" You can use other key to expand snippet.
+" NOTE: You can use other key to expand snippet.
+
+" Expand
 imap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand)'         : '<C-j>'
-" Expand selected placeholder with <C-j> (see https://github.com/hrsh7th/vim-vsnip/pull/51)
 smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+
+" Expand or jump
 imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-" Jump to the next placeholder with <C-l>
 smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+
+" Jump forward or backward
 imap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
 smap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
 imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-" Select text to use as $TM_SELECTED_TEXT in the next snippet.
-" See https://github.com/hrsh7th/vim-vsnip/pull/50
-" These mappings will behave like normal `c`. They select the text, remove it
-" and place you in insert mode.
-nmap        <C-j>   <Plug>(vsnip-cut-text)
-xmap        <C-j>   <Plug>(vsnip-cut-text)
-smap        <C-j>   <Plug>(vsnip-cut-text)
-" This will select the text and your in the exact same mode as before.
+
+" Select or cut text to use as $TM_SELECTED_TEXT in the next snippet. see https://github.com/hrsh7th/vim-vsnip/pull/50
 nmap        <C-l>   <Plug>(vsnip-select-text)
 xmap        <C-l>   <Plug>(vsnip-select-text)
 smap        <C-l>   <Plug>(vsnip-select-text)
+nmap        <C-j>   <Plug>(vsnip-cut-text)
+xmap        <C-j>   <Plug>(vsnip-cut-text)
+smap        <C-j>   <Plug>(vsnip-cut-text)
 ```
+
 
 ### 3. Create your own snippet
 
-Snippet source file will store to `g:vsnip_snippet_dir` per filetype.
+Snippet file will store to `g:vsnip_snippet_dir` per filetype.
 
 1. Open some file (example: `Sample.js`)
 2. Invoke `:VsnipOpen` command.
@@ -101,33 +112,17 @@ Snippet source file will store to `g:vsnip_snippet_dir` per filetype.
 The snippet format was described in [here](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax) or [here](https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md).
 
 
-# Documentation
+# Development
 
-See `./doc/vsnip.txt`
+### How to run test it?
 
-
-# Integration
-
-- You can use [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ)
+You can run `npm run test` after install [vim-themis](https://github.com/thinca/vim-themis).
 
 
-# Why create vim-vsnip?
+### How sync same tabstop placeholders?
 
-- I want to support VSCode(LSP)'s snippet format.
-    - Some LSP client plugins has no snippet feature.
-    - This plugin aims to integrate those plugins.
-- I want to snippet plugin that written in Pure Vim script.
-    - For example, `vim-lsp`, `vim-lsc` are written in Pure Vim script.
-    - If snippet plugin needs `python`, `lua` etc, will breaks those plugins advantage.
-- I want to study parser combinator.
+1. compute the `user-diff` ... `s:Session.flush_changes`
+2. reflect the `user-diff` to snippet ast ... `s:Snippet.follow`
+3. reflect the `sync-diff` to buffer content ... `s:Snippet.sync & s:Session.flush_changes`
 
-
-# TODO
-
-- Should convert filetype to LSP's languageId.
-    - It's breaking change...
-- Support more features in VSCode(LSP) spec.
-    - regex transform
-- Some other useful features.
-    - feel free to send request.
 
