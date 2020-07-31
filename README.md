@@ -75,7 +75,8 @@ smap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab
 imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 
-" Select or cut text to use as $TM_SELECTED_TEXT in the next snippet. see https://github.com/hrsh7th/vim-vsnip/pull/50
+" Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+" See https://github.com/hrsh7th/vim-vsnip/pull/50
 nmap        <C-l>   <Plug>(vsnip-select-text)
 xmap        <C-l>   <Plug>(vsnip-select-text)
 smap        <C-l>   <Plug>(vsnip-select-text)
