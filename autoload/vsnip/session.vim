@@ -234,7 +234,10 @@ function! s:Session.flush_changes() abort
   " if follow succeeded, sync placeholders and write back to the buffer.
   if self.snippet.follow(self.tabstop, l:diff)
     try
-      undojoin | call s:TextEdit.apply(self.bufnr, self.snippet.sync())
+      let l:text_edits = self.snippet.sync()
+      if len(l:text_edits) > 0
+        undojoin | call s:TextEdit.apply(self.bufnr, l:text_edits)
+      endif
       call self.refresh()
     catch /.*/
       " TODO: More strict changenrs mangement.
