@@ -28,8 +28,8 @@ endfunction
 "
 function! vsnip#session#snippet#node#create_text(text) abort
   return s:Text.new({
-        \   'type': 'text',
-        \   'raw': a:text,
-        \   'escaped': a:text
-        \ })
+  \   'type': 'text',
+  \   'raw': a:text,
+  \   'escaped': a:text
+  \ })
 endfunction

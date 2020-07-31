@@ -46,7 +46,7 @@ function! s:find(language) abort
 
       " if package.json has not `contributes.snippets` fields, skip it.
       if !has_key(l:package_json, 'contributes')
-            \ || !has_key(l:package_json.contributes, 'snippets')
+      \ || !has_key(l:package_json.contributes, 'snippets')
         continue
       endif
 
@@ -60,9 +60,9 @@ function! s:find(language) abort
         endif
 
         let s:snippets[l:path] = {
-              \   'languages': type(l:snippet.language) == type([]) ? l:snippet.language : [l:snippet.language],
-              \   'source': vsnip#source#create(l:path)
-              \ }
+        \   'languages': type(l:snippet.language) == type([]) ? l:snippet.language : [l:snippet.language],
+        \   'source': vsnip#source#create(l:path)
+        \ }
       endfor
     catch /.*/
     endtry
@@ -83,8 +83,8 @@ endfunction
 "
 function! s:get_language(filetype) abort
   return get({
-        \   'javascript.jsx': 'javascriptreact',
-        \   'typescript.tsx': 'typescriptreact',
-        \ }, a:filetype, a:filetype)
+  \   'javascript.jsx': 'javascriptreact',
+  \   'typescript.tsx': 'typescriptreact',
+  \ }, a:filetype, a:filetype)
 endfunction
 

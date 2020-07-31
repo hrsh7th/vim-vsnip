@@ -20,19 +20,74 @@ function! s:Snippet.new(position, text) abort
   \     vsnip#session#snippet#parser#parse(a:text)
   \   )
   \ })
+  call l:snippet.init()
   call l:snippet.sync()
   return l:snippet
 endfunction
 
 "
-" range.
+" init.
 "
-function! s:Snippet.range() abort
-  " TODO: Should fix end range for next line?
-  return {
-  \   'start': self.offset_to_position(0),
-  \   'end': self.offset_to_position(strchars(self.text()))
-  \ }
+function s:Snippet.init() abort
+  let l:fn = {}
+  let l:fn.self = self
+  let l:fn.group = {}
+  let l:fn.variable_placeholder = {}
+  let l:fn.has_final_tabstop = v:false
+  function! l:fn.traverse(range, node, parent, depth) abort
+    if a:node.type ==# 'placeholder'
+      " Mark as follower placeholder.
+      if !has_key(self.group, a:node.id)
+        let self.group[a:node.id] = a:node
+      else
+        let a:node.follower = v:true
+      endif
+
+      " Mark as having final tabstop
+      if a:node.is_final
+        let self.has_final_tabstop = v:true
+      endif
+    elseif a:node.type ==# 'variable'
+      " TODO refactor
+      " variable placeholder
+      if a:node.unknown
+        let a:node.type = 'placeholder'
+        let a:node.choice = []
+
+        if !has_key(self.variable_placeholder, a:node.name)
+          let self.variable_placeholder[a:node.name] = s:max_tabstop - (len(self.variable_placeholder) + 1)
+          let a:node.id = self.variable_placeholder[a:node.name]
+          let a:node.follower = v:false
+          let a:node.children = empty(a:node.children) ? [vsnip#session#snippet#node#create_text(a:node.name)] : a:node.children
+          let self.group[a:node.id] =  a:node
+        else
+          let a:node.id = self.variable_placeholder[a:node.name]
+          let a:node.follower = v:true
+          let a:node.children = [vsnip#session#snippet#node#create_text(self.group[a:node.id].text())]
+        endif
+      else
+        let l:index = index(a:parent.children, a:node)
+        call remove(a:parent.children, l:index)
+        call insert(a:parent.children, vsnip#session#snippet#node#create_text(a:node.text()), l:index)
+      endif
+    endif
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+
+  " Append ${MAX_TABSTOP} for the end of snippet.
+  if !l:fn.has_final_tabstop
+    let self.children += [vsnip#session#snippet#node#create_from_ast({
+    \   'type': 'placeholder',
+    \   'id': 0,
+    \   'follower': v:false,
+    \   'choice': [],
+    \   'children': [{
+    \     'type': 'text',
+    \     'raw': '',
+    \     'escaped': ''
+    \   }]
+    \ })]
+  endif
 endfunction
 
 "
@@ -53,24 +108,27 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     " text:   1-----------2
     " expect:       ^
     if a:range[0] <= self.diff.range[0] && self.diff.range[1] <= a:range[1]
-      let self.target = {
-      \   'range': a:range,
-      \   'node': a:node,
-      \   'parent': a:parent,
-      \ }
+      let l:should_update = v:false
+      let l:should_update = l:should_update || empty(self.target)
+      let l:should_update = l:should_update || a:node.type ==# 'placeholder'
+      let l:should_update = l:should_update || self.target.node.type ==# 'text' && self.diff.range[0] == self.diff.range[1]
+      if l:should_update
+        let self.target = {
+        \   'range': a:range,
+        \   'node': a:node,
+        \   'parent': a:parent,
+        \ }
+      endif
       " Stop traversing when acceptable node is current tabstop.
-      return a:node.type ==# 'placeholder' && a:node.id == self.current_tabstop
+      return self.target.node.type ==# 'placeholder' && self.target.node.id == self.current_tabstop
     endif
-
-    return v:false
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
-  if empty(l:fn.target)
+  let l:target = l:fn.target
+  if empty(l:target)
     return v:false
   endif
-
-  let l:target = l:fn.target
 
   " Create patched new text.
   let l:start = a:diff.range[0] - l:target.range[0] - 1
@@ -90,7 +148,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   endif
 
   " Convert to text node when edited node is follower node.
-  while !empty(l:node)
+  while !empty(l:node) && l:node.type !=# 'snippet'
     let l:parent = self.get_parent(l:node)
     if get(l:node, 'follower', v:false)
       let l:index = index(l:parent.children, l:node)
@@ -106,116 +164,56 @@ endfunction
 "
 " sync.
 "
-" # placeholders.
-" LSP spec says, multiple placeholders can has same tabstops.
-" If the placeholders has multiple candidate of default text, use `first occurrence`.
-"
-" # variables.
-" Variable should transform to text node.
-"
 function! s:Snippet.sync() abort
-  " create edits.
-  let l:fn1 = {}
-  let l:fn1.self = self
-  let l:fn1.group = {}
-  let l:fn1.edits = []
-  function! l:fn1.traverse(range, node, parent, depth) abort
-    if a:node.type !=# 'placeholder'
-      return v:false
+  let l:fn = {}
+  let l:fn.new_texts = {}
+  let l:fn.sync_targets = []
+  function! l:fn.traverse(range, node, parent, depth) abort
+    if a:node.type ==# 'placeholder'
+      if !has_key(self.new_texts, a:node.id)
+        let self.new_texts[a:node.id] = a:node.text()
+      else
+        call add(self.sync_targets, {
+        \   'range': a:range,
+        \   'node': a:node,
+        \   'new_text': self.new_texts[a:node.id],
+        \ })
+      endif
     endif
+  endfunction
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
-    if !has_key(self.group, a:node.id)
-      let self.group[a:node.id] = a:node
-    else
-      call add(self.edits, {
-      \   'node': self.group[a:node.id],
+  " Create text_edits.
+  let l:text_edits = []
+  for l:target in l:fn.sync_targets
+    if l:target.new_text !=# l:target.node.text()
+      call add(l:text_edits, {
+      \   'node': l:target.node,
       \   'range': {
-      \     'start': self.self.offset_to_position(a:range[0]),
-      \     'end': self.self.offset_to_position(a:range[1])
+      \     'start': self.offset_to_position(l:target.range[0]),
+      \     'end': self.offset_to_position(l:target.range[1]),
       \   },
+      \   'newText': l:target.new_text
       \ })
     endif
-  endfunction
-  call self.traverse(self, self.children, l:fn1.traverse, 0, 0)
-
-  " sync placeholder.
-  let l:fn2 = {}
-  let l:fn2.self = self
-  let l:fn2.found_final_tabstop = v:false
-  let l:fn2.group = {}
-  let l:fn2.variable_placeholder = {}
-  function! l:fn2.traverse(range, node, parent, depth) abort
-    if a:node.type ==# 'placeholder'
-      " append text node when placeholder has no children.
-      if len(a:node.children) == 0
-        let a:node.children = [vsnip#session#snippet#node#create_text('')]
-      endif
-
-      " sync same tabstop placeholders.
-      if !has_key(self.group, a:node.id)
-        " first occurrence.
-        let self.group[a:node.id] = a:node
-      else
-        " sync.
-        let a:node.follower = v:true
-        let a:node.children = [vsnip#session#snippet#node#create_text(self.group[a:node.id].text())]
-      endif
-
-      " fix 0-tabstop to max tabstop.
-      if a:node.id == 0
-        let a:node.id = s:max_tabstop
-      endif
-
-      let self.found_final_tabstop = self.found_final_tabstop || a:node.id == s:max_tabstop
-    elseif a:node.type ==# 'variable'
-      " variable placeholder
-      if a:node.unknown
-        let a:node.type = 'placeholder'
-        let a:node.choice = []
-
-        if !has_key(self.variable_placeholder, a:node.name)
-          let self.variable_placeholder[a:node.name] = s:max_tabstop - (len(self.variable_placeholder) + 1)
-          let a:node.id = self.variable_placeholder[a:node.name]
-          let a:node.follower = v:false
-          let a:node.children = empty(a:node.children) ?
-          \ [vsnip#session#snippet#node#create_text(a:node.name)] :
-          \ a:node.children
-          let self.group[a:node.id] =  a:node
-        else
-          let a:node.id = self.variable_placeholder[a:node.name]
-          let a:node.follower = v:true
-          let a:node.children = [vsnip#session#snippet#node#create_text(self.group[a:node.id].text())]
-        endif
-      else
-        let l:index = index(a:parent.children, a:node)
-        call remove(a:parent.children, l:index)
-        call insert(a:parent.children, vsnip#session#snippet#node#create_text(a:node.text()), l:index)
-      endif
-    endif
-  endfunction
-  call self.traverse(self, self.children, l:fn2.traverse, 0, 0)
-
-  " add 0 tabstop to end of snippet if has no 0 tabstop.
-  if !l:fn2.found_final_tabstop
-    let self.children += [vsnip#session#snippet#node#create_from_ast({
-    \   'type': 'placeholder',
-    \   'id': s:max_tabstop,
-    \   'follower': v:false,
-    \   'choice': [],
-    \   'children': [{
-    \     'type': 'text',
-    \     'raw': '',
-    \     'escaped': ''
-    \   }]
-    \ })]
-  endif
-
-  " Use synced text.
-  for l:edit in l:fn1.edits
-    let l:edit.newText = l:edit.node.text()
   endfor
 
-  return l:fn1.edits
+  " Sync placeholder text after created text_edits (the reason is to avoid using a modified range).
+  for l:text_edit in l:text_edits
+    let l:text_edit.node.children = [vsnip#session#snippet#node#create_text(l:text_edit.newText)]
+  endfor
+
+  return l:text_edits
+endfunction
+
+"
+" range.
+"
+function! s:Snippet.range() abort
+  return {
+  \   'start': self.offset_to_position(0),
+  \   'end': self.offset_to_position(strchars(self.text()))
+  \ }
 endfunction
 
 "
@@ -308,6 +306,8 @@ endfunction
 "
 " normalize
 "
+" - merge adjacent text-nodes
+"
 function! s:Snippet.normalize() abort
   let l:fn = {}
   let l:fn.text = v:null
@@ -336,18 +336,18 @@ endfunction
 "
 " insert_node
 "
-function! s:Snippet.insert_node(position, nodes) abort
+function! s:Snippet.insert_node(position, nodes_to_insert) abort
   let l:offset = self.position_to_offset(a:position)
 
-  let l:fn1 = {}
-  let l:fn1.offset = l:offset
-  let l:fn1.nodes = a:nodes
-  let l:fn1.returns = v:null
-  function! l:fn1.traverse(range, node, parent, depth) abort
+  " Search target node for inserting nodes.
+  let l:fn = {}
+  let l:fn.offset = l:offset
+  let l:fn.target = v:null
+  function! l:fn.traverse(range, node, parent, depth) abort
     if a:range[0] <= self.offset && self.offset <= a:range[1] && a:node.type ==# 'text'
       " prefer more deeper node.
-      if empty(self.returns) || self.returns.depth <= a:depth
-        let self.returns = {
+      if empty(self.target) || self.target.depth <= a:depth
+        let self.target = {
         \   'range': a:range,
         \   'node': a:node,
         \   'parent': a:parent,
@@ -356,32 +356,31 @@ function! s:Snippet.insert_node(position, nodes) abort
       endif
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn1.traverse, 0, 0)
+  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
-  if !empty(l:fn1.returns)
-    let l:range = l:fn1.returns.range
-    let l:node = l:fn1.returns.node
-    let l:parent = l:fn1.returns.parent
-    let l:idx = index(l:parent.children, l:node)
-
-    " remove target node.
-    call remove(l:parent.children, l:idx)
-
-    let l:inserts = reverse(a:nodes)
-
-    " split target node.
-    if l:node.value !=# ''
-      let l:off = l:offset - l:range[0]
-      let l:before = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, 0, l:off))
-      let l:after = vsnip#session#snippet#node#create_text(strcharpart(l:node.value, l:off, strchars(l:node.value) - l:off))
-      let l:inserts = [l:after] + l:inserts + [l:before]
-    endif
-
-    " insert nodes.
-    for l:node in l:inserts
-      call insert(l:parent.children, l:node, l:idx)
-    endfor
+  " This condition is unexpected normally
+  let l:target = l:fn.target
+  if empty(l:target)
+    return
   endif
+
+  " Remove target text node
+  let l:idx = index(l:target.parent.children, l:target.node)
+  call remove(l:target.parent.children, l:idx)
+
+  " Should insert into existing text node when position is middle of node
+  let l:nodes_to_insert = reverse(a:nodes_to_insert)
+  if l:target.node.value !=# ''
+    let l:off = l:offset - l:target.range[0]
+    let l:before = vsnip#session#snippet#node#create_text(strcharpart(l:target.node.value, 0, l:off))
+    let l:after = vsnip#session#snippet#node#create_text(strcharpart(l:target.node.value, l:off, strchars(l:target.node.value) - l:off))
+    let l:nodes_to_insert = [l:after] + l:nodes_to_insert + [l:before]
+  endif
+
+  " Insert nodes.
+  for l:node in l:nodes_to_insert
+    call insert(l:target.parent.children, l:node, l:idx)
+  endfor
 
   call self.normalize()
 endfunction

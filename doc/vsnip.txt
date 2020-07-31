@@ -31,7 +31,7 @@ You can use your favorite plugin manager.
   NeoBundle 'hrsh7th/vim-vsnip'
 <
 
-If you use `deoplete.nvim`, you can use `vim-vsnip-integ`.
+If you use `deoplete.nvim` or other supported integration, you can use `vim-vsnip-integ`.
 
 >
   " dein.vim
@@ -44,7 +44,7 @@ If you use `deoplete.nvim`, you can use `vim-vsnip-integ`.
   NeoBundle 'hrsh7th/vim-vsnip-integ'
 <
 
-`vim-vsnip-integ` will supports other plugin integrations.
+If you want to know supported plugins, you can see https://github.com/hrsh7th/vim-vsnip-integ
 
 
 ==============================================================================
@@ -97,19 +97,28 @@ You can use your favorite key to expand or jump snippet.
 The below example uses '<Tab>' key.
 
 >
-  imap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand)'         : '<C-j>'
-  smap <expr> <C-j>   vsnip#expandable(1) ? '<Plug>(vsnip-expand)'         : '<C-j>'
-  imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
-  imap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-  smap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-  imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-  smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-  nmap        <C-j>   <Plug>(vsnip-cut-text)
-  xmap        <C-j>   <Plug>(vsnip-cut-text)
-  smap        <C-j>   <Plug>(vsnip-cut-text)
-  nmap        <C-l>   <Plug>(vsnip-select-text)
-  xmap        <C-l>   <Plug>(vsnip-select-text)
-  smap        <C-l>   <Plug>(vsnip-select-text)
+    " Expand
+    imap <expr> <C-j>   vsnip#available(1)  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+    smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+
+    " Expand or jump
+    imap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+    smap <expr> <C-l>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<C-l>'
+
+    " Jump forward or backward
+    imap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+    smap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
+    imap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+    smap <expr> <S-Tab> vsnip#available(-1) ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+
+    " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
+    " See https://github.com/hrsh7th/vim-vsnip/pull/50
+    nmap        <C-l>   <Plug>(vsnip-select-text)
+    xmap        <C-l>   <Plug>(vsnip-select-text)
+    smap        <C-l>   <Plug>(vsnip-select-text)
+    nmap        <C-j>   <Plug>(vsnip-cut-text)
+    xmap        <C-j>   <Plug>(vsnip-cut-text)
+    smap        <C-j>   <Plug>(vsnip-cut-text)
 <
 
 

@@ -4,164 +4,164 @@ Describe vsnip#session#snippet#parser
 
   Describe #parse
 
-    It Should parse text
+    It should parse text
       let l:parsed = vsnip#session#snippet#parser#parse('console.log()')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
-            \   'type': 'text',
-            \   'raw': 'console.log()',
-            \   'escaped': 'console.log()'
-            \ })
+      \   'type': 'text',
+      \   'raw': 'console.log()',
+      \   'escaped': 'console.log()'
+      \ })
     End
 
-    It Should tabstop
+    It should tabstop
       let l:parsed = vsnip#session#snippet#parser#parse('console.log($0$1)')
       call s:expect(len(l:parsed)).to_equal(4)
       call s:expect(l:parsed[0]).to_equal({
-            \   'type': 'text',
-            \   'raw': 'console.log(',
-            \   'escaped': 'console.log('
-            \ })
+      \   'type': 'text',
+      \   'raw': 'console.log(',
+      \   'escaped': 'console.log('
+      \ })
       call s:expect(l:parsed[1]).to_equal({
-            \   'type': 'placeholder',
-            \   'id': 0,
-            \   'children': []
-            \ })
+      \   'type': 'placeholder',
+      \   'id': 0,
+      \   'children': []
+      \ })
       call s:expect(l:parsed[2]).to_equal({
-            \   'type': 'placeholder',
-            \   'id': 1,
-            \   'children': []
-            \ })
+      \   'type': 'placeholder',
+      \   'id': 1,
+      \   'children': []
+      \ })
       call s:expect(l:parsed[3]).to_equal({
-            \   'type': 'text',
-            \   'raw': ')',
-            \   'escaped': ')'
-            \ })
+      \   'type': 'text',
+      \   'raw': ')',
+      \   'escaped': ')'
+      \ })
     End
 
-    It Should parse choice
+    It should parse choice
       let l:parsed = vsnip#session#snippet#parser#parse("${1|log,warn,error|}")
       call s:expect(l:parsed[0]).to_equal({
-            \   'type': 'placeholder',
-            \   'id': 1,
-            \   'choice': [{
-            \     'type': 'text',
-            \     'raw': 'log',
-            \     'escaped': 'log'
-            \   }, {
-            \     'type': 'text',
-            \     'raw': 'warn',
-            \     'escaped': 'warn'
-            \   }, {
-            \     'type': 'text',
-            \     'raw': 'error',
-            \     'escaped': 'error'
-            \   }],
-            \   'children': [{
-            \     'type': 'text',
-            \     'raw': 'log',
-            \     'escaped': 'log'
-            \   }]
-            \ })
+      \   'type': 'placeholder',
+      \   'id': 1,
+      \   'choice': [{
+      \     'type': 'text',
+      \     'raw': 'log',
+      \     'escaped': 'log'
+      \   }, {
+      \     'type': 'text',
+      \     'raw': 'warn',
+      \     'escaped': 'warn'
+      \   }, {
+      \     'type': 'text',
+      \     'raw': 'error',
+      \     'escaped': 'error'
+      \   }],
+      \   'children': [{
+      \     'type': 'text',
+      \     'raw': 'log',
+      \     'escaped': 'log'
+      \   }]
+      \ })
     End
 
-    It Should parse escaped text 1
+    It should parse escaped text 1
       let l:parsed = vsnip#session#snippet#parser#parse('${1:\\\$variable\}}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
-            \   'type': 'placeholder',
-            \   'id': 1,
-            \   'children': [{
-            \     'type': 'text',
-            \     'raw': '\\\$variable\}',
-            \     'escaped': '\$variable}'
-            \   }]
-            \ })
+      \   'type': 'placeholder',
+      \   'id': 1,
+      \   'children': [{
+      \     'type': 'text',
+      \     'raw': '\\\$variable\}',
+      \     'escaped': '\$variable}'
+      \   }]
+      \ })
     End
 
-    It Should parse escaped text 2
+    It should parse escaped text 2
       let l:parsed = vsnip#session#snippet#parser#parse('${1:{\}}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
-            \   'type': 'placeholder',
-            \   'id': 1,
-            \   'children': [{
-            \     'type': 'text',
-            \     'raw': '{\}',
-            \     'escaped': '{}'
-            \   }]
-            \ })
+      \   'type': 'placeholder',
+      \   'id': 1,
+      \   'children': [{
+      \     'type': 'text',
+      \     'raw': '{\}',
+      \     'escaped': '{}'
+      \   }]
+      \ })
     End
 
-    It Should parse escaped text 3
+    It should parse escaped text 3
       let l:parsed = vsnip#session#snippet#parser#parse('\{\}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
-            \   'type': 'text',
-            \   'raw': '\{\}',
-            \   'escaped': '{}'
-            \ })
+      \   'type': 'text',
+      \   'raw': '\{\}',
+      \   'escaped': '{}'
+      \ })
     End
 
-    It Should parse nested placeholder
+    It should parse nested placeholder
       let l:parsed = vsnip#session#snippet#parser#parse('class $1${2: extends ${3:SuperClass}} { $0 }')
       call s:expect(len(l:parsed)).to_equal(6)
       call s:expect(l:parsed[0]).to_equal({
-            \   'type': 'text',
-            \   'raw': 'class ',
-            \   'escaped': 'class '
-            \ })
+      \   'type': 'text',
+      \   'raw': 'class ',
+      \   'escaped': 'class '
+      \ })
       call s:expect(l:parsed[1]).to_equal({
-            \   'type': 'placeholder',
-            \   'id': 1,
-            \   'children': []
-            \ })
+      \   'type': 'placeholder',
+      \   'id': 1,
+      \   'children': []
+      \ })
       call s:expect(l:parsed[2]).to_equal({
-            \   'type': 'placeholder',
-            \   'id': 2,
-            \   'children': [{
-            \     'type': 'text',
-            \     'raw': ' extends ',
-            \     'escaped': ' extends '
-            \   }, {
-            \     'type': 'placeholder',
-            \     'id': 3,
-            \     'children': [{
-            \       'type': 'text',
-            \       'raw': 'SuperClass',
-            \       'escaped': 'SuperClass'
-            \     }]
-            \   }]
-            \ })
+      \   'type': 'placeholder',
+      \   'id': 2,
+      \   'children': [{
+      \     'type': 'text',
+      \     'raw': ' extends ',
+      \     'escaped': ' extends '
+      \   }, {
+      \     'type': 'placeholder',
+      \     'id': 3,
+      \     'children': [{
+      \       'type': 'text',
+      \       'raw': 'SuperClass',
+      \       'escaped': 'SuperClass'
+      \     }]
+      \   }]
+      \ })
       call s:expect(l:parsed[3]).to_equal({
-            \   'type': 'text',
-            \   'raw': ' { ',
-            \   'escaped': ' { '
-            \ })
+      \   'type': 'text',
+      \   'raw': ' { ',
+      \   'escaped': ' { '
+      \ })
       call s:expect(l:parsed[4]).to_equal({
-            \   'type': 'placeholder',
-            \   'id': 0,
-            \   'children': []
-            \ })
+      \   'type': 'placeholder',
+      \   'id': 0,
+      \   'children': []
+      \ })
       call s:expect(l:parsed[5]).to_equal({
-            \   'type': 'text',
-            \   'raw': ' }',
-            \   'escaped': ' }'
-            \ })
+      \   'type': 'text',
+      \   'raw': ' }',
+      \   'escaped': ' }'
+      \ })
     End
 
-    It Should parse variable
+    It should parse variable
       let l:parsed = vsnip#session#snippet#parser#parse('${variable:default}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
-            \   'type': 'variable',
-            \   'name': 'variable',
-            \   'children': [{
-            \     'type': 'text',
-            \     'raw': 'default',
-            \     'escaped': 'default',
-            \   }]
-            \ })
+      \   'type': 'variable',
+      \   'name': 'variable',
+      \   'children': [{
+      \     'type': 'text',
+      \     'raw': 'default',
+      \     'escaped': 'default',
+      \   }]
+      \ })
     End
 
   End
