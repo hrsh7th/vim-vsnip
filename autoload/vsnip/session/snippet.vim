@@ -165,13 +165,6 @@ endfunction
 "
 " sync.
 "
-" # placeholders.
-" LSP spec says, multiple placeholders can has same tabstops.
-" If the placeholders has multiple candidate of default text, use `first occurrence`.
-"
-" # variables.
-" Variable should transform to text node.
-"
 function! s:Snippet.sync() abort
   let l:fn = {}
   let l:fn.new_texts = {}

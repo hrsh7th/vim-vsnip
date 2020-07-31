@@ -131,22 +131,42 @@ Describe vsnip#snippet
       call s:expect(l:snippet.get_next_jump_point(1).placeholder.text()).to_equal('d___ult')
     End
 
-    It should follow when diff range and snippet range are empty
-      let l:snippet = s:Snippet.new(s:start_position, '')
-      call l:snippet.follow(0, {
+    It should prefer placeholder node than text node when both followable (left)
+      let l:snippet = s:Snippet.new(s:start_position, '[${1:text1}][${2:text2}][${3:text3}]')
+      call l:snippet.follow(1, {
       \   'range': {
       \     'start': {
       \       'line': 1,
-      \       'character': 1
+      \       'character': 9
       \     },
       \     'end': {
       \       'line': 1,
-      \       'character': 1
+      \       'character': 9
       \     }
       \   },
       \   'text': '___'
       \ })
-      call s:expect(l:snippet.text()).to_equal('___')
+      call s:expect(l:snippet.text()).to_equal('[text1][___text2][text3]')
+      call s:expect(l:snippet.children[3].text()).to_equal('___text2')
+    End
+
+    It should prefer placeholder node than text node when both followable (right)
+      let l:snippet = s:Snippet.new(s:start_position, '[${1:text1}][${2:text2}][${3:text3}]')
+      call l:snippet.follow(1, {
+      \   'range': {
+      \     'start': {
+      \       'line': 1,
+      \       'character': 14
+      \     },
+      \     'end': {
+      \       'line': 1,
+      \       'character': 14
+      \     }
+      \   },
+      \   'text': '___'
+      \ })
+      call s:expect(l:snippet.text()).to_equal('[text1][text2___][text3]')
+      call s:expect(l:snippet.children[3].text()).to_equal('text2___')
     End
 
   End
