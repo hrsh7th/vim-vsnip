@@ -98,7 +98,7 @@ endfunction
 " get_context.
 "
 function! vsnip#get_context() abort
-  let l:offset = mode() ==# 's' ? 1 : 2
+  let l:offset = mode()[0] ==# 'i' ? 2 : 1
   let l:before_text = getline('.')[0 : col('.') - l:offset]
   let l:before_text_len = strchars(l:before_text)
   for l:source in vsnip#source#find(&filetype)
