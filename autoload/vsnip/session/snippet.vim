@@ -125,11 +125,10 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
-  if empty(l:fn.target)
+  let l:target = l:fn.target
+  if empty(l:target)
     return v:false
   endif
-
-  let l:target = l:fn.target
 
   " Create patched new text.
   let l:start = a:diff.range[0] - l:target.range[0] - 1
