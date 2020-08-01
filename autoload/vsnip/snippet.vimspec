@@ -1,5 +1,5 @@
 let s:expect = themis#helper('expect')
-let s:Snippet = vsnip#session#snippet#import()
+let s:Snippet = vsnip#snippet#import()
 
 let s:start_position = {
 \   'line': 1,
@@ -267,7 +267,7 @@ Describe vsnip#snippet
 
     It should normalize 2
       let l:snippet = s:Snippet.new(s:start_position, 'console.log')
-      call insert(l:snippet.children, vsnip#session#snippet#node#create_text('___'), 1)
+      call insert(l:snippet.children, vsnip#snippet#node#create_text('___'), 1)
       let l:text = l:snippet.text()
       call s:expect(len(l:snippet.children)).to_equal(3)
       call l:snippet.normalize()
@@ -313,7 +313,7 @@ Describe vsnip#snippet
 
     It should insert node 5
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(aiueo)')
-      call l:snippet.insert_node({ 'line': 1, 'character': 18 }, [vsnip#session#snippet#node#create_text('___')])
+      call l:snippet.insert_node({ 'line': 1, 'character': 18 }, [vsnip#snippet#node#create_text('___')])
       call s:expect(l:snippet.text()).to_equal('console.log(aiueo___)')
     End
 

@@ -1,11 +1,11 @@
 let s:expect = themis#helper('expect')
 
-Describe vsnip#session#snippet#parser
+Describe vsnip#snippet#parser
 
   Describe #parse
 
     It should parse text
-      let l:parsed = vsnip#session#snippet#parser#parse('console.log()')
+      let l:parsed = vsnip#snippet#parser#parse('console.log()')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'text',
@@ -15,7 +15,7 @@ Describe vsnip#session#snippet#parser
     End
 
     It should tabstop
-      let l:parsed = vsnip#session#snippet#parser#parse('console.log($0$1)')
+      let l:parsed = vsnip#snippet#parser#parse('console.log($0$1)')
       call s:expect(len(l:parsed)).to_equal(4)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'text',
@@ -40,7 +40,7 @@ Describe vsnip#session#snippet#parser
     End
 
     It should parse choice
-      let l:parsed = vsnip#session#snippet#parser#parse("${1|log,warn,error|}")
+      let l:parsed = vsnip#snippet#parser#parse("${1|log,warn,error|}")
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'placeholder',
       \   'id': 1,
@@ -66,7 +66,7 @@ Describe vsnip#session#snippet#parser
     End
 
     It should parse escaped text 1
-      let l:parsed = vsnip#session#snippet#parser#parse('${1:\\\$variable\}}')
+      let l:parsed = vsnip#snippet#parser#parse('${1:\\\$variable\}}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'placeholder',
@@ -80,7 +80,7 @@ Describe vsnip#session#snippet#parser
     End
 
     It should parse escaped text 2
-      let l:parsed = vsnip#session#snippet#parser#parse('${1:{\}}')
+      let l:parsed = vsnip#snippet#parser#parse('${1:{\}}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'placeholder',
@@ -94,7 +94,7 @@ Describe vsnip#session#snippet#parser
     End
 
     It should parse escaped text 3
-      let l:parsed = vsnip#session#snippet#parser#parse('\{\}')
+      let l:parsed = vsnip#snippet#parser#parse('\{\}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'text',
@@ -104,7 +104,7 @@ Describe vsnip#session#snippet#parser
     End
 
     It should parse nested placeholder
-      let l:parsed = vsnip#session#snippet#parser#parse('class $1${2: extends ${3:SuperClass}} { $0 }')
+      let l:parsed = vsnip#snippet#parser#parse('class $1${2: extends ${3:SuperClass}} { $0 }')
       call s:expect(len(l:parsed)).to_equal(6)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'text',
@@ -151,7 +151,7 @@ Describe vsnip#session#snippet#parser
     End
 
     It should parse variable
-      let l:parsed = vsnip#session#snippet#parser#parse('${variable:default}')
+      let l:parsed = vsnip#snippet#parser#parse('${variable:default}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'variable',

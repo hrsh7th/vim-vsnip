@@ -3,7 +3,7 @@ let s:max_tabstop = 1000000
 "
 " import.
 "
-function! vsnip#session#snippet#import() abort
+function! vsnip#snippet#import() abort
   return s:Snippet
 endfunction
 
@@ -16,8 +16,8 @@ function! s:Snippet.new(position, text) abort
   let l:snippet = extend(deepcopy(s:Snippet), {
   \   'type': 'snippet',
   \   'position': a:position,
-  \   'children': vsnip#session#snippet#node#create_from_ast(
-  \     vsnip#session#snippet#parser#parse(a:text)
+  \   'children': vsnip#snippet#node#create_from_ast(
+  \     vsnip#snippet#parser#parse(a:text)
   \   )
   \ })
   call l:snippet.init()
@@ -58,17 +58,17 @@ function s:Snippet.init() abort
           let self.variable_placeholder[a:node.name] = s:max_tabstop - (len(self.variable_placeholder) + 1)
           let a:node.id = self.variable_placeholder[a:node.name]
           let a:node.follower = v:false
-          let a:node.children = empty(a:node.children) ? [vsnip#session#snippet#node#create_text(a:node.name)] : a:node.children
+          let a:node.children = empty(a:node.children) ? [vsnip#snippet#node#create_text(a:node.name)] : a:node.children
           let self.group[a:node.id] =  a:node
         else
           let a:node.id = self.variable_placeholder[a:node.name]
           let a:node.follower = v:true
-          let a:node.children = [vsnip#session#snippet#node#create_text(self.group[a:node.id].text())]
+          let a:node.children = [vsnip#snippet#node#create_text(self.group[a:node.id].text())]
         endif
       else
         let l:index = index(a:parent.children, a:node)
         call remove(a:parent.children, l:index)
-        call insert(a:parent.children, vsnip#session#snippet#node#create_text(a:node.text()), l:index)
+        call insert(a:parent.children, vsnip#snippet#node#create_text(a:node.text()), l:index)
       endif
     endif
   endfunction
@@ -76,7 +76,7 @@ function s:Snippet.init() abort
 
   " Append ${MAX_TABSTOP} for the end of snippet.
   if !l:fn.has_final_tabstop
-    let self.children += [vsnip#session#snippet#node#create_from_ast({
+    let self.children += [vsnip#snippet#node#create_from_ast({
     \   'type': 'placeholder',
     \   'id': 0,
     \   'follower': v:false,
@@ -142,7 +142,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   " Apply patched new text.
   let l:node = l:target.node
   if l:node.type ==# 'placeholder'
-    let l:node.children = [vsnip#session#snippet#node#create_text(l:new_text)]
+    let l:node.children = [vsnip#snippet#node#create_text(l:new_text)]
   else
     let l:node.value = l:new_text
   endif
@@ -153,7 +153,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     if get(l:node, 'follower', v:false)
       let l:index = index(l:parent.children, l:node)
       call remove(l:parent.children, l:index)
-      call insert(l:parent.children, vsnip#session#snippet#node#create_text(l:node.text()), l:index)
+      call insert(l:parent.children, vsnip#snippet#node#create_text(l:node.text()), l:index)
     endif
     let l:node = l:parent
   endwhile
@@ -200,7 +200,7 @@ function! s:Snippet.sync() abort
 
   " Sync placeholder text after created text_edits (the reason is to avoid using a modified range).
   for l:text_edit in l:text_edits
-    let l:text_edit.node.children = [vsnip#session#snippet#node#create_text(l:text_edit.newText)]
+    let l:text_edit.node.children = [vsnip#snippet#node#create_text(l:text_edit.newText)]
   endfor
 
   return l:text_edits
@@ -372,8 +372,8 @@ function! s:Snippet.insert_node(position, nodes_to_insert) abort
   let l:nodes_to_insert = reverse(a:nodes_to_insert)
   if l:target.node.value !=# ''
     let l:off = l:offset - l:target.range[0]
-    let l:before = vsnip#session#snippet#node#create_text(strcharpart(l:target.node.value, 0, l:off))
-    let l:after = vsnip#session#snippet#node#create_text(strcharpart(l:target.node.value, l:off, strchars(l:target.node.value) - l:off))
+    let l:before = vsnip#snippet#node#create_text(strcharpart(l:target.node.value, 0, l:off))
+    let l:after = vsnip#snippet#node#create_text(strcharpart(l:target.node.value, l:off, strchars(l:target.node.value) - l:off))
     let l:nodes_to_insert = [l:after] + l:nodes_to_insert + [l:before]
   endif
 

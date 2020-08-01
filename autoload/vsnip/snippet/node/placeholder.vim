@@ -1,6 +1,6 @@
 let s:max_tabstop = 1000000
 
-function! vsnip#session#snippet#node#placeholder#import() abort
+function! vsnip#snippet#node#placeholder#import() abort
   return s:Placeholder
 endfunction
 
@@ -16,7 +16,7 @@ function! s:Placeholder.new(ast) abort
   \   'is_final': a:ast.id == 0,
   \   'follower': v:false,
   \   'choice': get(a:ast, 'choice', []),
-  \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
+  \   'children': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
   \ })
 
   if l:node.is_final
@@ -24,7 +24,7 @@ function! s:Placeholder.new(ast) abort
   endif
 
   if len(l:node.children) == 0
-    let l:node.children = [vsnip#session#snippet#node#create_text('')]
+    let l:node.children = [vsnip#snippet#node#create_text('')]
   endif
 
   return l:node
