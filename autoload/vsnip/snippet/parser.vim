@@ -1,8 +1,10 @@
+let s:Combinator = vsnip#parser#combinator#import()
+
 "
-" vsnip#session#snippet#parser#parse.
+" vsnip#snippet#parser#parse.
 " @see https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md
 "
-function! vsnip#session#snippet#parser#parse(text) abort
+function! vsnip#snippet#parser#parse(text) abort
 	if strlen(a:text) == 0
 		return []
 	endif
@@ -13,8 +15,6 @@ function! vsnip#session#snippet#parser#parse(text) abort
 	endif
 	return l:parsed[1]
 endfunction
-
-let s:Combinator = vsnip#session#snippet#parser#combinator#import()
 
 let s:skip = s:Combinator.skip
 let s:token = s:Combinator.token

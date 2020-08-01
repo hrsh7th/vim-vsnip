@@ -1,4 +1,4 @@
-function! vsnip#session#snippet#node#variable#import() abort
+function! vsnip#snippet#node#variable#import() abort
   return s:Variable
 endfunction
 
@@ -41,7 +41,7 @@ function! s:Variable.new(ast) abort
   \   'type': 'variable',
   \   'name': a:ast.name,
   \   'unknown': !has_key(s:known_variables, a:ast.name),
-  \   'children': vsnip#session#snippet#node#create_from_ast(get(a:ast, 'children', [])),
+  \   'children': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
   \ })
 endfunction
 
