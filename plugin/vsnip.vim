@@ -108,50 +108,28 @@ endfunction
 "
 " <Plug>(vsnip-select-text)
 "
-nnoremap <silent> <Plug>(vsnip-select-text) :set operatorfunc=<SID>vsnip_select_text_normal<CR>g@
-snoremap <silent> <Plug>(vsnip-select-text) <C-g>:<C-u>call <SID>vsnip_visual_text(visualmode())<CR>gv<C-g>
-xnoremap <silent> <Plug>(vsnip-select-text) :<C-u>call <SID>vsnip_visual_text(visualmode())<CR>gv
-function! s:vsnip_select_text_normal(type) abort
-  call s:vsnip_set_text(a:type, 'y')
+nnoremap <silent> <Plug>(vsnip-select-text) :set operatorfunc=<SID>select_text<CR>g@
+snoremap <silent> <Plug>(vsnip-select-text) <C-g>:<C-u>call <SID>select_text(visualmode(), 'gv<C-g>')<CR>
+xnoremap <silent> <Plug>(vsnip-select-text) :<C-u>call <SID>select_text(visualmode(), 'gv')<CR>
+function! s:select_text(type, ...) abort
+  call vsnip#selected_text(vsnip#selection(a:type))
+
+  " when invoked in visualmode, we should restore visual selection manually.
+  let l:restore_selection = get(a:000, 0, v:null)
+  if l:restore_selection isnot# v:null
+    call feedkeys(l:restore_selection, 'nt')
+  endif
 endfunction
 
 "
 " <Plug>(vsnip-cut-text)
 "
-nnoremap <silent> <Plug>(vsnip-cut-text) :set operatorfunc=<SID>vsnip_cut_text_normal<CR>g@
-snoremap <silent> <Plug>(vsnip-cut-text) <C-g>:<C-u>call <SID>vsnip_visual_text(visualmode())<CR>gv"_c
-xnoremap <silent> <Plug>(vsnip-cut-text) :<C-u>call <SID>vsnip_visual_text(visualmode())<CR>gv"_c
-
-function! s:vsnip_cut_text_normal(type) abort
-  call s:vsnip_set_text(a:type, 'd')
-  let insertmode = s:virtualedit_in_normal() ? 'i' : 'a'
-  call feedkeys(insertmode, 'n')
-endfunction
-function! s:vsnip_visual_text(type) abort
-  call s:vsnip_set_text(a:type, 'y')
-endfunction
-function! s:vsnip_set_text(type, copy) abort
-  let reg_v = @v
-  if a:type ==# 'v'
-    let select = '`<v`>"v'
-  elseif a:type ==# 'V'
-    let select = "'<V'>\"v"
-  elseif a:type ==? ''
-    let select = '`<`>"v'
-  elseif a:type ==# 'char'
-  \ || (a:type ==# 'line' && s:virtualedit_in_normal())
-    let select = '`[v`]"v'
-  elseif a:type ==# 'line'
-    let select = "'[V']\"v"
-  else
-    return
-  endif
-  execute 'normal! '.select.a:copy
-  call vsnip#selected_text(substitute(@v, '\n$', '', ''))
-  let @v = reg_v
-endfunction
-function! s:virtualedit_in_normal() abort
-  return &virtualedit =~? '\<all\>'
+nnoremap <silent> <Plug>(vsnip-cut-text) :set operatorfunc=<SID>cut_text<CR>g@
+snoremap <silent> <Plug>(vsnip-cut-text) <C-g>:<C-u>call <SID>cut_text(visualmode())<CR>
+xnoremap <silent> <Plug>(vsnip-cut-text) :<C-u>call <SID>cut_text(visualmode())<CR>
+function! s:cut_text(type) abort
+  call vsnip#selected_text(vsnip#selection(a:type))
+  call feedkeys('gv"_c', 'nt')
 endfunction
 
 "

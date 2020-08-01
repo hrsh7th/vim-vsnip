@@ -152,6 +152,35 @@ function! vsnip#get_complete_items(bufnr) abort
 endfunction
 
 "
+" vsnip#selection
+"
+" Handling selection that provided by `visual-mode-mapping` or `operatorfunc`
+"
+" @NOTE: After call this, visual-selection will be released by `normal!`.
+"
+function! vsnip#selection(type) abort
+  if a:type ==# 'v'
+    let l:select_command = '`<v`>"v'
+  elseif a:type ==# 'V'
+    let l:select_command = "'<V'>\"v"
+  elseif a:type ==? ''
+    let l:select_command = '`<`>"v'
+  elseif a:type ==# 'char' || (a:type ==# 'line' && &virtualedit =~# '\%(all\|onemore\)')
+    let l:select_command = '`[v`]"v'
+  elseif a:type ==# 'line'
+    let l:select_command = "'[V']\"v"
+  else
+    return ''
+  endif
+
+  let l:old_value = @v
+  execute printf('normal! %sy', l:select_command)
+  let l:new_value = substitute(@v, '\n$', '', '')
+  let @v = l:old_value
+  return l:new_value
+endfunction
+
+"
 " vsnip#debug
 "
 function! vsnip#debug() abort
