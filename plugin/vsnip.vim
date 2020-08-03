@@ -59,17 +59,13 @@ endif
 inoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
 snoremap <silent> <Plug>(vsnip-expand-or-jump) <Esc>:<C-u>call <SID>expand_or_jump()<CR>
 function! s:expand_or_jump()
-  let l:ctx = {}
-  function! l:ctx.callback() abort
-    let l:context = vsnip#get_context()
-    let l:session = vsnip#get_session()
-    if !empty(l:context)
-      call vsnip#expand()
-    elseif !empty(l:session) && l:session.jumpable(1)
-      call l:session.jump(1)
-    endif
-  endfunction
-  return s:map({ -> l:ctx.callback() })
+  let l:context = vsnip#get_context()
+  let l:session = vsnip#get_session()
+  if !empty(l:context)
+    call vsnip#expand()
+  elseif !empty(l:session) && l:session.jumpable(1)
+    call l:session.jump(1)
+  endif
 endfunction
 
 "
@@ -78,11 +74,7 @@ endfunction
 inoremap <silent> <Plug>(vsnip-expand) <Esc>:<C-u>call <SID>expand()<CR>
 snoremap <silent> <Plug>(vsnip-expand) <C-g><Esc>:<C-u>call <SID>expand()<CR>
 function! s:expand() abort
-  let l:ctx = {}
-  function! l:ctx.callback() abort
-    call vsnip#expand()
-  endfunction
-  return s:map({ -> l:ctx.callback() })
+  call vsnip#expand()
 endfunction
 
 "
@@ -94,15 +86,10 @@ snoremap <silent> <Plug>(vsnip-jump-next) <Esc>:<C-u>call <SID>jump(1)<CR>
 inoremap <silent> <Plug>(vsnip-jump-prev) <Esc>:<C-u>call <SID>jump(-1)<CR>
 snoremap <silent> <Plug>(vsnip-jump-prev) <Esc>:<C-u>call <SID>jump(-1)<CR>
 function! s:jump(direction) abort
-  let l:ctx = {}
-  let l:ctx.direction = a:direction
-  function! l:ctx.callback() abort
-    let l:session = vsnip#get_session()
-    if !empty(l:session) && l:session.jumpable(self.direction)
-      call l:session.jump(self.direction)
-    endif
-  endfunction
-  return s:map({ -> l:ctx.callback() })
+  let l:session = vsnip#get_session()
+  if !empty(l:session) && l:session.jumpable(a:direction)
+    call l:session.jump(a:direction)
+  endif
 endfunction
 
 "
@@ -152,23 +139,6 @@ function! s:vsnip_set_text(type, copy) abort
 endfunction
 function! s:virtualedit_in_normal() abort
   return &virtualedit =~? '\<all\>'
-endfunction
-
-"
-" map
-"
-function! s:map(fn) abort
-  let l:virtualedit = &virtualedit
-  let &virtualedit = 'onemore'
-
-  try
-    normal! l
-    call a:fn()
-  catch /.*/
-    echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
-  endtry
-
-  let &virtualedit = l:virtualedit
 endfunction
 
 "

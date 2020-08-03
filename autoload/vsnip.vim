@@ -45,19 +45,12 @@ endfunction
 function! vsnip#expand() abort
   let l:context = vsnip#get_context()
   if !empty(l:context)
-    let l:position = s:Position.cursor()
     let l:text_edit = {
-    \   'range': {
-    \     'start': {
-    \       'line': l:position.line,
-    \       'character': l:position.character - l:context.length
-    \     },
-    \     'end': l:position
-    \   },
+    \   'range': l:context.range,
     \   'newText': ''
     \ }
     call s:TextEdit.apply(bufnr('%'), [l:text_edit])
-    call cursor(s:Position.lsp_to_vim('%', l:text_edit.range.start))
+    call cursor(s:Position.lsp_to_vim('%', l:context.range.start))
     call vsnip#anonymous(join(l:context.snippet.body, "\n"))
   endif
 endfunction
@@ -102,7 +95,7 @@ endfunction
 " get_context.
 "
 function! vsnip#get_context() abort
-  let l:offset = mode()[0] ==# 's' ? 1 : 2
+  let l:offset = mode()[0] ==# 'i' ? 2 : 1
   let l:before_text = getline('.')[0 : col('.') - l:offset]
   let l:before_text_len = strchars(l:before_text)
   for l:source in vsnip#source#find(&filetype)
@@ -113,8 +106,18 @@ function! vsnip#get_context() abort
           continue
         endif
 
+        let l:line = line('.') - 1
         return {
-        \   'length': l:prefix_len,
+        \   'range': {
+        \     'start': {
+        \       'line': l:line,
+        \       'character': l:before_text_len - l:prefix_len,
+        \     },
+        \     'end': {
+        \       'line': l:line,
+        \       'character': l:before_text_len
+        \     }
+        \   },
         \   'snippet': l:snippet
         \ }
       endfor
