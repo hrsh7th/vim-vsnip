@@ -127,8 +127,7 @@ endfunction
 " choice.
 "
 function! s:Session.choice(jump_point) abort
-  call cursor(s:Position.lsp_to_vim('%', a:jump_point.range.end))
-  startinsert
+  call self.move(a:jump_point)
 
   let l:fn = {}
   let l:fn.jump_point = a:jump_point
@@ -149,19 +148,16 @@ endfunction
 "
 " select.
 "
+" @NOTE: Must work even if virtualedit=all/onmore or not.
+"
 function! s:Session.select(jump_point) abort
-  " `virtualedit=onemore` is restored by `plugin/vsnip.vim` before invoke `feedkeys` contents. (feedkeys is not synchronous.)
-  " So using `range.end.character` as inclusive position in here.
-  " Do not worry to first position of line, `select` has always have text.
   let l:pos = s:Position.lsp_to_vim('%', a:jump_point.range.end)
-  call cursor([l:pos[0], l:pos[1] - 1])
-  let l:select_length = strchars(a:jump_point.placeholder.text()) - 1
-  let l:cmd = mode()[0] ==# 'i' ? "\<Esc>l" : ''
-  if l:select_length > 0
-    let l:cmd .= printf('v%sh', l:select_length)
-  else
-    let l:cmd .= 'v'
-  endif
+  call cursor([l:pos[0], l:pos[1] - 1]) " Use `a:jump_point.range.end as inclusive position
+
+  let l:select_length = strlen(a:jump_point.placeholder.text()) - 1
+  let l:cmd = ''
+  let l:cmd .= mode()[0] ==# 'i' ? "\<Esc>l" : ''
+  let l:cmd .= printf('v%sh', l:select_length)
   let l:cmd .= "o\<C-g>"
   call feedkeys(l:cmd, 'nt')
 endfunction
@@ -169,9 +165,18 @@ endfunction
 "
 " move.
 "
+" @NOTE: Must work even if virtualedit=all/onmore or not.
+"
 function! s:Session.move(jump_point) abort
-  call cursor(s:Position.lsp_to_vim('%', a:jump_point.range.end))
-  startinsert
+  let l:pos = s:Position.lsp_to_vim('%', a:jump_point.range.end)
+
+  call cursor(l:pos)
+
+  if l:pos[1] > strlen(getline(l:pos[0]))
+    startinsert!
+  else
+    startinsert
+  endif
 endfunction
 
 "
