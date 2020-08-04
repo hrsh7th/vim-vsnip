@@ -45,21 +45,25 @@ endfunction
 function! vsnip#expand() abort
   let l:context = vsnip#get_context()
   if !empty(l:context)
-    let l:text_edit = {
+    call s:TextEdit.apply(bufnr('%'), [{
     \   'range': l:context.range,
     \   'newText': ''
-    \ }
-    call s:TextEdit.apply(bufnr('%'), [l:text_edit])
-    call cursor(s:Position.lsp_to_vim('%', l:context.range.start))
-    call vsnip#anonymous(join(l:context.snippet.body, "\n"))
+    \ }])
+    call vsnip#anonymous(join(l:context.snippet.body, "\n"), {
+    \   'position': l:context.range.start
+    \ })
   endif
 endfunction
 
 "
 " vsnip#anonymous.
 "
-function! vsnip#anonymous(text) abort
-  let l:session = s:Session.new(bufnr('%'), s:Position.cursor(), a:text)
+function! vsnip#anonymous(text, ...) abort
+  let l:option = get(a:000, 0, {})
+  let l:position = get(l:option, 'position', s:Position.cursor())
+
+  let l:session = s:Session.new(bufnr('%'), l:position, a:text)
+
   call vsnip#selected_text('')
 
   if !empty(s:session)
