@@ -38,15 +38,15 @@ let s:comma = s:token(',')
 let s:pipe = s:token('|')
 let s:varname = s:pattern('[_[:alpha:]]\w*')
 let s:int = s:map(s:pattern('\d\+'), { value -> str2nr(value[0]) })
-let s:text = { stop -> s:map(
-\   s:skip(stop),
+let s:text = { stop, escape -> s:map(
+\   s:skip(stop, escape),
 \   { value -> {
 \     'type': 'text',
 \     'raw': value[0],
 \     'escaped': value[1]
 \   }
 \ }) }
-let s:regex = s:map(s:text(['/']), { value -> {
+let s:regex = s:map(s:text(['/'], []), { value -> {
 \   'type': 'regex',
 \   'pattern': value.raw
 \ } })
@@ -115,7 +115,7 @@ let s:transform2 = s:map(s:seq(
 \   s:slash,
 \   s:regex,
 \   s:slash,
-\   s:text(['/']),
+\   s:text(['/'], []),
 \   s:slash,
 \   s:or(s:token('i'))
 \ ), { value -> {
@@ -142,7 +142,7 @@ let s:variable3 = s:map(s:seq(
 \   s:open,
 \   s:varname,
 \   s:colon,
-\   s:or(s:any, s:text(['$', '}'])),
+\   s:or(s:any, s:text(['$', '}'], [])),
 \   s:close
 \ ), { value -> {
 \   'type': 'variable',
@@ -165,7 +165,7 @@ let s:placeholder = s:map(s:seq(
 \   s:open,
 \   s:int,
 \   s:colon,
-\   s:many(s:or(s:any, s:text(['$', '}']))),
+\   s:many(s:or(s:any, s:text(['$', '}'], []))),
 \   s:close
 \ ), { value -> {
 \   'type': 'placeholder',
@@ -203,7 +203,7 @@ let s:choice = s:map(s:seq(
 \   s:int,
 \   s:pipe,
 \   s:many(
-\     s:map(s:seq(s:text([',', '|']), s:option(s:comma)), { value -> value[0] }),
+\     s:map(s:seq(s:text([',', '|'], []), s:option(s:comma)), { value -> value[0] }),
 \   ),
 \   s:pipe,
 \   s:close
@@ -217,4 +217,5 @@ let s:choice = s:map(s:seq(
 "
 " parser.
 "
-let s:parser = s:many(s:or(s:any, s:text(['$'])))
+let s:parser = s:many(s:or(s:any, s:text(['$'], ['}'])))
+

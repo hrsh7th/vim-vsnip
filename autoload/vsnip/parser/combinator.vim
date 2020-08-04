@@ -15,9 +15,10 @@ endfunction
 "
 " string.
 "
-function! s:skip(stop) abort
+function! s:skip(stop, escape) abort
   let l:fn = {}
   let l:fn.stop = a:stop
+  let l:fn.escape = a:escape
   function! l:fn.parse(text, pos) abort
     let l:pos = a:pos
     let l:value = ''
@@ -30,7 +31,8 @@ function! s:skip(stop) abort
       if l:char ==# '\'
         let l:pos += 1
         let l:char = s:getchar(a:text, l:pos)
-        if index(self.stop + ['\'], l:char) == -1
+        if index(self.stop + self.escape + ['\'], l:char) == -1
+          let l:value .= '\'
           continue " ignore invalid escape char.
         endif
         let l:pos += 1

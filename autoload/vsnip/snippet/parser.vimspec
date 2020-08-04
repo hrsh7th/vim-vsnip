@@ -65,40 +65,42 @@ Describe vsnip#snippet#parser
       \ })
     End
 
-    It should parse escaped text 1
-      let l:parsed = vsnip#snippet#parser#parse('${1:\\\$variable\}}')
-      call s:expect(len(l:parsed)).to_equal(1)
-      call s:expect(l:parsed[0]).to_equal({
-      \   'type': 'placeholder',
-      \   'id': 1,
-      \   'children': [{
-      \     'type': 'text',
-      \     'raw': '\\\$variable\}',
-      \     'escaped': '\$variable}'
-      \   }]
-      \ })
-    End
-
-    It should parse escaped text 2
-      let l:parsed = vsnip#snippet#parser#parse('${1:{\}}')
-      call s:expect(len(l:parsed)).to_equal(1)
-      call s:expect(l:parsed[0]).to_equal({
-      \   'type': 'placeholder',
-      \   'id': 1,
-      \   'children': [{
-      \     'type': 'text',
-      \     'raw': '{\}',
-      \     'escaped': '{}'
-      \   }]
-      \ })
-    End
-
-    It should parse escaped text 3
-      let l:parsed = vsnip#snippet#parser#parse('\{\}')
+    It should parse complex escaped chars
+      let l:parsed = vsnip#snippet#parser#parse('\\\$variable\}')
       call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'text',
-      \   'raw': '\{\}',
+      \   'raw': '\\\$variable\}',
+      \   'escaped': '\$variable}'
+      \ })
+    End
+
+    It should parse escapable char
+      let l:parsed = vsnip#snippet#parser#parse('{\}')
+      call s:expect(len(l:parsed)).to_equal(1)
+      call s:expect(l:parsed[0]).to_equal({
+      \   'type': 'text',
+      \   'raw': '{\}',
+      \   'escaped': '{}'
+      \ })
+    End
+
+    It should not remove unmeaningful escape
+      let l:parsed = vsnip#snippet#parser#parse('\{}')
+      call s:expect(len(l:parsed)).to_equal(1)
+      call s:expect(l:parsed[0]).to_equal({
+      \   'type': 'text',
+      \   'raw': '\{}',
+      \   'escaped': '\{}'
+      \ })
+    End
+
+    It should parse omitted backslash for the escapable non-stop char
+      let l:parsed = vsnip#snippet#parser#parse('{}')
+      call s:expect(len(l:parsed)).to_equal(1)
+      call s:expect(l:parsed[0]).to_equal({
+      \   'type': 'text',
+      \   'raw': '{}',
       \   'escaped': '{}'
       \ })
     End
