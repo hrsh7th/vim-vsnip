@@ -1,6 +1,12 @@
 call themis#option('recursive', 1)
 call themis#option('exclude', '\.vim$')
 
+if get(environ(), 'VIRTUALEDIT', '0') == '1'
+  set virtualedit=all
+else
+  set virtualedit=
+endif
+
 let g:vsnip_snippet_dir = fnamemodify(expand('<sfile>'), ':h') . '/misc'
 
 imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
@@ -10,4 +16,13 @@ imap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<Tab
 smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
 imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+
+imap <Plug>(vsnip-assert) <C-r>=<SID>assert()<CR>
+nmap <expr><Plug>(vsnip-assert) <SID>assert()
+smap <expr><Plug>(vsnip-assert) <SID>assert()
+
+function! s:assert() abort
+  call VsnipAssert()
+  return ''
+endfunction
 

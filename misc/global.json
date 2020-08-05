@@ -1,60 +1,51 @@
 {
-  "Test1": {
-    "prefix": ["test1"],
+  "1": {
+    "description": "simple snippet",
+    "prefix": ["spec1"],
     "body": [
       "snippet"
     ]
   },
-  "Complex example": {
-    "prefix": ["complex-example"],
+  "2": {
+    "description": "jump at first of snippet",
+    "prefix": ["spec2"],
     "body": [
-      "\\$1 is tabstop. \\${1} is tabstop.",
-      "class $1 ${2:extends ${3:Parent} }{",
-      "\tconsole.${4|log,warn,error|}($5);$0",
-      "\tconsole.$4($1$1$1);$0",
-      "\ta$1, $1b, $6",
-      "}"
-    ],
-    "description": "complex example."
+      "$1$2snippet"
+    ]
   },
-  "Start end example": {
-    "prefix": ["start-end-example"],
+  "3": {
+    "description": "jump at middle of snippet",
+    "prefix": ["spec3"],
     "body": [
-      "---",
-      "${1:start_of_line}console.log(${2:middle_of_line})${0:end_of_line}",
-      "---"
-    ],
-    "description": "select start/middle/end of line."
+      "$1sni$2ppet"
+    ]
   },
-  "pr13": {
-    "prefix": "pr13",
+  "4": {
+    "description": "jump at last of snippet",
+    "prefix": ["spec4"],
     "body": [
-      "FOO ${1:test}",
-      "BAZ ${3|baz,lol,luz|}",
-      "BAR ${2:bar}",
-      "LM ${TM_CURRENT_LINE}"
-    ],
-    "description": "tabstop order is FOO BAR BAZ."
+      "$1snippet"
+    ]
   },
-  "issue16": {
-    "prefix": "issue16",
-    "body": "const { ${1:a} } = ${2:props};${0}",
-    "description": "placeholder text length is 1."
-  },
-  "issue17": {
-    "prefix": "issue17",
+  "5": {
+    "description": "select 1 length first of snippet text",
+    "prefix": ["spec5"],
     "body": [
-      "while read f; do",
-      " $0",
-      "done < ${1:file_to_read}"
-    ],
-    "description": "While loop with read file snippet"
+      "$1${2:s}nippet"
+    ]
   },
-  "issue26": {
-    "prefix": "issue26",
+  "6": {
+    "description": "select 1 length middle of snippet text",
+    "prefix": ["spec6"],
     "body": [
-      "getbufline(${1:expr}, ${2:lnum})$0"
-    ],
-    "description": "Should work when the line is (((issue26)))"
+      "$1sn${2:i}ppet"
+    ]
+  },
+  "7": {
+    "description": "select 1 length last of snippet text",
+    "prefix": ["spec7"],
+    "body": [
+      "$1snippe${2:t}"
+    ]
   }
 }
