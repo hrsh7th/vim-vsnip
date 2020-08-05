@@ -140,32 +140,40 @@ function! s:compute(old, new) abort
 endfunction
 
 let s:is_lua_enabled = v:false
-if has('nvim')
-let s:is_lua_enabled = v:true
+function! s:try_enable_lua() abort
 lua <<EOF
-  function vital_vs_text_diff_search_first_line(old, new)
-    local min_len = math.min(#old, #new)
-    local first_line = 0
-    while first_line < min_len - 1 do
-      if old[first_line + 1] ~= new[first_line + 1] then
-        return first_line
-      end
-      first_line = first_line + 1
+function vital_vs_text_diff_search_first_line(old, new)
+  local min_len = math.min(#old, #new)
+  local first_line = 0
+  while first_line < min_len - 1 do
+    if old[first_line + 1] ~= new[first_line + 1] then
+      return first_line
     end
-    return min_len - 1
+    first_line = first_line + 1
   end
-  function vital_vs_text_diff_search_last_line(old, new, first_line)
-    local old_len = #old
-    local new_len = #new
-    local min_len = math.min(#old, #new)
-    local last_line = -1
-    while last_line > -min_len + first_line do
-      if old[(old_len + last_line) + 1] ~= new[(new_len + last_line) + 1] then
-        return last_line
-      end
-      last_line = last_line - 1
+  return min_len - 1
+end
+function vital_vs_text_diff_search_last_line(old, new, first_line)
+  local old_len = #old
+  local new_len = #new
+  local min_len = math.min(#old, #new)
+  local last_line = -1
+  while last_line > -min_len + first_line do
+    if old[(old_len + last_line) + 1] ~= new[(new_len + last_line) + 1] then
+      return last_line
     end
-    return -min_len + first_line
+    last_line = last_line - 1
   end
+  return -min_len + first_line
+end
 EOF
+let s:is_lua_enabled = v:true
+endfunction
+
+if has('nvim')
+  try
+    call s:try_enable_lua()
+  catch /.*/
+  endtry
 endif
+
