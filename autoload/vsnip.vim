@@ -102,11 +102,15 @@ function! vsnip#get_context() abort
   let l:offset = mode()[0] ==# 'i' ? 2 : 1
   let l:before_text = getline('.')[0 : col('.') - l:offset]
   let l:before_text_len = strchars(l:before_text)
+
+  if l:before_text_len == 0
+    return {}
+  endif
+
   for l:source in vsnip#source#find(&filetype)
     for l:snippet in l:source
       for l:prefix in (l:snippet.prefix + l:snippet.prefix_alias)
-        let l:prefix_len = strchars(l:prefix)
-        if strcharpart(l:before_text, l:before_text_len - l:prefix_len, l:prefix_len) !=# l:prefix
+        if l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m\>$'
           continue
         endif
 
@@ -115,7 +119,7 @@ function! vsnip#get_context() abort
         \   'range': {
         \     'start': {
         \       'line': l:line,
-        \       'character': l:before_text_len - l:prefix_len,
+        \       'character': l:before_text_len - strchars(l:prefix),
         \     },
         \     'end': {
         \       'line': l:line,
