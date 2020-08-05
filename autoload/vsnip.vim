@@ -45,28 +45,25 @@ endfunction
 function! vsnip#expand() abort
   let l:context = vsnip#get_context()
   if !empty(l:context)
-    let l:position = s:Position.cursor()
-    let l:text_edit = {
-    \   'range': {
-    \     'start': {
-    \       'line': l:position.line,
-    \       'character': l:position.character - l:context.length
-    \     },
-    \     'end': l:position
-    \   },
+    call s:TextEdit.apply(bufnr('%'), [{
+    \   'range': l:context.range,
     \   'newText': ''
-    \ }
-    call s:TextEdit.apply(bufnr('%'), [l:text_edit])
-    call cursor(s:Position.lsp_to_vim('%', l:text_edit.range.start))
-    call vsnip#anonymous(join(l:context.snippet.body, "\n"))
+    \ }])
+    call vsnip#anonymous(join(l:context.snippet.body, "\n"), {
+    \   'position': l:context.range.start
+    \ })
   endif
 endfunction
 
 "
 " vsnip#anonymous.
 "
-function! vsnip#anonymous(text) abort
-  let l:session = s:Session.new(bufnr('%'), s:Position.cursor(), a:text)
+function! vsnip#anonymous(text, ...) abort
+  let l:option = get(a:000, 0, {})
+  let l:position = get(l:option, 'position', s:Position.cursor())
+
+  let l:session = s:Session.new(bufnr('%'), l:position, a:text)
+
   call vsnip#selected_text('')
 
   if !empty(s:session)
@@ -102,19 +99,33 @@ endfunction
 " get_context.
 "
 function! vsnip#get_context() abort
-  let l:offset = mode()[0] ==# 's' ? 1 : 2
+  let l:offset = mode()[0] ==# 'i' ? 2 : 1
   let l:before_text = getline('.')[0 : col('.') - l:offset]
   let l:before_text_len = strchars(l:before_text)
+
+  if l:before_text_len == 0
+    return {}
+  endif
+
   for l:source in vsnip#source#find(&filetype)
     for l:snippet in l:source
       for l:prefix in (l:snippet.prefix + l:snippet.prefix_alias)
-        let l:prefix_len = strchars(l:prefix)
-        if strcharpart(l:before_text, l:before_text_len - l:prefix_len, l:prefix_len) !=# l:prefix
+        if l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m\>$'
           continue
         endif
 
+        let l:line = line('.') - 1
         return {
-        \   'length': l:prefix_len,
+        \   'range': {
+        \     'start': {
+        \       'line': l:line,
+        \       'character': l:before_text_len - strchars(l:prefix),
+        \     },
+        \     'end': {
+        \       'line': l:line,
+        \       'character': l:before_text_len
+        \     }
+        \   },
         \   'snippet': l:snippet
         \ }
       endfor

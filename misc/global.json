@@ -1,4 +1,10 @@
 {
+  "Test1": {
+    "prefix": ["test1"],
+    "body": [
+      "snippet"
+    ]
+  },
   "Complex example": {
     "prefix": ["complex-example"],
     "body": [
