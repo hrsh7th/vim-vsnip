@@ -159,7 +159,11 @@ function! s:Session.select(jump_point) abort
   let l:cmd .= mode()[0] ==# 'i' ? "\<Esc>l" : ''
   let l:cmd .= printf('v%sh', l:select_length)
   let l:cmd .= "o\<C-g>"
-  call feedkeys(l:cmd, 'nt')
+  if get(g:, 'vsnip_test_mode', v:false)
+    execute printf('normal! %s', l:cmd)
+  else
+    call feedkeys(l:cmd, 'nt')
+  endif
 endfunction
 
 "

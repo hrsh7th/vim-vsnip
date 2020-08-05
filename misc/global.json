@@ -1,51 +1,84 @@
 {
-  "1": {
+  "spec1": {
     "description": "simple snippet",
     "prefix": ["spec1"],
     "body": [
       "snippet"
     ]
   },
-  "2": {
+  "spec2": {
     "description": "jump at first of snippet",
     "prefix": ["spec2"],
     "body": [
       "$1$2snippet"
     ]
   },
-  "3": {
+  "spec3": {
     "description": "jump at middle of snippet",
     "prefix": ["spec3"],
     "body": [
       "$1sni$2ppet"
     ]
   },
-  "4": {
+  "spec4": {
     "description": "jump at last of snippet",
     "prefix": ["spec4"],
     "body": [
       "$1snippet"
     ]
   },
-  "5": {
+  "spec5": {
     "description": "select 1 length first of snippet text",
     "prefix": ["spec5"],
     "body": [
       "$1${2:s}nippet"
     ]
   },
-  "6": {
+  "spec6": {
     "description": "select 1 length middle of snippet text",
     "prefix": ["spec6"],
     "body": [
       "$1sn${2:i}ppet"
     ]
   },
-  "7": {
+  "spec7": {
     "description": "select 1 length last of snippet text",
     "prefix": ["spec7"],
     "body": [
-      "$1snippe${2:t}"
+      "$1snipe${2:t}"
+    ]
+  },
+  "spec8": {
+    "description": "select 3 length first of snippet text",
+    "prefix": ["spec8"],
+    "body": [
+      "$1${2:sni}ppet"
+    ]
+  },
+  "spec9": {
+    "description": "select 3 length middle of snippet text",
+    "prefix": ["spec9"],
+    "body": [
+      "$1sn${2:ipp}et"
+    ]
+  },
+  "spec10": {
+    "description": "select 3 length last of snippet text",
+    "prefix": ["spec10"],
+    "body": [
+      "$1snip${2:pet}"
+    ]
+  },
+  "realworld1": {
+    "description": "realworld1",
+    "prefix": ["realworld1"],
+    "body": [
+      "/** @class ${1:ClassName} */",
+      "class ${1} ${2:extends ${3:ParentClassName} }{",
+      "\tpublic constructor() {",
+      "\t\t$0",
+      "\t}",
+      "}"
     ]
   }
 }
