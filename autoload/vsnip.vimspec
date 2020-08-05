@@ -5,7 +5,7 @@ Describe vsnip
   Describe #get_context
 
     It should return context information in insert-mode
-      function! Test()
+      function! VsnipAssert()
         call s:expect(mode(1)).to_equal('i')
         call s:expect(vsnip#get_context()).to_equal({
         \   'range': {
@@ -19,9 +19,9 @@ Describe vsnip
         \     },
         \   },
         \   'snippet': {
-        \     'label': 'Test1',
-        \     'description': '',
-        \     'prefix': ['test1'],
+        \     'label': '1',
+        \     'description': 'simple snippet',
+        \     'prefix': ['spec1'],
         \     'prefix_alias': [],
         \     'body': [
         \       'snippet'
@@ -30,14 +30,14 @@ Describe vsnip
         \ })
       endfunction
       enew!
-      call setline(1, 'test1')
+      call setline(1, 'spec1')
       call cursor([1, 5])
-      call feedkeys("a\<C-r>=Test()\<CR>", 'x')
+      call feedkeys("a\<Plug>(vsnip-assert)", 'x')
     End
 
     It should return context information in normal-mode
       enew!
-      call setline(1, 'test1')
+      call setline(1, 'spec1')
       call cursor([1, 5])
       call s:expect(mode(1)).to_equal('n')
       call s:expect(vsnip#get_context()).to_equal({
@@ -52,9 +52,9 @@ Describe vsnip
       \     },
       \   },
       \   'snippet': {
-      \     'label': 'Test1',
-      \     'description': '',
-      \     'prefix': ['test1'],
+      \     'label': '1',
+      \     'description': 'simple snippet',
+      \     'prefix': ['spec1'],
       \     'prefix_alias': [],
       \     'body': [
       \       'snippet'
@@ -65,7 +65,7 @@ Describe vsnip
 
     It should return context information in select-mode
       enew!
-      call setline(1, 'test1')
+      call setline(1, 'spec1')
       call feedkeys("v\<C-g>", 'x')
       call cursor([1, 5])
       call s:expect(mode(1)).to_equal('s')
@@ -81,9 +81,9 @@ Describe vsnip
       \     },
       \   },
       \   'snippet': {
-      \     'label': 'Test1',
-      \     'description': '',
-      \     'prefix': ['test1'],
+      \     'label': '1',
+      \     'description': 'simple snippet',
+      \     'prefix': ['spec1'],
       \     'prefix_alias': [],
       \     'body': [
       \       'snippet'

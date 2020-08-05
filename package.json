@@ -4,7 +4,9 @@
   "description": "This aims to plugin like Visual Studio Code's Snippet feature.",
   "scripts": {
     "open": "nvim -u .vimrc",
-    "test": "themis .",
+    "test": "npm run test:virtualedit-off && npm run test:virtualedit-on",
+    "test:virtualedit-off": "VIRTUALEDIT=0 themis .",
+    "test:virtualedit-on": "VIRTUALEDIT=1 themis .",
     "lint": "vint ."
   },
   "husky": {
