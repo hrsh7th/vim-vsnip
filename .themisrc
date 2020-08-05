@@ -1,12 +1,15 @@
 call themis#option('recursive', 1)
 call themis#option('exclude', '\.vim$')
 
+set shiftwidth=2
+set expandtab
 if get(environ(), 'VIRTUALEDIT', '0') == '1'
   set virtualedit=all
 else
   set virtualedit=
 endif
 
+let g:vsnip_test_mode = v:true
 let g:vsnip_snippet_dir = fnamemodify(expand('<sfile>'), ':h') . '/misc'
 
 imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
@@ -22,7 +25,12 @@ nmap <expr><Plug>(vsnip-assert) <SID>assert()
 smap <expr><Plug>(vsnip-assert) <SID>assert()
 
 function! s:assert() abort
-  call VsnipAssert()
+  let l:keys = sort(keys(g:vsnip_assert))
+  if len(l:keys) > 0
+    let l:key = l:keys[0]
+    call g:vsnip_assert[l:key]()
+    unlet! g:vsnip_assert[l:key]
+  endif
   return ''
 endfunction
 

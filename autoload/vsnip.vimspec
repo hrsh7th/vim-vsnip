@@ -5,7 +5,8 @@ Describe vsnip
   Describe #get_context
 
     It should return context information in insert-mode
-      function! VsnipAssert()
+      let g:vsnip_assert = {}
+      function g:vsnip_assert.step1()
         call s:expect(mode(1)).to_equal('i')
         call s:expect(vsnip#get_context()).to_equal({
         \   'range': {
@@ -19,7 +20,7 @@ Describe vsnip
         \     },
         \   },
         \   'snippet': {
-        \     'label': '1',
+        \     'label': 'spec1',
         \     'description': 'simple snippet',
         \     'prefix': ['spec1'],
         \     'prefix_alias': [],
@@ -52,7 +53,7 @@ Describe vsnip
       \     },
       \   },
       \   'snippet': {
-      \     'label': '1',
+      \     'label': 'spec1',
       \     'description': 'simple snippet',
       \     'prefix': ['spec1'],
       \     'prefix_alias': [],
@@ -81,7 +82,7 @@ Describe vsnip
       \     },
       \   },
       \   'snippet': {
-      \     'label': '1',
+      \     'label': 'spec1',
       \     'description': 'simple snippet',
       \     'prefix': ['spec1'],
       \     'prefix_alias': [],
