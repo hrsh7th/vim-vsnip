@@ -1,0 +1,99 @@
+let s:expect = themis#helper('expect')
+
+Describe vsnip
+
+  Describe #get_context
+
+    It should return context information in insert-mode
+      let g:vsnip_assert = {}
+      function g:vsnip_assert.step1()
+        call s:expect(mode(1)).to_equal('i')
+        call s:expect(vsnip#get_context()).to_equal({
+        \   'range': {
+        \     'start': {
+        \       'line': 0,
+        \       'character': 0,
+        \     },
+        \     'end': {
+        \       'line': 0,
+        \       'character': 5,
+        \     },
+        \   },
+        \   'snippet': {
+        \     'label': 'spec1',
+        \     'description': 'simple snippet',
+        \     'prefix': ['spec1'],
+        \     'prefix_alias': [],
+        \     'body': [
+        \       'snippet'
+        \     ],
+        \   }
+        \ })
+      endfunction
+      enew!
+      call setline(1, 'spec1')
+      call cursor([1, 5])
+      call feedkeys("a\<Plug>(vsnip-assert)", 'x')
+    End
+
+    It should return context information in normal-mode
+      enew!
+      call setline(1, 'spec1')
+      call cursor([1, 5])
+      call s:expect(mode(1)).to_equal('n')
+      call s:expect(vsnip#get_context()).to_equal({
+      \   'range': {
+      \     'start': {
+      \       'line': 0,
+      \       'character': 0,
+      \     },
+      \     'end': {
+      \       'line': 0,
+      \       'character': 5,
+      \     },
+      \   },
+      \   'snippet': {
+      \     'label': 'spec1',
+      \     'description': 'simple snippet',
+      \     'prefix': ['spec1'],
+      \     'prefix_alias': [],
+      \     'body': [
+      \       'snippet'
+      \     ],
+      \   }
+      \ })
+    End
+
+    It should return context information in select-mode
+      enew!
+      call setline(1, 'spec1')
+      call feedkeys("v\<C-g>", 'x')
+      call cursor([1, 5])
+      call s:expect(mode(1)).to_equal('s')
+      call s:expect(vsnip#get_context()).to_equal({
+      \   'range': {
+      \     'start': {
+      \       'line': 0,
+      \       'character': 0,
+      \     },
+      \     'end': {
+      \       'line': 0,
+      \       'character': 5,
+      \     },
+      \   },
+      \   'snippet': {
+      \     'label': 'spec1',
+      \     'description': 'simple snippet',
+      \     'prefix': ['spec1'],
+      \     'prefix_alias': [],
+      \     'body': [
+      \       'snippet'
+      \     ],
+      \   }
+      \ })
+    End
+
+  End
+
+End
+
