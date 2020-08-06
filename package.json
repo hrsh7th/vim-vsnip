@@ -5,8 +5,8 @@
   "scripts": {
     "open": "nvim -u .vimrc",
     "test": "npm run test:virtualedit-off && npm run test:virtualedit-on",
-    "test:virtualedit-off": "VIRTUALEDIT=0 themis .",
-    "test:virtualedit-on": "VIRTUALEDIT=1 themis .",
+    "test:virtualedit-off": "VIRTUALEDIT=0 themis ./spec",
+    "test:virtualedit-on": "VIRTUALEDIT=1 themis ./spec",
     "lint": "vint ."
   },
   "husky": {
