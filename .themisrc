@@ -27,10 +27,20 @@ smap <expr><Plug>(vsnip-assert) <SID>assert()
 function! s:assert() abort
   let l:keys = sort(keys(g:vsnip_assert))
   if len(l:keys) > 0
+    let l:session = vsnip#get_session()
+    if !empty(l:session)
+      call l:session.on_text_changed()
+    endif
+
     let l:key = l:keys[0]
     call g:vsnip_assert[l:key]()
     unlet! g:vsnip_assert[l:key]
   endif
+
+  if len(keys(g:vsnip_assert)) == 0
+    call vsnip#deactivate()
+  endif
+
   return ''
 endfunction
 

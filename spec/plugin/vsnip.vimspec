@@ -8,47 +8,43 @@ Describe vsnip
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec1')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should expand when prefix is in middle of line
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['(snippet)'])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, '(spec1)')
       call cursor([1, 6])
-      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should expand when prefix was selected in select-mode
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec1')
-      call feedkeys("0v$\<C-g>\<C-j>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("0v$\<C-g>\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should not expand when prefix does not separate by word boundary
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['(aspec1', ')'])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, '(aspec1)')
       call cursor([1, 7])
-      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should jump to first placeholder when expanded snippet
@@ -56,12 +52,11 @@ Describe vsnip
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec2')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
   End
@@ -73,12 +68,11 @@ Describe vsnip
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec2')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should jump to middle of snippet
@@ -86,12 +80,11 @@ Describe vsnip
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 4])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec3')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should jump to last of snippet
@@ -99,12 +92,11 @@ Describe vsnip
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 8])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec4')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 1 length first of snippet text 
@@ -113,14 +105,13 @@ Describe vsnip
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(mode(1)).to_equal('s')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
-        call feedkeys("\<C-g>o", 'xt')
+        call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec5')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 1 length middle of snippet text 
@@ -129,14 +120,13 @@ Describe vsnip
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(mode(1)).to_equal('s')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 3])
-        call feedkeys("\<C-g>o", 'xt')
+        call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 3])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec6')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 1 length last of snippet text 
@@ -145,14 +135,13 @@ Describe vsnip
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(mode(1)).to_equal('s')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 8])
-        call feedkeys("\<C-g>o", 'xt')
+        call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 8])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec7')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 3 length first of snippet text 
@@ -161,14 +150,13 @@ Describe vsnip
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(mode(1)).to_equal('s')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 3])
-        call feedkeys("\<C-g>o", 'xt')
+        call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec8')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 3 length middle of snippet text 
@@ -177,14 +165,13 @@ Describe vsnip
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(mode(1)).to_equal('s')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 5])
-        call feedkeys("\<C-g>o", 'xt')
+        call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 3])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec9')
       call cursor([1, 5])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 3 length last of snippet text 
@@ -193,14 +180,13 @@ Describe vsnip
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(mode(1)).to_equal('s')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 7])
-        call feedkeys("\<C-g>o", 'xt')
+        call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 5])
-        call vsnip#deactivate()
       endfunction
       enew!
       call setline(1, 'spec10')
       call cursor([1, 6])
-      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'xt')
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
   End
@@ -214,6 +200,8 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       let l:sequence = ''
+
+      " expand and jump
       let l:sequence .= "a\<C-j>\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal([
@@ -226,9 +214,9 @@ Describe vsnip
         \ ])
       endfunction
 
+      " sync placeholder
       let l:sequence .= "ModifiedClassName\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step2()
-        call vsnip#get_session().on_text_changed()
         call s:expect(getbufline('%', '^', '$')).to_equal([
         \ '/** @class ModifiedClassName */',
         \ 'class ModifiedClassName extends ParentClassName {',
@@ -239,12 +227,12 @@ Describe vsnip
         \ ])
       endfunction
 
-      let l:sequence .= "\<Tab>\<Tab>ModifiedClassName\<Plug>(vsnip-assert)"
+      " edit nested placeholder
+      let l:sequence .= "\<Tab>\<Tab>ModifiedParentClassName\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step3()
-        call vsnip#get_session().on_text_changed()
         call s:expect(getbufline('%', '^', '$')).to_equal([
         \ '/** @class ModifiedClassName */',
-        \ 'class ModifiedClassName extends ModifiedClassName {',
+        \ 'class ModifiedClassName extends ModifiedParentClassName {',
         \ '  public constructor() {',
         \ '    ',
         \ '  }',
@@ -252,9 +240,9 @@ Describe vsnip
         \ ])
       endfunction
 
+      " remove nested placeholder by <BS>
       let l:sequence .= "\<S-Tab>\<BS>\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step4()
-        call vsnip#get_session().on_text_changed()
         call s:expect(getbufline('%', '^', '$')).to_equal([
         \ '/** @class ModifiedClassName */',
         \ 'class ModifiedClassName {',
@@ -265,9 +253,10 @@ Describe vsnip
         \ ])
       endfunction
 
+      " jump to final tabstop
       let l:sequence .= "\<Tab>\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step5()
-        call vsnip#get_session().on_text_changed()
+        call s:expect(getcurpos()[1 : 2]).to_equal([4, 5])
         call s:expect(getbufline('%', '^', '$')).to_equal([
         \ '/** @class ModifiedClassName */',
         \ 'class ModifiedClassName {',
@@ -276,9 +265,8 @@ Describe vsnip
         \ '  }',
         \ '}',
         \ ])
-        call vsnip#deactivate()
       endfunction
-      call feedkeys(l:sequence, 'xt')
+      call feedkeys(l:sequence, 'x')
     End
 
   End
