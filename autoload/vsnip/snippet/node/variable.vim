@@ -1,8 +1,3 @@
-function! vsnip#snippet#node#variable#import() abort
-  return s:Variable
-endfunction
-
-let s:Variable = {}
 " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
 " TODO: BLOCK_COMMENT_START, BLOCK_COMMENT_END, LINE_COMMENT
 let s:known_variables = {
@@ -33,6 +28,13 @@ let s:known_variables = {
 \   'LINE_COMMENT': { -> '//'},
 \ }
 
+
+function! vsnip#snippet#node#variable#import() abort
+  return s:Variable
+endfunction
+
+let s:Variable = {}
+
 "
 " new.
 "
@@ -56,15 +58,11 @@ endfunction
 " resolve.
 "
 function! s:Variable.resolve() abort
-  " Special support for the case of does not select texts.
-  if self.name ==# 'TM_SELECTED_TEXT'
-    if empty(vsnip#selected_text())
-      return join(map(copy(self.children), { k, v -> v.text() }), '')
-    endif
-  endif
-
   if has_key(s:known_variables, self.name)
-    return s:known_variables[self.name]()
+    let l:resolved = s:known_variables[self.name]()
+    if !empty(l:resolved)
+      return l:resolved
+    endif
   endif
 
   return join(map(copy(self.children), { k, v -> v.text() }), '')
@@ -80,3 +78,4 @@ function! s:Variable.to_string() abort
   \   self.resolve()
   \ )
 endfunction
+

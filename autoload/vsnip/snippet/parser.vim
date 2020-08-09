@@ -98,44 +98,32 @@ let s:format = s:or(s:format1, s:format2, s:format3)
 "
 " transform
 "
-let s:transform1 = s:map(s:seq(
+let s:transform = s:map(s:seq(
 \   s:slash,
 \   s:regex,
 \   s:slash,
-\   s:format,
+\   s:many(s:or(s:format, s:text(['/', '$'], []))),
 \   s:slash,
-\   s:or(s:token('i'))
+\   s:option(s:many(s:or(s:token('i'), s:token('g'))))
 \ ), { value -> {
 \   'type': 'transform',
 \   'regex': value[1],
 \   'format': value[3],
 \   'option': value[5]
 \ } })
-let s:transform2 = s:map(s:seq(
-\   s:slash,
-\   s:regex,
-\   s:slash,
-\   s:text(['/'], []),
-\   s:slash,
-\   s:or(s:token('i'))
-\ ), { value -> {
-\   'type': 'transform',
-\   'regex': value[1],
-\   'replace': value[3],
-\   'option': value[5]
-\ } })
-let s:transform = s:or(s:transform1, s:transform2)
 
 "
 " variable
 "
 let s:variable1 = s:map(s:seq(s:dollar, s:varname), { value -> {
 \   'type': 'variable',
-\   'name': value[1]
+\   'name': value[1],
+\   'children': [],
 \ } })
 let s:variable2 = s:map(s:seq(s:dollar, s:open, s:varname, s:close), { value -> {
 \   'type': 'variable',
-\   'name': value[2]
+\   'name': value[2],
+\   'children': [],
 \ } })
 let s:variable3 = s:map(s:seq(
 \   s:dollar,
@@ -152,7 +140,8 @@ let s:variable3 = s:map(s:seq(
 let s:variable4 = s:map(s:seq(s:dollar, s:open, s:varname, s:transform, s:close), { value -> {
 \   'type': 'variable',
 \   'name': value[2],
-\   'transform': value[3]
+\   'transform': value[3],
+\   'children': [],
 \ } })
 
 let s:variable = s:or(s:variable1, s:variable2, s:variable3, s:variable4)

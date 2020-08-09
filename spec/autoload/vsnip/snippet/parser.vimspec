@@ -14,9 +14,10 @@ Describe vsnip#snippet#parser
       \ })
     End
 
-    It should tabstop
-      let l:parsed = vsnip#snippet#parser#parse('console.log($0$1)')
-      call s:expect(len(l:parsed)).to_equal(4)
+    It should parse tabstop
+      let l:parsed = vsnip#snippet#parser#parse('console.log($0$1${1/(.*)/${1:/capitalize}/})')
+      call themis#log(l:parsed)
+      call s:expect(len(l:parsed)).to_equal(5)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'text',
       \   'raw': 'console.log(',
@@ -33,6 +34,24 @@ Describe vsnip#snippet#parser
       \   'children': []
       \ })
       call s:expect(l:parsed[3]).to_equal({
+      \   'type': 'placeholder',
+      \   'id': 1,
+      \   'children': [],
+      \   'transform': {
+      \     'type': 'transform',
+      \     'regex': {
+      \       'type': 'regex',
+      \       'pattern': '(.*)',
+      \     },
+      \     'format': [{
+      \       'type': 'format',
+      \       'id': 1,
+      \       'modifier': '/capitalize'
+      \     }],
+      \     'option': v:null
+      \   }
+      \ })
+      call s:expect(l:parsed[4]).to_equal({
       \   'type': 'text',
       \   'raw': ')',
       \   'escaped': ')'
@@ -153,8 +172,8 @@ Describe vsnip#snippet#parser
     End
 
     It should parse variable
-      let l:parsed = vsnip#snippet#parser#parse('${variable:default}')
-      call s:expect(len(l:parsed)).to_equal(1)
+      let l:parsed = vsnip#snippet#parser#parse('${variable:default}${variable/(.*)/${1:/capitalize}/}')
+      call s:expect(len(l:parsed)).to_equal(2)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'variable',
       \   'name': 'variable',
@@ -163,6 +182,24 @@ Describe vsnip#snippet#parser
       \     'raw': 'default',
       \     'escaped': 'default',
       \   }]
+      \ })
+      call s:expect(l:parsed[1]).to_equal({
+      \   'type': 'variable',
+      \   'name': 'variable',
+      \   'children': [],
+      \   'transform': {
+      \     'type': 'transform',
+      \     'regex': {
+      \       'type': 'regex',
+      \       'pattern': '(.*)',
+      \     },
+      \     'format': [{
+      \       'type': 'format',
+      \       'id': 1,
+      \       'modifier': '/capitalize'
+      \     }],
+      \     'option': v:null
+      \   }
       \ })
     End
 
