@@ -25,7 +25,7 @@ command! -bang VsnipOpenEdit call s:open_command(<bang>0, 'edit')
 command! -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vsplit')
 command! -bang VsnipOpenSplit call s:open_command(<bang>0, 'split')
 function! s:open_command(bang, cmd)
-  let l:candidates = vsnip#source#filetypes(bufnr('%')) + ['global']
+  let l:candidates = vsnip#source#filetypes(bufnr('%'))
   if a:bang
     let l:idx = 1
   else
