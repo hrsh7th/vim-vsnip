@@ -1,0 +1,44 @@
+let s:expect = themis#helper('expect')
+
+Describe vsnip#source
+
+  Describe #find
+
+    It should load snippet for extended filetypes
+      enew!
+      set filetype=javascriptreact
+      let l:snippets = vsnip#source#find(bufnr('%'))
+      call s:expect(l:snippets[0][0]).to_equal({
+      \   'label': 'func',
+      \   'description': '',
+      \   'prefix': ['func'],
+      \   'prefix_alias': [],
+      \   'body': [
+      \     'function ${1:name}() {',
+      \     "\t$0",
+      \     '}'
+      \   ]
+      \ })
+    End
+
+    It should load snippet from vscode extension
+      enew!
+      set filetype=vim
+      let l:snippets = vsnip#source#find(bufnr('%'))
+      call s:expect(l:snippets[1][0]).to_equal({
+      \   'label': 'func',
+      \   'description': '',
+      \   'prefix': ['func'],
+      \   'prefix_alias': [],
+      \   'body': [
+      \     'function! ${1:name}() abort',
+      \     "\t$0",
+      \     'endfunction'
+      \   ]
+      \ })
+    End
+
+  End
+
+End
+

@@ -69,6 +69,16 @@ VARIABLE                                                      *vsnip-variable*
 
 
 >
+  let g:vsnip_filetypes = {}
+<
+    Specify extended filetypes.
+    For example, you can extend `javascript` filetype with `javascriptreact` filetype.
+>
+      let g:vsnip_filetypes = {}
+      let g:vsnip_filetypes.javascriptreact = ['javascript']
+<
+
+>
   let g:vsnip_sync_delay = 0
 <
     Specify delay time to sync same tabstop placeholder.

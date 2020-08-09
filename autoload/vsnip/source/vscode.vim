@@ -19,8 +19,8 @@ endfunction
 "
 " vsnip#source#vscode#find.
 "
-function! vsnip#source#vscode#find(filetype) abort
-  return s:find(s:get_language(a:filetype))
+function! vsnip#source#vscode#find(bufnr) abort
+  return s:find(s:get_language(getbufvar(a:bufnr, '&filetype', '')))
 endfunction
 
 "
@@ -79,7 +79,7 @@ function! s:find(language) abort
 endfunction
 
 "
-" get_language_id.
+" get_language.
 "
 function! s:get_language(filetype) abort
   return get({

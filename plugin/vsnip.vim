@@ -12,6 +12,10 @@ let g:vsnip_snippet_dirs = get(g:, 'vsnip_snippet_dirs', [])
 let g:vsnip_sync_delay = get(g:, 'vsnip_sync_delay', 0)
 let g:vsnip_choice_delay = get(g:, 'vsnip_choice_delay', 500)
 let g:vsnip_namespace = get(g:, 'vsnip_namespace', '')
+let g:vsnip_filetypes = get(g:, 'vsnip_filetypes', {})
+let g:vsnip_filetypes.typescriptreact = get(g:vsnip_filetypes, 'typescriptreact', ['typescript'])
+let g:vsnip_filetypes.javascriptreact = get(g:vsnip_filetypes, 'javascriptreact', ['javascript'])
+let g:vsnip_filetypes.vimspec = get(g:vsnip_filetypes, 'vimspec', ['vim'])
 
 "
 " command
@@ -21,7 +25,7 @@ command! -bang VsnipOpenEdit call s:open_command(<bang>0, 'edit')
 command! -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vsplit')
 command! -bang VsnipOpenSplit call s:open_command(<bang>0, 'split')
 function! s:open_command(bang, cmd)
-  let l:candidates = split(&filetype, '\.') + ['global']
+  let l:candidates = vsnip#source#filetypes(bufnr('%')) + ['global']
   if a:bang
     let l:idx = 1
   else

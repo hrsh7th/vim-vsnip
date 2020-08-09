@@ -1,0 +1,10 @@
+{
+  "contributes": {
+    "snippets": [
+      {
+        "path": "./vim.json",
+        "language": "vim"
+      }
+    ]
+  }
+}
