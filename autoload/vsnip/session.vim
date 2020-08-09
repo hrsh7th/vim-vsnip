@@ -157,7 +157,7 @@ function! s:Session.select(jump_point) abort
   let l:select_length = strlen(a:jump_point.placeholder.text()) - 1
   let l:cmd = ''
   let l:cmd .= mode()[0] ==# 'i' ? "\<Esc>l" : ''
-  let l:cmd .= printf('v%sh', l:select_length)
+  let l:cmd .= printf('v%s', l:select_length > 0 ? l:select_length . 'h' : '')
   let l:cmd .= "o\<C-g>"
   if get(g:, 'vsnip_test_mode', v:false)
     execute printf('normal! %s', l:cmd)

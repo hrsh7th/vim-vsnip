@@ -5,57 +5,63 @@ Describe vsnip
   Context expand
 
     It should expand when prefix start col is 1
+      enew!
+      call setline(1, 'spec1')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
-      enew!
-      call setline(1, 'spec1')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should expand when prefix is in middle of line
+      enew!
+      call setline(1, '(spec1)')
+      call cursor([1, 6])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['(snippet)'])
       endfunction
-      enew!
-      call setline(1, '(spec1)')
-      call cursor([1, 6])
       call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should expand when prefix was selected in select-mode
+      enew!
+      call setline(1, 'spec1')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
-      enew!
-      call setline(1, 'spec1')
-      call feedkeys("0v$\<C-g>\<C-j>\<Plug>(vsnip-assert)", 'x')
+      call feedkeys("v$\<C-g>\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should not expand when prefix does not separate by word boundary
+      enew!
+      call setline(1, '(aspec1)')
+      call cursor([1, 7])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['(aspec1', ')'])
       endfunction
-      enew!
-      call setline(1, '(aspec1)')
-      call cursor([1, 7])
       call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should jump to first placeholder when expanded snippet
+      enew!
+      call setline(1, 'spec2')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
       endfunction
-      enew!
-      call setline(1, 'spec2')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
@@ -64,42 +70,49 @@ Describe vsnip
   Context jump
 
     It should jump to first of snippet
+      enew!
+      call setline(1, 'spec2')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
       endfunction
-      enew!
-      call setline(1, 'spec2')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should jump to middle of snippet
+      enew!
+      call setline(1, 'spec3')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 4])
       endfunction
-      enew!
-      call setline(1, 'spec3')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should jump to last of snippet
+      enew!
+      call setline(1, 'spec4')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 8])
       endfunction
-      enew!
-      call setline(1, 'spec4')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 1 length first of snippet text 
+      enew!
+      call setline(1, 'spec5')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
@@ -108,13 +121,14 @@ Describe vsnip
         call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
       endfunction
-      enew!
-      call setline(1, 'spec5')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 1 length middle of snippet text 
+      enew!
+      call setline(1, 'spec6')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
@@ -123,28 +137,30 @@ Describe vsnip
         call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 3])
       endfunction
-      enew!
-      call setline(1, 'spec6')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 1 length last of snippet text 
+      enew!
+      call setline(1, 'spec7')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
         call s:expect(mode(1)).to_equal('s')
-        call s:expect(getcurpos()[1 : 2]).to_equal([1, 8])
+        call s:expect(getcurpos()[1 : 2]).to_equal([1, 7])
         call feedkeys("\<C-g>o", 'x')
-        call s:expect(getcurpos()[1 : 2]).to_equal([1, 8])
+        call s:expect(getcurpos()[1 : 2]).to_equal([1, 7])
       endfunction
-      enew!
-      call setline(1, 'spec7')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 3 length first of snippet text 
+      enew!
+      call setline(1, 'spec8')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
@@ -153,9 +169,6 @@ Describe vsnip
         call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 1])
       endfunction
-      enew!
-      call setline(1, 'spec8')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
@@ -175,6 +188,10 @@ Describe vsnip
     End
 
     It should select 3 length last of snippet text 
+      enew!
+      call setline(1, 'spec10')
+      call cursor([1, 6])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
@@ -183,9 +200,6 @@ Describe vsnip
         call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 5])
       endfunction
-      enew!
-      call setline(1, 'spec10')
-      call cursor([1, 6])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
@@ -267,6 +281,22 @@ Describe vsnip
         \ ])
       endfunction
       call feedkeys(l:sequence, 'x')
+    End
+
+    It should work spec2 (issue85)
+      enew!
+      call setline(1, 'realworld2')
+      call cursor([1, 10])
+
+      let g:vsnip_assert = {}
+      function g:vsnip_assert.step1()
+        call s:expect(getbufline('%', '^', '$')).to_equal(['for i=1,10', '  print(i)'])
+        call s:expect(mode(1)).to_equal('s')
+        call s:expect(getcurpos()[1 : 2]).to_equal([1, 5])
+        call feedkeys("\<C-g>o", 'x')
+        call s:expect(getcurpos()[1 : 2]).to_equal([1, 5])
+      endfunction
+      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
   End
