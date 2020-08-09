@@ -45,7 +45,7 @@
     "description": "select 1 length last of snippet text",
     "prefix": ["spec7"],
     "body": [
-      "$1snipe${2:t}"
+      "$1snippe${2:t}"
     ]
   },
   "spec8": {
@@ -79,6 +79,14 @@
       "\t\t$0",
       "\t}",
       "}"
+    ]
+  },
+  "realworld2": {
+    "description": "realworld2",
+    "prefix": ["realworld2"],
+    "body": [
+      "for ${1:i}=${2:1},${3:10}",
+      "\t${0:print(i)}"
     ]
   }
 }
