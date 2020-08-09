@@ -23,6 +23,7 @@ let s:known_variables = {
 \   'CURRENT_HOUR': { -> strftime('%H')},
 \   'CURRENT_MINUTE': { -> strftime('%M')},
 \   'CURRENT_SECOND': { -> strftime('%S')},
+\   'CURRENT_SECONDS_UNIX': { -> localtime()},
 \   'BLOCK_COMMENT_START': { -> '/**'},
 \   'BLOCK_COMMENT_END': { -> '*/'},
 \   'LINE_COMMENT': { -> '//'},
