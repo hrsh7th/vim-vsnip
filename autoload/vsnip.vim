@@ -110,7 +110,15 @@ function! vsnip#get_context() abort
   for l:source in vsnip#source#find(&filetype)
     for l:snippet in l:source
       for l:prefix in (l:snippet.prefix + l:snippet.prefix_alias)
-        if l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m\>$'
+        let l:prefix_len = strchars(l:prefix)
+
+        " just match prefix.
+        if strcharpart(l:before_text, l:before_text_len - l:prefix_len, l:prefix_len) !=# l:prefix
+          continue
+        endif
+
+        " should match word boundarly when prefix is word
+        if l:prefix =~# '^\h' && l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m\>$'
           continue
         endif
 
@@ -119,7 +127,7 @@ function! vsnip#get_context() abort
         \   'range': {
         \     'start': {
         \       'line': l:line,
-        \       'character': l:before_text_len - strchars(l:prefix),
+        \       'character': l:before_text_len - l:prefix_len
         \     },
         \     'end': {
         \       'line': l:line,
