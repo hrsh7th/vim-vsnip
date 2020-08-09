@@ -1,0 +1,10 @@
+{
+  "func": {
+    "prefix": "func",
+    "body": [
+      "function! ${1:name}() abort",
+      "\t$0",
+      "endfunction"
+    ]
+  }
+}

@@ -11,6 +11,9 @@ endif
 
 let g:vsnip_test_mode = v:true
 let g:vsnip_snippet_dir = fnamemodify(expand('<sfile>'), ':h') . '/misc'
+let &runtimepath .= ',' . g:vsnip_snippet_dir . '/vscode'
+let g:vsnip_filetypes = {}
+let g:vsnip_filetypes.javascriptreact = ['javascript']
 
 imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
 smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'

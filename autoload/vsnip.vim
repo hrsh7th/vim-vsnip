@@ -107,7 +107,7 @@ function! vsnip#get_context() abort
     return {}
   endif
 
-  for l:source in vsnip#source#find(&filetype)
+  for l:source in vsnip#source#find(bufnr('%'))
     for l:snippet in l:source
       for l:prefix in (l:snippet.prefix + l:snippet.prefix_alias)
         let l:prefix_len = strchars(l:prefix)

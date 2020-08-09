@@ -9,11 +9,19 @@ endfunction
 "
 " vsnip#source#find.
 "
-function! vsnip#source#find(filetype) abort
+function! vsnip#source#find(bufnr) abort
   let l:sources = []
-  let l:sources += vsnip#source#user_snippet#find(a:filetype)
-  let l:sources += vsnip#source#vscode#find(a:filetype)
+  let l:sources += vsnip#source#user_snippet#find(a:bufnr)
+  let l:sources += vsnip#source#vscode#find(a:bufnr)
   return l:sources
+endfunction
+
+"
+" vsnip#source#filetypes
+"
+function! vsnip#source#filetypes(bufnr) abort
+  let l:filetype = getbufvar(a:bufnr, '&filetype', '')
+  return [l:filetype] + get(g:vsnip_filetypes, l:filetype, []) + ['global']
 endfunction
 
 "
