@@ -149,7 +149,7 @@ endfunction
 function! vsnip#get_complete_items(bufnr) abort
   let l:candidates = []
 
-  for l:source in vsnip#source#find(getbufvar(a:bufnr, '&filetype', ''))
+  for l:source in vsnip#source#find(a:bufnr)
     for l:snippet in l:source
       for l:prefix in l:snippet.prefix
         let l:candidate = {

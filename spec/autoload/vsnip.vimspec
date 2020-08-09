@@ -95,5 +95,30 @@ Describe vsnip
 
   End
 
+  Describe #get_complete_items
+
+    It should return complete items
+      enew!
+      set filetype=vim
+      call s:expect(vsnip#get_complete_items(bufnr('%'))[-1]).to_equal({
+      \   'word': 'func',
+      \   'abbr': 'func',
+      \   'kind': 'Snippet func ',
+      \   'menu': '[v]',
+      \   'dup': 1,
+      \   'user_data': json_encode({
+      \     'vsnip': {
+      \       'snippet': [
+      \         'function! ${1:name}() abort',
+      \         "\t$0",
+      \         'endfunction'
+      \       ]
+      \     }
+      \   })
+      \ })
+    End
+
+  End
+
 End
 

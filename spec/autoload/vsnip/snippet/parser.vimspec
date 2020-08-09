@@ -16,7 +16,6 @@ Describe vsnip#snippet#parser
 
     It should parse tabstop
       let l:parsed = vsnip#snippet#parser#parse('console.log($0$1${1/(.*)/${1:/capitalize}/})')
-      call themis#log(l:parsed)
       call s:expect(len(l:parsed)).to_equal(5)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'text',
