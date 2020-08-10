@@ -111,6 +111,8 @@ function! s:_apply(bufnr, text_edit, cursor_position) abort
     endif
     let l:i += 1
   endwhile
+  exe a:text_edit.range.start.line
+  exe 'normal!' l:i . '=='
 endfunction
 
 "
