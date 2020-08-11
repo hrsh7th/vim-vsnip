@@ -2,6 +2,20 @@ let s:expect = themis#helper('expect')
 
 Describe vsnip#source
 
+  Describe #filetypes
+
+    It should return all filetype
+      enew!
+      set filetype=javascript.jsx
+      call s:expect(vsnip#source#filetypes(bufnr('%'))).to_equal([
+      \   'javascript',
+      \   'jsx',
+      \   'global'
+      \ ])
+    End
+
+  End
+
   Describe #find
 
     It should load snippet for extended filetypes

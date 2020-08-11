@@ -21,7 +21,7 @@ endfunction
 "
 function! vsnip#source#filetypes(bufnr) abort
   let l:filetype = getbufvar(a:bufnr, '&filetype', '')
-  return [l:filetype] + get(g:vsnip_filetypes, l:filetype, []) + ['global']
+  return split(l:filetype, '\.') + get(g:vsnip_filetypes, l:filetype, []) + ['global']
 endfunction
 
 "
