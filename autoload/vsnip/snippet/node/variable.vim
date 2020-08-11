@@ -33,9 +33,11 @@ endfunction
 "
 function! s:Variable.resolve() abort
   if !self.unknown
-    return self.resolver.func({ 'node': self })
+    let l:resolved = self.resolver.func({ 'node': self })
+    if l:resolved isnot v:null
+      return l:resolved
+    endif
   endif
-
   return join(map(copy(self.children), { k, v -> v.text() }), '')
 endfunction
 

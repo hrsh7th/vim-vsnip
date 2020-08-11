@@ -26,11 +26,10 @@ endfunction
 
 function! s:TM_SELECTED_TEXT(context) abort
   let l:selected_text = vsnip#selected_text()
-  if !empty(l:selected_text)
-    " TODO: fix indentation with a:context
-    return l:selected_text
+  if empty(l:selected_text)
+    return v:null
   endif
-  return join(map(copy(a:context.node.children), 'v:val.text()'), '')
+  return l:selected_text " TODO: Fix indentation
 endfunction
 call vsnip#variable#register('TM_SELECTED_TEXT', function('s:TM_SELECTED_TEXT'))
 
@@ -40,7 +39,7 @@ endfunction
 call vsnip#variable#register('TM_CURRENT_LINE', function('s:TM_CURRENT_LINE'))
 
 function! s:TM_CURRENT_WORD(context) abort
-  return '' " TODO
+  return v:null
 endfunction
 call vsnip#variable#register('TM_CURRENT_WORD', function('s:TM_CURRENT_WORD'))
 
@@ -80,7 +79,7 @@ endfunction
 call vsnip#variable#register('CLIPBOARD', function('s:CLIPBOARD'))
 
 function! s:WORKSPACE_NAME(context) abort
-  return ''
+  return v:null
 endfunction
 call vsnip#variable#register('WORKSPACE_NAME', function('s:WORKSPACE_NAME'))
 
@@ -165,7 +164,7 @@ function! s:EVAL_VIM(context) abort
     return eval(l:script)
   catch /.*/
   endtry
-  return l:script
+  return v:null
 endfunction
 call vsnip#variable#register('EVAL_VIM', function('s:EVAL_VIM'))
 
