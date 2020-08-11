@@ -59,13 +59,13 @@ VARIABLE                                                      *vsnip-variable*
 >
   let g:vsnip_snippet_dir = expand('~/.vsnip')
 <
-    Specify user snippet directory.
+    Specify user snippet directory.  Note that there is also a buffer-local version of this setting as well (b:vsnip_snippet_dir)
 
 
 >
   let g:vsnip_snippet_dirs = []
 <
-    Specify plugin snippet directory.
+    Specify plugin snippet directory.  Note that there is also a buffer-local version of this setting as well (b:vsnip_snippet_dirs)
 
 
 >

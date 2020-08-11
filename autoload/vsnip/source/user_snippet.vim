@@ -23,6 +23,18 @@ function! vsnip#source#user_snippet#refresh(path) abort
   endif
 endfunction
 
+function! s:get_source_dirs(bufnr) abort
+  let l:dirs = []
+  let l:buf_dir = getbufvar(a:bufnr, 'vsnip_snippet_dir', v:null)
+  if l:buf_dir isnot v:null
+      let l:dirs += [l:buf_dir]
+  endif
+  let l:dirs += getbufvar(a:bufnr, 'vsnip_snippet_dirs', [])
+  let l:dirs += [g:vsnip_snippet_dir]
+  let l:dirs += g:vsnip_snippet_dirs
+  return l:dirs
+endfunction
+
 "
 " get_source_paths.
 "
@@ -30,7 +42,7 @@ function! s:get_source_paths(bufnr) abort
   let l:filetypes = vsnip#source#filetypes(a:bufnr)
 
   let l:paths = []
-  for l:dir in [g:vsnip_snippet_dir] + g:vsnip_snippet_dirs
+  for l:dir in s:get_source_dirs(a:bufnr)
     for l:filetype in l:filetypes
       let l:path = resolve(expand(printf('%s/%s.json', l:dir, l:filetype)))
       if has_key(s:cache, l:path) || filereadable(l:path)
