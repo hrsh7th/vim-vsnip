@@ -50,7 +50,7 @@ function s:Snippet.init() abort
     elseif a:node.type ==# 'variable'
       " TODO refactor
       " variable placeholder
-      if a:node.unknown
+      if empty(a:node.resolver)
         let a:node.type = 'placeholder'
         let a:node.choice = []
 
@@ -65,10 +65,6 @@ function s:Snippet.init() abort
           let a:node.follower = v:true
           let a:node.children = [vsnip#snippet#node#create_text(self.group[a:node.id].text())]
         endif
-      else
-        let l:index = index(a:parent.children, a:node)
-        call remove(a:parent.children, l:index)
-        call insert(a:parent.children, vsnip#snippet#node#create_text(a:node.text()), l:index)
       endif
     endif
   endfunction
@@ -143,6 +139,10 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:node = l:target.node
   if l:node.type ==# 'placeholder'
     let l:node.children = [vsnip#snippet#node#create_text(l:new_text)]
+  elseif l:node.type ==# 'variable'
+    let l:index = index(l:target.parent.children, l:node)
+    call remove(l:target.parent.children, l:index)
+    call insert(l:target.parent.children, vsnip#snippet#node#create_text(l:new_text))
   else
     let l:node.value = l:new_text
   endif
@@ -166,44 +166,56 @@ endfunction
 "
 function! s:Snippet.sync() abort
   let l:fn = {}
+  let l:fn.self = self
+  let l:fn.text = self.text()
   let l:fn.new_texts = {}
-  let l:fn.sync_targets = []
+  let l:fn.text_edits = []
   function! l:fn.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder'
       if !has_key(self.new_texts, a:node.id)
         let self.new_texts[a:node.id] = a:node.text()
       else
-        call add(self.sync_targets, {
-        \   'range': a:range,
-        \   'node': a:node,
-        \   'new_text': self.new_texts[a:node.id],
-        \ })
+        if a:node.text() !=# self.new_texts[a:node.id]
+          call add(self.text_edits, {
+          \   'node': a:node,
+          \   'range': {
+          \     'start': self.self.offset_to_position(a:range[0]),
+          \     'end': self.self.offset_to_position(a:range[1]),
+          \   },
+          \   'newText': self.new_texts[a:node.id],
+          \ })
+        endif
       endif
+    elseif a:node.type ==# 'variable' && a:node.should_resolve()
+      let l:before = strcharpart(self.text, 0, a:range[0])
+      let l:after = strcharpart(self.text, a:range[1], strchars(self.text) - a:range[1])
+      call add(self.text_edits, {
+      \   'node': a:node,
+      \   'range': {
+      \     'start': self.self.offset_to_position(a:range[0]),
+      \     'end': self.self.offset_to_position(a:range[1]),
+      \   },
+      \   'newText': a:node.resolve({
+      \     'node': a:node,
+      \     'before': l:before,
+      \     'after': l:after,
+      \   }),
+      \ })
     endif
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
-  " Create text_edits.
-  let l:text_edits = []
-  for l:target in l:fn.sync_targets
-    if l:target.new_text !=# l:target.node.text()
-      call add(l:text_edits, {
-      \   'node': l:target.node,
-      \   'range': {
-      \     'start': self.offset_to_position(l:target.range[0]),
-      \     'end': self.offset_to_position(l:target.range[1]),
-      \   },
-      \   'newText': l:target.new_text
-      \ })
+  " Sync placeholder text after created text_edits (the reason is to avoid using a modified range).
+  for l:text_edit in l:fn.text_edits
+    let l:node = l:text_edit.node
+    if l:node.type ==# 'placeholder'
+      let l:node.children = [vsnip#snippet#node#create_text(l:text_edit.newText)]
+    elseif l:node.type ==# 'variable'
+      call l:node.update(l:text_edit.newText)
     endif
   endfor
 
-  " Sync placeholder text after created text_edits (the reason is to avoid using a modified range).
-  for l:text_edit in l:text_edits
-    let l:text_edit.node.children = [vsnip#snippet#node#create_text(l:text_edit.newText)]
-  endfor
-
-  return l:text_edits
+  return l:fn.text_edits
 endfunction
 
 "
