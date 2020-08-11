@@ -83,6 +83,11 @@ smap        <C-l>   <Plug>(vsnip-select-text)
 nmap        <C-j>   <Plug>(vsnip-cut-text)
 xmap        <C-j>   <Plug>(vsnip-cut-text)
 smap        <C-j>   <Plug>(vsnip-cut-text)
+
+" If you want to use snippet for multiple filetypes, you can `g:vsip_filetypes` for it.
+let g:vsnip_filetypes = {}
+let g:vsnip_filetypes.javascriptreact = ['javascript']
+let g:vsnip_filetypes.typescriptreact = ['typescript']
 ```
 
 
