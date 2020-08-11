@@ -8,8 +8,10 @@ CONTENTS                                                      *vsnip-contents*
 
 INSTALL                                                        |vsnip-install|
 VARIABLE                                                      |vsnip-variable|
+FUNCTION                                                      |vsnip-function|
 MAPPING                                                        |vsnip-mapping|
 COMMAND                                                        |vsnip-command|
+BUILT-IN VARIABLE                                    |vsnip-built-in-variable| 
 LIMITATION                                                  |vsnip-limitation|
 CHANGELOG                                                    |vsnip-changelog|
 
@@ -45,6 +47,7 @@ If you use `deoplete.nvim` or other supported integration, you can use `vim-vsni
 <
 
 If you want to know supported plugins, you can see https://github.com/hrsh7th/vim-vsnip-integ
+
 
 
 ==============================================================================
@@ -101,6 +104,15 @@ VARIABLE                                                      *vsnip-variable*
 
 
 ==============================================================================
+FUNCTION                                                      *vsnip-function*
+
+  vsnip#variable#register({VAR_NAME}, {FUNCREF}, [{OPTION}}])
+
+    Register your own custom variable resolver.
+
+
+
+==============================================================================
 MAPPING                                                        *vsnip-mapping*
 
 You can use your favorite key to expand or jump snippet.
@@ -146,6 +158,44 @@ VsnipOpen~
 <
 
 Open snippet source file under `g:vsnip_snippet_dir`.
+
+
+
+==============================================================================
+BULT-IN VARIABLE                                     *vsnip-built-in-variable*
+
+Basically, vsnip provides some of built-in variables that defined in VSCode or LSP spec.
+
+In addition, vsnip provides the below custom variables too.
+
+
+${VIM:...Vim script expression...}~
+
+    You can use this variable for `Vim script interpolation`.
+    For example, the below snippet will be current filetype.
+
+>
+        {
+          "filetype": {
+            "prefix": "filetype",
+            "body": "${VIM:&filetype}"
+          }
+        }
+<
+
+    You can also using any Vim script expression.
+
+>
+        {
+          "sum": {
+            "prefix": "sum",
+            "body": "${VIM:1 + 2}"
+          }
+        }
+<
+
+    Currently, vsnip only once resolves variable at the snippet initialization.
+
 
 
 

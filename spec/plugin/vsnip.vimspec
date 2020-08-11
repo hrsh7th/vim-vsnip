@@ -283,6 +283,20 @@ Describe vsnip
       call feedkeys(l:sequence, 'x')
     End
 
+    It should work spec2
+      enew!
+      call setline(1, 'realworld2')
+      call cursor([1, 10])
+
+      let g:vsnip_assert = {}
+      function! g:vsnip_assert.step1() abort
+        call s:expect(getbufline('%', '^', '$')).to_equal([
+        \   $USER
+        \ ])
+      endfunction
+      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
+    End
+
   End
 
   Context issue
