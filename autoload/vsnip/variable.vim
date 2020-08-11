@@ -25,7 +25,12 @@ endfunction
 "
 
 function! s:TM_SELECTED_TEXT(context) abort
-  return vsnip#selected_text()
+  let l:selected_text = vsnip#selected_text()
+  if !empty(l:selected_text)
+    " TODO: fix indentation with a:context
+    return l:selected_text
+  endif
+  return join(map(copy(a:context.node.children), 'v:val.text()'), '')
 endfunction
 call vsnip#variable#register('TM_SELECTED_TEXT', function('s:TM_SELECTED_TEXT'))
 
