@@ -81,6 +81,13 @@
       "}"
     ]
   },
+  "realworld2": {
+    "description": "realworld2",
+    "prefix": ["realworld2"],
+    "body": [
+      "${VIM:\\$USER}"
+    ]
+  },
   "issue82": {
     "description": "issue82",
     "prefix": ["'"],

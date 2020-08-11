@@ -36,6 +36,8 @@ VSCode(LSP)'s snippet feature in vim.
     - If you install VSCode extension via `Plug 'microsoft/vscode-python'`, vsnip will load those snippets.
 - Support many LSP-client & completion-engine
     - You can get how to integrate those plugins in [here](https://github.com/hrsh7th/vim-vsnip-integ).
+- Vim script interpolation
+    - You can use Vim script interpolation as `${VIM:...Vim script expression...}`.
 
 
 # Usage
@@ -104,6 +106,9 @@ Snippet file will store to `g:vsnip_snippet_dir` per filetype.
   "Class": {
     "prefix": ["class"],
     "body": [
+      "/**",
+      " * @author ${VIM:\\$USER}",
+      " */",
       "class $1 ${2:extends ${3:Parent} }{",
       "\tconstructor() {",
       "\t\t$0",
