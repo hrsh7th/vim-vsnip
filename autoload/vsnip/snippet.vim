@@ -34,6 +34,7 @@ function s:Snippet.init() abort
   let l:fn.group = {}
   let l:fn.variable_placeholder = {}
   let l:fn.has_final_tabstop = v:false
+  let l:fn.prev_node = v:null
   function! l:fn.traverse(range, node, parent, depth) abort
     if a:node.type ==# 'placeholder'
       " Mark as follower placeholder.
@@ -66,11 +67,13 @@ function s:Snippet.init() abort
           let a:node.children = [vsnip#snippet#node#create_text(self.group[a:node.id].text())]
         endif
       else
+        let l:resolved = a:node.resolve({ 'prev_node': self.prev_node })
         let l:index = index(a:parent.children, a:node)
         call remove(a:parent.children, l:index)
-        call insert(a:parent.children, vsnip#snippet#node#create_text(a:node.text()), l:index)
+        call insert(a:parent.children, vsnip#snippet#node#create_text(l:resolved), l:index)
       endif
     endif
+    let self.prev_node = a:node
   endfunction
   call self.traverse(self, self.children, l:fn.traverse, 0, 0)
 
