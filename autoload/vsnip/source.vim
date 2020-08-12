@@ -62,6 +62,14 @@ endfunction
 "
 function! s:format_snippet(label, snippet) abort
   let [l:prefixes, l:prefixes_alias] = s:resolve_prefix(a:snippet.prefix)
+
+  if has_key(a:snippet, 'from_file')
+    let l:file = vsnip#source#user_snippet#body_from_file(bufnr(''), a:snippet.from_file)
+    if l:file != v:null
+      let a:snippet.body = readfile(l:file)
+    endif
+  endif
+
   return {
   \   'label': a:label,
   \   'prefix': l:prefixes,

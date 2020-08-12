@@ -12,6 +12,7 @@ FUNCTION                                                      |vsnip-function|
 MAPPING                                                        |vsnip-mapping|
 COMMAND                                                        |vsnip-command|
 BUILT-IN VARIABLE                                    |vsnip-built-in-variable| 
+READ BODY FROM FILE                                     |vsnip-body-from-file|
 LIMITATION                                                  |vsnip-limitation|
 CHANGELOG                                                    |vsnip-changelog|
 
@@ -195,6 +196,30 @@ ${VIM:...Vim script expression...}~
 <
 
     Currently, vsnip only once resolves variable at the snippet initialization.
+
+
+
+
+==============================================================================
+READ BODY FROM FILE                                     *vsnip-body-from-file*
+
+If the body of a snippet is very long, you can write it in an external file,
+that should be put in a subdirectory with the name of the filetype, eg:
+>
+  ~/.vsnips/vim/a_very_long_snippet
+
+Then you can use the content of this file as body in snippets for that
+filetype, by setting the snippet key `from_file`:
+>
+        {
+          "aLongSnippet": {
+            "prefix": ['LONG'],
+            "from_file": "a_very_long_snippet"
+          }
+        }
+
+The file can contain placeholders and variables, just as a regular snippet
+body.
 
 
 

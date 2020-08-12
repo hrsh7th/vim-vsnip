@@ -53,3 +53,20 @@ function! s:get_source_paths(bufnr) abort
   return l:paths
 endfunction
 
+"
+" vsnip#source#user_snippet#body_from_file
+"
+function! vsnip#source#user_snippet#body_from_file(bufnr, fname) abort
+  let l:filetypes = vsnip#source#filetypes(a:bufnr)
+
+  for l:dir in s:get_source_dirs(a:bufnr)
+    for l:filetype in l:filetypes
+      let l:path = resolve(expand(printf('%s/%s/%s', l:dir, l:filetype, a:fname)))
+      if filereadable(l:path)
+        return l:path
+      endif
+    endfor
+  endfor
+  return v:null
+endfunction
+
