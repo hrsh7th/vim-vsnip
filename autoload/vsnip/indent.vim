@@ -29,10 +29,15 @@ endfunction
 " vsnip#indent#trim_base_indent
 "
 function! vsnip#indent#trim_base_indent(text) abort
+  let l:is_first_line = v:true
   let l:base_indent = ''
   for l:line in split(a:text, "\n", v:true)
+    if l:is_first_line
+      let l:is_first_line = v:false
+      continue
+    endif
     let l:indent = matchstr(l:line, '^\s*')
-    if l:base_indent ==# '' || l:indent !=# '' && strlen(l:indent) < strlen(l:base_indent)
+    if l:base_indent ==# '' || strlen(l:indent) < strlen(l:base_indent)
       let l:base_indent = l:indent
     endif
   endfor
