@@ -6,6 +6,7 @@ Describe vsnip
 
     It should expand when prefix start col is 1
       enew!
+      set filetype=integration
       call setline(1, 'spec1')
       call cursor([1, 5])
 
@@ -18,6 +19,7 @@ Describe vsnip
 
     It should expand when prefix is in middle of line
       enew!
+      set filetype=integration
       call setline(1, '(spec1)')
       call cursor([1, 6])
 
@@ -30,6 +32,7 @@ Describe vsnip
 
     It should expand when prefix was selected in select-mode
       enew!
+      set filetype=integration
       call setline(1, 'spec1')
       call cursor([1, 5])
 
@@ -42,6 +45,7 @@ Describe vsnip
 
     It should not expand when prefix is word and it does not separate by word boundary
       enew!
+      set filetype=integration
       call setline(1, '(aspec1)')
       call cursor([1, 7])
 
@@ -54,6 +58,7 @@ Describe vsnip
 
     It should jump to first placeholder when expanded snippet
       enew!
+      set filetype=integration
       call setline(1, 'spec2')
       call cursor([1, 5])
 
@@ -71,6 +76,7 @@ Describe vsnip
 
     It should jump to first of snippet
       enew!
+      set filetype=integration
       call setline(1, 'spec2')
       call cursor([1, 5])
 
@@ -84,6 +90,7 @@ Describe vsnip
 
     It should jump to middle of snippet
       enew!
+      set filetype=integration
       call setline(1, 'spec3')
       call cursor([1, 5])
 
@@ -97,6 +104,7 @@ Describe vsnip
 
     It should jump to last of snippet
       enew!
+      set filetype=integration
       call setline(1, 'spec4')
       call cursor([1, 5])
 
@@ -110,6 +118,7 @@ Describe vsnip
 
     It should select 1 length first of snippet text 
       enew!
+      set filetype=integration
       call setline(1, 'spec5')
       call cursor([1, 5])
 
@@ -126,6 +135,7 @@ Describe vsnip
 
     It should select 1 length middle of snippet text 
       enew!
+      set filetype=integration
       call setline(1, 'spec6')
       call cursor([1, 5])
 
@@ -142,6 +152,7 @@ Describe vsnip
 
     It should select 1 length last of snippet text 
       enew!
+      set filetype=integration
       call setline(1, 'spec7')
       call cursor([1, 5])
 
@@ -158,6 +169,7 @@ Describe vsnip
 
     It should select 3 length first of snippet text 
       enew!
+      set filetype=integration
       call setline(1, 'spec8')
       call cursor([1, 5])
 
@@ -173,6 +185,11 @@ Describe vsnip
     End
 
     It should select 3 length middle of snippet text 
+      enew!
+      set filetype=integration
+      call setline(1, 'spec9')
+      call cursor([1, 5])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
@@ -181,14 +198,12 @@ Describe vsnip
         call feedkeys("\<C-g>o", 'x')
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 3])
       endfunction
-      enew!
-      call setline(1, 'spec9')
-      call cursor([1, 5])
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
     It should select 3 length last of snippet text 
       enew!
+      set filetype=integration
       call setline(1, 'spec10')
       call cursor([1, 6])
 
@@ -209,6 +224,7 @@ Describe vsnip
 
     It should work spec1
       enew!
+      set filetype=integration
       call setline(1, 'realworld1')
       call cursor([1, 10])
 
@@ -285,6 +301,7 @@ Describe vsnip
 
     It should work spec2
       enew!
+      set filetype=integration
       call setline(1, 'realworld2')
       call cursor([1, 10])
 
@@ -303,6 +320,7 @@ Describe vsnip
 
     It should work issue82
       enew!
+      set filetype=integration
       call setline(1, "'")
       call cursor([1, 1])
 
@@ -316,6 +334,7 @@ Describe vsnip
 
     It should work issue85
       enew!
+      set filetype=integration
       call setline(1, 'for')
       call cursor([1, 3])
 

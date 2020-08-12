@@ -20,36 +20,39 @@ Describe vsnip#source
 
     It should load snippet for extended filetypes
       enew!
-      set filetype=javascriptreact
+      set filetype=source_spec_enhanced
       let l:snippets = vsnip#source#find(bufnr('%'))
-      call s:expect(l:snippets[0][0]).to_equal({
-      \   'label': 'func',
-      \   'description': '',
-      \   'prefix': ['func'],
-      \   'prefix_alias': [],
-      \   'body': [
-      \     'function ${1:name}() {',
-      \     "\t$0",
-      \     '}'
-      \   ]
-      \ })
+      call s:expect(l:snippets[0]).to_have_length(2)
     End
 
     It should load snippet from vscode extension
       enew!
-      set filetype=vim
+      set filetype=source_spec_vscode
       let l:snippets = vsnip#source#find(bufnr('%'))
-      call s:expect(l:snippets[1][0]).to_equal({
-      \   'label': 'func',
+      call s:expect(l:snippets[0]).to_have_length(1)
+    End
+
+    It should format snippets
+      enew!
+      set filetype=source_spec
+      let l:snippets = vsnip#source#find(bufnr('%'))
+      call s:expect(sort(l:snippets[0])).to_equal(sort([{
+      \   'label': 'no-prefix-alias',
       \   'description': '',
-      \   'prefix': ['func'],
+      \   'prefix': ['---'],
       \   'prefix_alias': [],
       \   'body': [
-      \     'function! ${1:name}() abort',
-      \     "\t$0",
-      \     'endfunction'
+      \     "${VIM:repeat('-', &tw)}"
       \   ]
-      \ })
+      \ }, {
+      \   'label': 'prefix-alias',
+      \   'description': '',
+      \   'prefix': ['arrow-function'],
+      \   'prefix_alias': ['af'],
+      \   'body': [
+      \     "() => "
+      \   ]
+      \ }]))
     End
 
   End

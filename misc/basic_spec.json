@@ -1,0 +1,9 @@
+{
+  "simple": {
+    "description": "simple snippet",
+    "prefix": ["simple"],
+    "body": [
+      "snippet"
+    ]
+  }
+}
