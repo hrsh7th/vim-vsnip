@@ -95,7 +95,7 @@ function! s:resolve_prefix(prefix) abort
     call add(l:prefixes, l:prefix)
 
     " alias.
-    if l:prefix =~# '-'
+    if l:prefix =~# '^\h\w*\%(-\w\+\)\+$'
       call add(l:prefixes_alias, join(map(split(l:prefix, '-'), { i, v -> v[0] }), ''))
     endif
   endfor

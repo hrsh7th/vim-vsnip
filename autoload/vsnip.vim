@@ -152,11 +152,15 @@ function! vsnip#get_complete_items(bufnr) abort
   for l:source in vsnip#source#find(a:bufnr)
     for l:snippet in l:source
       for l:prefix in l:snippet.prefix
+        let l:menu = ''
+        let l:menu .= '[v]'
+        let l:menu .= ' '
+        let l:menu .= (strlen(l:snippet.description) > 0 ? l:snippet.description : l:snippet.label)
         let l:candidate = {
         \   'word': l:prefix,
         \   'abbr': l:prefix,
-        \   'kind': join(['Snippet', l:snippet.label, l:snippet.description], ' '),
-        \   'menu': '[v]',
+        \   'kind': 'Snippet',
+        \   'menu': l:menu,
         \   'dup': 1,
         \   'user_data': json_encode({
         \     'vsnip': {
@@ -164,10 +168,6 @@ function! vsnip#get_complete_items(bufnr) abort
         \     }
         \   })
         \ }
-
-        if has_key(l:snippet, 'description') && strlen(l:snippet.description) > 0
-          let l:candidate.menu .= printf(': %s', l:snippet.description)
-        endif
 
         call add(l:candidates, l:candidate)
       endfor

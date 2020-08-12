@@ -5,6 +5,11 @@ Describe vsnip
   Describe #get_context
 
     It should return context information in insert-mode
+      enew!
+      set filetype=basic_spec
+      call setline(1, 'simple')
+      call cursor([1, 6])
+
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(mode(1)).to_equal('i')
@@ -16,13 +21,13 @@ Describe vsnip
         \     },
         \     'end': {
         \       'line': 0,
-        \       'character': 5,
+        \       'character': 6,
         \     },
         \   },
         \   'snippet': {
-        \     'label': 'spec1',
+        \     'label': 'simple',
         \     'description': 'simple snippet',
-        \     'prefix': ['spec1'],
+        \     'prefix': ['simple'],
         \     'prefix_alias': [],
         \     'body': [
         \       'snippet'
@@ -30,16 +35,15 @@ Describe vsnip
         \   }
         \ })
       endfunction
-      enew!
-      call setline(1, 'spec1')
-      call cursor([1, 5])
       call feedkeys("a\<Plug>(vsnip-assert)", 'x')
     End
 
     It should return context information in normal-mode
       enew!
-      call setline(1, 'spec1')
-      call cursor([1, 5])
+      set filetype=basic_spec
+      call setline(1, 'simple')
+      call cursor([1, 6])
+
       call s:expect(mode(1)).to_equal('n')
       call s:expect(vsnip#get_context()).to_equal({
       \   'range': {
@@ -49,13 +53,13 @@ Describe vsnip
       \     },
       \     'end': {
       \       'line': 0,
-      \       'character': 5,
+      \       'character': 6,
       \     },
       \   },
       \   'snippet': {
-      \     'label': 'spec1',
+      \     'label': 'simple',
       \     'description': 'simple snippet',
-      \     'prefix': ['spec1'],
+      \     'prefix': ['simple'],
       \     'prefix_alias': [],
       \     'body': [
       \       'snippet'
@@ -66,9 +70,11 @@ Describe vsnip
 
     It should return context information in select-mode
       enew!
-      call setline(1, 'spec1')
+      set filetype=basic_spec
+      call setline(1, 'simple')
       call feedkeys("v\<C-g>", 'x')
-      call cursor([1, 5])
+      call cursor([1, 6])
+
       call s:expect(mode(1)).to_equal('s')
       call s:expect(vsnip#get_context()).to_equal({
       \   'range': {
@@ -78,13 +84,13 @@ Describe vsnip
       \     },
       \     'end': {
       \       'line': 0,
-      \       'character': 5,
+      \       'character': 6,
       \     },
       \   },
       \   'snippet': {
-      \     'label': 'spec1',
+      \     'label': 'simple',
       \     'description': 'simple snippet',
-      \     'prefix': ['spec1'],
+      \     'prefix': ['simple'],
       \     'prefix_alias': [],
       \     'body': [
       \       'snippet'
@@ -99,19 +105,17 @@ Describe vsnip
 
     It should return complete items
       enew!
-      set filetype=vim
+      set filetype=basic_spec
       call s:expect(vsnip#get_complete_items(bufnr('%'))[-1]).to_equal({
-      \   'word': 'func',
-      \   'abbr': 'func',
-      \   'kind': 'Snippet func ',
-      \   'menu': '[v]',
+      \   'word': 'simple',
+      \   'abbr': 'simple',
+      \   'kind': 'Snippet',
+      \   'menu': '[v] simple snippet',
       \   'dup': 1,
       \   'user_data': json_encode({
       \     'vsnip': {
       \       'snippet': [
-      \         'function! ${1:name}() abort',
-      \         "\t$0",
-      \         'endfunction'
+      \         "snippet"
       \       ]
       \     }
       \   })

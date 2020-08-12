@@ -1,0 +1,10 @@
+{
+  "contributes": {
+    "snippets": [
+      {
+        "path": "./source_spec_vscode.json",
+        "language": "source_spec_vscode"
+      }
+    ]
+  }
+}
