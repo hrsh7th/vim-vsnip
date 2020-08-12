@@ -144,17 +144,19 @@ endfunction
 call vsnip#variable#register('CURRENT_SECONDS_UNIX', function('s:CURRENT_SECONDS_UNIX'))
 
 function! s:BLOCK_COMMENT_START(context) abort
-  return '/**' " TODO
+  return split(&commentstring, '%s')[0]
 endfunction
 call vsnip#variable#register('BLOCK_COMMENT_START', function('s:BLOCK_COMMENT_START'))
 
 function! s:BLOCK_COMMENT_END(context) abort
-  return '*/' " TODO
+  let l:chars = split(&commentstring, '%s')
+  return len(l:chars) > 1 ? l:chars[1] : l:chars[0]
 endfunction
 call vsnip#variable#register('BLOCK_COMMENT_END', function('s:BLOCK_COMMENT_END'))
 
 function! s:LINE_COMMENT(context) abort
-  return '//' " TODO
+  let l:chars = split(&commentstring, '%s')
+  return &commentstring =~ '^/\*' ? '//' : substitute(&commentstring, '%s', '', 'g')
 endfunction
 call vsnip#variable#register('LINE_COMMENT', function('s:LINE_COMMENT'))
 
