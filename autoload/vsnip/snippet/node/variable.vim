@@ -12,13 +12,17 @@ let s:Variable = {}
 "
 function! s:Variable.new(ast) abort
   let l:resolver = vsnip#variable#get(a:ast.name)
-  return extend(deepcopy(s:Variable), {
+  let l:node = extend(deepcopy(s:Variable), {
   \   'type': 'variable',
   \   'name': a:ast.name,
   \   'unknown': empty(l:resolver),
   \   'resolver': l:resolver,
   \   'children': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
   \ })
+
+  function! l:node.unique()
+  endfunction
+  return l:node
 endfunction
 
 "
