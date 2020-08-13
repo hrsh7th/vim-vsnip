@@ -318,20 +318,16 @@ endfunction
 "
 function! s:Snippet.normalize() abort
   let l:fn = {}
-  let l:fn.text = v:null
+  let l:fn.prev = v:null
   function! l:fn.traverse(range, node, parent, depth) abort
-    if a:node.type !=# 'text'
-      let self.text = v:null
-      return
+    if !empty(self.prev)
+      if self.prev.node.type ==# 'text' && a:node.type ==# 'text' && self.prev.parent is# a:parent
+        let a:node.value = self.prev.node.value . a:node.value
+        call remove(self.prev.parent.children, index(self.prev.parent.children, self.prev.node))
+      endif
     endif
 
-    if !empty(self.text) && self.text.depth == a:depth
-      let self.text.node.value .= a:node.value
-      call remove(a:parent.children, index(a:parent.children, a:node))
-      return
-    endif
-
-    let self.text = {
+    let self.prev = {
     \   'range': a:range,
     \   'node': a:node,
     \   'parent': a:parent,
