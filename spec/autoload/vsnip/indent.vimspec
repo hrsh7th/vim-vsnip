@@ -1,0 +1,128 @@
+let s:expect = themis#helper('expect')
+
+Describe vsnip#indent
+
+  After each
+    set expandtab shiftwidth=2
+  End
+
+  Describe #get_one_indent
+
+    It should return one indent
+      enew!
+      for l:execute in [
+      \   'set expandtab shiftwidth=4   tabstop=2',
+      \   'set expandtab shiftwidth=2   tabstop=4',
+      \   'set expandtab shiftwidth=0   tabstop=2',
+      \   'set noexpandtab shiftwidth=4 tabstop=4',
+      \ ]
+        execute l:execute
+        %delete _
+        call feedkeys("i\<Tab>", 'nx') 
+        call s:expect(vsnip#indent#get_one_indent()).to_equal(getline(1))
+      endfor
+
+    End
+
+  End
+
+  Describe #get_base_indent
+
+    It should return base indent
+      enew!
+
+      call setline(1, ['foo'])
+      call s:expect(vsnip#indent#get_base_indent(getline(1))).to_equal('')
+
+      call setline(1, ['  foo'])
+      call s:expect(vsnip#indent#get_base_indent(getline(1))).to_equal('  ')
+
+      call setline(1, ["\tfoo"])
+      call s:expect(vsnip#indent#get_base_indent(getline(1))).to_equal("\t")
+    End
+
+  End
+
+  Describe #adjust_snippet_body
+
+    It should return adjusted snippet body for expandtab
+      set expandtab shiftwidth=2
+      call s:expect(vsnip#indent#adjust_snippet_body('  foo', join([
+      \   "class $1 {",
+      \   "\tpublic constructor() {",
+      \   "\t\t$0",
+      \   "\t}",
+      \   "}"
+      \ ], "\n"))).to_equal(join([
+      \   "class $1 {",
+      \   "    public constructor() {",
+      \   "      $0",
+      \   "    }",
+      \   "  }"
+      \ ], "\n"))
+    End
+
+    It should return adjusted snippet body for noexpandtab
+      set noexpandtab shiftwidth=2
+      call s:expect(vsnip#indent#adjust_snippet_body("\tfoo", join([
+      \   "class $1 {",
+      \   "\tpublic constructor() {",
+      \   "\t\t$0",
+      \   "\t}",
+      \   "}"
+      \ ], "\n"))).to_equal(join([
+      \   "class $1 {",
+      \   "\t\tpublic constructor() {",
+      \   "\t\t\t$0",
+      \   "\t\t}",
+      \   "\t}"
+      \ ], "\n"))
+    End
+
+  End
+
+  Describe #trim_base_indent
+
+    It should trim base indent when target is line-wise multiline text
+      call s:expect(vsnip#indent#trim_base_indent(join([
+      \   "  function! s:foo()",
+      \   "    return 'foo'",
+      \   "  endfunction"
+      \ ], "\n") . "\n")).to_equal(join([
+      \   "function! s:foo()",
+      \   "  return 'foo'",
+      \   "endfunction"
+      \ ], "\n"))
+    End
+
+    It should trim base indent when target is char-wise multiline text
+      call s:expect(vsnip#indent#trim_base_indent(join([
+      \   "function! s:foo()",
+      \   "    return 'foo'",
+      \   "  endfunction"
+      \ ], "\n"))).to_equal(join([
+      \   "function! s:foo()",
+      \   "  return 'foo'",
+      \   "endfunction"
+      \ ], "\n"))
+    End
+
+    It should trim base indent when target is line-wise singleline selection
+      call s:expect(vsnip#indent#trim_base_indent(join([
+      \   "  function! s:foo()",
+      \ ], "\n") . "\n")).to_equal(join([
+      \   "function! s:foo()",
+      \ ], "\n"))
+    End
+
+    It should trim base indent when target is char-wise singleline selection
+      call s:expect(vsnip#indent#trim_base_indent(join([
+      \   "  function! s:foo()",
+      \ ], "\n"))).to_equal(join([
+      \   "  function! s:foo()",
+      \ ], "\n"))
+    End
+
+  End
+
+End

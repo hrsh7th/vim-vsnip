@@ -29,7 +29,7 @@ function! s:TM_SELECTED_TEXT(context) abort
   if empty(l:selected_text)
     return v:null
   endif
-  return l:selected_text " TODO: Fix indentation
+  return vsnip#indent#trim_base_indent(l:selected_text)
 endfunction
 call vsnip#variable#register('TM_SELECTED_TEXT', function('s:TM_SELECTED_TEXT'))
 
@@ -74,7 +74,11 @@ endfunction
 call vsnip#variable#register('TM_FILEPATH', function('s:TM_FILEPATH'))
 
 function! s:CLIPBOARD(context) abort
-  return getreg(v:register)
+  let l:clipboard = getreg(v:register)
+  if empty(l:clipboard)
+    return v:null
+  endif
+  return vsnip#indent#trim_base_indent(l:clipboard)
 endfunction
 call vsnip#variable#register('CLIPBOARD', function('s:CLIPBOARD'))
 
