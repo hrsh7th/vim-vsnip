@@ -5,8 +5,14 @@ VSCode(LSP)'s snippet feature in vim.
 
 # DEMO
 
+### LSP integration
+
 ![nested-snippet-expansion](https://user-images.githubusercontent.com/629908/76817423-1e165180-6846-11ea-95a1-d827afa744d8.gif)
 
+
+### `<Plug(vsnip-cut-text)` with `$TM_SELECTED_TEXT`
+
+![cut-and-selected-text](https://user-images.githubusercontent.com/629908/90157756-17761100-ddc9-11ea-843f-d8b0d529ac61.gif)
 
 # Concept
 
