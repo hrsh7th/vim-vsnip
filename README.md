@@ -3,18 +3,6 @@
 VSCode(LSP)'s snippet feature in vim.
 
 
-# DEMO
-
-### LSP integration
-
-<img src="https://user-images.githubusercontent.com/629908/76817423-1e165180-6846-11ea-95a1-d827afa744d8.gif" width="300" alt="Nested snippet expansion" />
-
-### `<Plug(vsnip-cut-text)` with `$TM_SELECTED_TEXT`
-
-<img src="https://user-images.githubusercontent.com/629908/90157756-17761100-ddc9-11ea-843f-d8b0d529ac61.gif" width="300" alt="&lt;Plug&rt;(vsnip-cut-text) with $TM_SELECTED_TEXT" />
-
-
-
 # Concept
 
 - Standard features written in Pure Vim script.
@@ -144,3 +132,12 @@ You can run `npm run test` after install [vim-themis](https://github.com/thinca/
 3. reflect the `sync-diff` to buffer content ... `s:Snippet.sync & s:Session.flush_changes`
 
 
+# DEMO
+
+### LSP integration
+
+<img src="https://user-images.githubusercontent.com/629908/76817423-1e165180-6846-11ea-95a1-d827afa744d8.gif" width="300" alt="Nested snippet expansion" />
+
+### `<Plug(vsnip-cut-text)` with `$TM_SELECTED_TEXT`
+
+<img src="https://user-images.githubusercontent.com/629908/90157756-17761100-ddc9-11ea-843f-d8b0d529ac61.gif" width="300" alt="&lt;Plug&rt;(vsnip-cut-text) with $TM_SELECTED_TEXT" />
