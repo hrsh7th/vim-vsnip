@@ -335,8 +335,8 @@ Describe vsnip
     It should work issue85
       enew!
       set filetype=integration
-      call setline(1, 'for')
-      call cursor([1, 3])
+      call setline(1, 'issue85')
+      call cursor([1, 7])
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
@@ -347,6 +347,19 @@ Describe vsnip
         call s:expect(getcurpos()[1 : 2]).to_equal([1, 5])
       endfunction
       call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
+    End
+
+    It should work issue106
+      enew!
+      set filetype=integration
+      call setline(1, ['foo', 'issue106'])
+      call cursor([2, 8])
+
+      let g:vsnip_assert = {}
+      function g:vsnip_assert.step1()
+        call s:expect(vsnip#get_session()).to_be_empty()
+      endfunction
+      call feedkeys("a\<C-j>\<Esc>gg0i_\<Plug>(vsnip-assert)", 'x')
     End
 
   End

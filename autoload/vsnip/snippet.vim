@@ -94,6 +94,14 @@ endfunction
 " follow.
 "
 function! s:Snippet.follow(current_tabstop, diff) abort
+  let l:range = self.range()
+  let l:in_range = v:true
+  let l:in_range = l:in_range && (l:range.start.line < a:diff.range.start.line || l:range.start.line == a:diff.range.start.line && l:range.start.character <= a:diff.range.start.character)
+  let l:in_range = l:in_range && (l:range.end.line > a:diff.range.start.line || l:range.end.line == a:diff.range.end.line && l:range.end.character >= a:diff.range.end.character)
+  if !l:in_range
+    return v:false
+  endif
+
   let a:diff.range = [
   \   self.position_to_offset(a:diff.range.start),
   \   self.position_to_offset(a:diff.range.end),
@@ -500,7 +508,7 @@ endfunction
 function! s:Snippet.debug() abort
   echomsg 'snippet.text()'
   for l:line in split(self.text(), "\n", v:true)
-    echomsg l:line
+    echomsg string(l:line)
   endfor
   echomsg '-----'
 
