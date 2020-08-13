@@ -138,7 +138,7 @@ function! s:vsnip_set_text(type, copy) abort
     return
   endif
   execute 'normal! '.select.a:copy
-  call vsnip#selected_text(substitute(@v, '\n$', '', ''))
+  call vsnip#selected_text(@v)
   let @v = reg_v
 endfunction
 function! s:virtualedit_in_normal() abort

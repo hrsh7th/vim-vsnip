@@ -29,18 +29,29 @@ endfunction
 " vsnip#indent#trim_base_indent
 "
 function! vsnip#indent#trim_base_indent(text) abort
+  let l:is_char_wise = match(a:text, "\n$") is# -1
+  let l:text = substitute(a:text, "\n$", '', 'g')
+
   let l:is_first_line = v:true
   let l:base_indent = ''
-  for l:line in split(a:text, "\n", v:true)
-    if l:is_first_line
+  for l:line in split(l:text, "\n", v:true)
+    " Ignore the first line when the text created as char-wise.
+    if l:is_char_wise && l:is_first_line
       let l:is_first_line = v:false
       continue
     endif
+
+    " Ignore empty line.
+    if l:line ==# ''
+      continue
+    endif
+
+    " Detect most minimum base indent.
     let l:indent = matchstr(l:line, '^\s*')
     if l:base_indent ==# '' || strlen(l:indent) < strlen(l:base_indent)
       let l:base_indent = l:indent
     endif
   endfor
-  return substitute(a:text, "\\%(^\\|\n\\)\\zs\\V" . l:base_indent, '', 'g')
+  return substitute(l:text, "\\%(^\\|\n\\)\\zs\\V" . l:base_indent, '', 'g')
 endfunction
 

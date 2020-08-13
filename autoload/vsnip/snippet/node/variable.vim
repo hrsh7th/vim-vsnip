@@ -29,7 +29,7 @@ endfunction
 " text.
 "
 function! s:Variable.text() abort
-  return ''
+  return join(map(copy(self.children), { k, v -> v.text() }), '')
 endfunction
 
 "
@@ -47,18 +47,18 @@ function! s:Variable.resolve(context) abort
       return l:resolved
     endif
   endif
-  return join(map(copy(self.children), { k, v -> v.text() }), '')
+  return v:null
 endfunction
 
 "
 " to_string
 "
 function! s:Variable.to_string() abort
-  return printf('%s(name=%s, unknown=%s, resolved=%s)',
+  return printf('%s(name=%s, unknown=%s, text=%s)',
   \   self.type,
   \   self.name,
   \   self.unknown ? 'true' : 'false',
-  \   self.resolve({})
+  \   self.text()
   \ )
 endfunction
 
