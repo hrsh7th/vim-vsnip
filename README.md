@@ -3,24 +3,6 @@
 VSCode(LSP)'s snippet feature in vim.
 
 
-# Concept
-
-- Standard features written in Pure Vim script.
-- Implement LSP snippet format
-- Support LSP-client and completion-engine by [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ)
-  - LSP-client
-    - [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
-    - [vim-lsc](https://github.com/natebosch/vim-lsc)
-    - [LanguageClient-neovim](https://github.com/autozimu/LanguageClient-neovim)
-    - [neovim built-in lsp](https://github.com/neovim/neovim)
-    - [vim-lamp](https://github.com/hrsh7th/vim-lamp)
-  - completion-engine
-    - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
-    - [asyncomplete.vim](https://github.com/prabirshrestha/asyncomplete.vim)
-    - [vim-mucomplete](https://github.com/lifepillar/vim-mucomplete)
-    - [completion-nvim](https://github.com/haorenW1025/completion-nvim)
-
-
 # Features
 
 - Nested placeholders
@@ -29,10 +11,27 @@ VSCode(LSP)'s snippet feature in vim.
     - You can expand snippet even if you already activated other snippet (it will be merged as one snippet)
 - Load snippet from VSCode extension
     - If you install VSCode extension via `Plug 'microsoft/vscode-python'`, vsnip will load those snippets.
-- Support many LSP-client & completion-engine
-    - You can get how to integrate those plugins in [here](https://github.com/hrsh7th/vim-vsnip-integ).
+- Support many LSP-client & completion-engine by [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ)
+    - LSP-client
+      - [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
+      - [vim-lsc](https://github.com/natebosch/vim-lsc)
+      - [LanguageClient-neovim](https://github.com/autozimu/LanguageClient-neovim)
+      - [neovim built-in lsp](https://github.com/neovim/neovim)
+      - [vim-lamp](https://github.com/hrsh7th/vim-lamp)
+    - completion-engine
+      - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
+      - [asyncomplete.vim](https://github.com/prabirshrestha/asyncomplete.vim)
+      - [vim-mucomplete](https://github.com/lifepillar/vim-mucomplete)
+      - [completion-nvim](https://github.com/haorenW1025/completion-nvim)
 - Vim script interpolation
     - You can use Vim script interpolation as `${VIM:...Vim script expression...}`.
+
+
+# Concept
+
+- Pure Vim script
+- Support VSCode snippet format
+- Provide integration with many plugins
 
 
 # Usage
