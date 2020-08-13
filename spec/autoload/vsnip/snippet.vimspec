@@ -256,8 +256,8 @@ Describe vsnip#snippet
 
   Describe #normalize
 
-    It should normalize 1
-      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1}${2})')
+    It should not normalize when does not exists adjacent text nodes
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1:i}${2:++})')
       let l:text = l:snippet.text()
       call s:expect(len(l:snippet.children)).to_equal(5)
       call l:snippet.normalize()
@@ -265,7 +265,7 @@ Describe vsnip#snippet
       call s:expect(l:text).to_equal(l:snippet.text())
     End
 
-    It should normalize 2
+    It should normalize adjacent text nodes
       let l:snippet = s:Snippet.new(s:start_position, 'console.log')
       call insert(l:snippet.children, vsnip#snippet#node#create_text('___'), 1)
       let l:text = l:snippet.text()
@@ -275,11 +275,48 @@ Describe vsnip#snippet
       call s:expect(l:text).to_equal(l:snippet.text())
     End
 
-    It should normalize 3
-      let l:snippet = s:Snippet.new(s:start_position, '${1:i}${2:++}')
-      let l:children = deepcopy(l:snippet.children)
-      call l:snippet.normalize()  " Don't change anything
-      call s:expect(l:snippet.children).to_equal(l:children)
+    It should normalize correctly when the node has the same structure children
+      let l:snippet = s:Snippet.new(s:start_position, '')
+      let l:snippet.children = vsnip#snippet#node#create_from_ast([{
+      \   'type': 'text',
+      \   'value': '*',
+      \   'escaped': '*',
+      \ }, {
+      \   'type': 'placeholder',
+      \   'id': 1,
+      \   'children': [{
+      \     'type': 'text',
+      \     'value': '',
+      \     'escaped': '',
+      \   }]
+      \ }, {
+      \   'type': 'text',
+      \   'value': '*',
+      \   'escaped': '*',
+      \ }, {
+      \   'type': 'text',
+      \   'value': '_',
+      \   'escaped': '_',
+      \ }, {
+      \   'type': 'placeholder',
+      \   'id': 1,
+      \   'children': [{
+      \     'type': 'text',
+      \     'value': '',
+      \     'escaped': '',
+      \   }]
+      \ }, {
+      \   'type': 'text',
+      \   'value': '*',
+      \   'escaped': '*',
+      \ }, {
+      \   'type': 'text',
+      \   'value': '__',
+      \   'escaped': '__',
+      \ }])
+      let l:text = l:snippet.text()
+      call l:snippet.normalize()
+      call s:expect(l:text).to_equal(l:snippet.text())
     End
 
   End

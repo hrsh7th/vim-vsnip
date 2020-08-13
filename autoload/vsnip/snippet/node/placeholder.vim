@@ -27,6 +27,8 @@ function! s:Placeholder.new(ast) abort
     let l:node.children = [vsnip#snippet#node#create_text('')]
   endif
 
+  function! l:node.unique()
+  endfunction
   return l:node
 endfunction
 
