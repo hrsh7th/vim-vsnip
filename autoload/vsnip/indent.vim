@@ -19,7 +19,11 @@ function! vsnip#indent#adjust_snippet_body(line, text) abort
   let l:one_indent = vsnip#indent#get_one_indent()
   let l:base_indent = vsnip#indent#get_base_indent(a:line)
   let l:text = a:text
-  let l:text = substitute(l:text, "\t", l:one_indent, 'g') " convert \t as one indent
+  if l:one_indent !=# "\t"
+    while match(l:text, "\\%(^\\|\n\\)\\s*\\zs\\t") isnot# -1
+      let l:text = substitute(l:text, "\\%(^\\|\n\\)\\s*\\zs\\t", l:one_indent, 'g') " convert \t as one indent
+    endwhile
+  endif
   let l:text = substitute(l:text, "\n\\zs", l:base_indent, 'g') " add base_indent for all lines
   let l:text = substitute(l:text, "\n\\s*\\ze\\(\n\\|$\\)", "\n", 'g') " remove empty line's indent
   return l:text
