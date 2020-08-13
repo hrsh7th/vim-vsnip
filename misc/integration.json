@@ -88,6 +88,15 @@
       "${VIM:\\$USER}"
     ]
   },
+  "realworld3": {
+    "description": "realworld3",
+    "prefix": ["realworld3"],
+    "body": [
+      "<div>",
+      "\t$TM_SELECTED_TEXT",
+      "</div>"
+    ]
+  },
   "issue82": {
     "description": "issue82",
     "prefix": ["'"],
