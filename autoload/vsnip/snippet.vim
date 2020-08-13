@@ -1,4 +1,5 @@
 let s:max_tabstop = 1000000
+let s:Position = vital#vsnip#import('VS.LSP.Position')
 
 "
 " import.
@@ -13,9 +14,11 @@ let s:Snippet = {}
 " new.
 "
 function! s:Snippet.new(position, text) abort
+  let l:pos = s:Position.lsp_to_vim('%', a:position)
   let l:snippet = extend(deepcopy(s:Snippet), {
   \   'type': 'snippet',
   \   'position': a:position,
+  \   'before_text': getline(l:pos[0])[0 : l:pos[1] - 1],
   \   'children': vsnip#snippet#node#create_from_ast(
   \     vsnip#snippet#parser#parse(a:text)
   \   )
@@ -78,7 +81,7 @@ function s:Snippet.init() abort
     endif
     let self.prev_node = a:node
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
 
   " Append ${MAX_TABSTOP} for the end of snippet.
   if !l:fn.has_final_tabstop
@@ -137,7 +140,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
       return self.target.node.type ==# 'placeholder' && self.target.node.id == self.current_tabstop
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
 
   let l:target = l:fn.target
   if empty(l:target)
@@ -195,7 +198,7 @@ function! s:Snippet.sync() abort
       endif
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
 
   " Create text_edits.
   let l:text_edits = []
@@ -248,7 +251,7 @@ function! s:Snippet.get_placeholder_nodes() abort
       call add(self.nodes, a:node)
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
 
   return sort(l:fn.nodes, { a, b -> a.id - b.id })
 endfunction
@@ -275,7 +278,7 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
       \ }
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
 
   " can't detect next jump point.
   if !has_key(l:fn, 'jump_point')
@@ -307,7 +310,7 @@ function! s:Snippet.get_prev_jump_point(current_tabstop) abort
       \ }
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
 
   " can't detect next jump point.
   if !has_key(l:fn, 'jump_point')
@@ -340,7 +343,7 @@ function! s:Snippet.normalize() abort
     \   'depth': a:depth,
     \ }
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
 endfunction
 
 "
@@ -366,7 +369,7 @@ function! s:Snippet.insert_node(position, nodes_to_insert) abort
       endif
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
 
   " This condition is unexpected normally
   let l:target = l:fn.target
@@ -408,38 +411,8 @@ function! s:Snippet.get_parent(node) abort
       return v:true
     endif
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
   return l:fn.parent
-endfunction
-
-"
-" traverse.
-"
-function! s:Snippet.traverse(parent, children, callback, pos, depth) abort
-  let l:pos = a:pos
-  let l:skip = v:false
-  let l:children = copy(a:children)
-  for l:i in range(0, len(l:children) - 1)
-    let l:node = l:children[l:i]
-    let l:length = strchars(l:node.text())
-
-    " child.
-    let l:skip = a:callback([l:pos, l:pos + l:length], l:node, a:parent, a:depth)
-    if l:skip
-      return l:skip
-    endif
-
-    " child.children.
-    if has_key(l:node, 'children') && len(l:node.children) > 0
-      let l:skip = self.traverse(l:node, l:node.children, a:callback, l:pos, a:depth + 1)
-      if l:skip
-        return l:skip
-      endif
-    endif
-
-    let l:pos += l:length
-  endfor
-  return l:skip
 endfunction
 
 "
@@ -505,6 +478,48 @@ function! s:Snippet.position_to_offset(position) abort
 endfunction
 
 "
+" traverse.
+"
+function! s:Snippet.traverse(node, callback, ...) abort
+  let l:context = len(a:000) == 1 ? a:000[0] : {
+  \   'pos': 0,
+  \   'before_text': self.before_text,
+  \   'depth': 0,
+  \   'parent': v:null,
+  \ }
+
+  let l:text = ''
+  let l:length = 0
+  if a:node.type !=# 'snippet'
+    let l:text = a:node.text()
+    let l:length = strchars(l:text)
+    if a:callback({
+    \   'node': a:node,
+    \   'text': l:text,
+    \   'length': l:length,
+    \   'context': l:context
+    \ })
+      return v:true
+    endif
+  endif
+
+  if has_key(a:node, 'children') && len(a:node.children) > 0
+    let l:context.depth += 1
+    call add(l:context.parent, a:node)
+    for l:child in copy(a:node.children)
+      if self.traverse(l:child, a:callback, l:context)
+        return v:true
+      endif
+    endfor
+    let l:context.depth -= 1
+    call remove(l:context.parent, -1)
+  else
+    let l:context.before_text .= l:text
+    let l:context.pos += l:length
+  endif
+endfunction
+
+"
 " debug
 "
 function! s:Snippet.debug() abort
@@ -528,6 +543,6 @@ function! s:Snippet.debug() abort
     endwhile
     echomsg l:level . a:node.to_string()
   endfunction
-  call self.traverse(self, self.children, l:fn.traverse, 0, 0)
+  call self.traverse(self, l:fn.traverse)
   echomsg ' '
 endfunction
