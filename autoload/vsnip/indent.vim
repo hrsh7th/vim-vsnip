@@ -20,7 +20,7 @@ function! vsnip#indent#adjust_snippet_body(line, text) abort
   let l:base_indent = vsnip#indent#get_base_indent(a:line)
   let l:text = a:text
   if l:one_indent !=# "\t"
-    while match(l:text, "\\%(^\\|\n\\)\\s*\\zs\\t") isnot# -1
+    while match(l:text, "\\%(^\\|\n\\)\\s*\\zs\\t") != -1
       let l:text = substitute(l:text, "\\%(^\\|\n\\)\\s*\\zs\\t", l:one_indent, 'g') " convert \t as one indent
     endwhile
   endif
@@ -33,7 +33,7 @@ endfunction
 " vsnip#indent#trim_base_indent
 "
 function! vsnip#indent#trim_base_indent(text) abort
-  let l:is_char_wise = match(a:text, "\n$") is# -1
+  let l:is_char_wise = match(a:text, "\n$") == -1
   let l:text = substitute(a:text, "\n$", '', 'g')
 
   let l:is_first_line = v:true
