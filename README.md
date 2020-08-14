@@ -73,12 +73,12 @@ smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-T
 
 " Select or cut text to use as $TM_SELECTED_TEXT in the next snippet.
 " See https://github.com/hrsh7th/vim-vsnip/pull/50
-nmap        <C-l>   <Plug>(vsnip-select-text)
-xmap        <C-l>   <Plug>(vsnip-select-text)
-smap        <C-l>   <Plug>(vsnip-select-text)
-nmap        <C-j>   <Plug>(vsnip-cut-text)
-xmap        <C-j>   <Plug>(vsnip-cut-text)
-smap        <C-j>   <Plug>(vsnip-cut-text)
+nmap        s   <Plug>(vsnip-select-text)
+xmap        s   <Plug>(vsnip-select-text)
+smap        s   <Plug>(vsnip-select-text)
+nmap        S   <Plug>(vsnip-cut-text)
+xmap        S   <Plug>(vsnip-cut-text)
+smap        S   <Plug>(vsnip-cut-text)
 
 " If you want to use snippet for multiple filetypes, you can `g:vsip_filetypes` for it.
 let g:vsnip_filetypes = {}
