@@ -125,8 +125,8 @@ function! s:vsnip_set_text(type) abort
     let select = '`<v`>'
   elseif a:type ==# 'V'
     let select = "'<V'>"
-  elseif a:type ==? ''
-    let select = '`<`>'
+  elseif a:type ==? "\<C-V>"
+    let select = "`<\<C-V>`>"
   elseif a:type ==# 'char'
   \ || (a:type ==# 'line' && s:virtualedit_in_normal())
     let select = '`[v`]'
