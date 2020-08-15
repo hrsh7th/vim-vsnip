@@ -128,7 +128,6 @@ function! s:vsnip_set_text(type) abort
   elseif a:type ==? "\<C-V>"
     let select = "`<\<C-V>`>"
   elseif a:type ==# 'char'
-  \ || (a:type ==# 'line' && s:virtualedit_in_normal())
     let select = '`[v`]'
   elseif a:type ==# 'line'
     let select = "'[V']"
@@ -139,9 +138,6 @@ function! s:vsnip_set_text(type) abort
   call vsnip#selected_text(@")
   call setreg('"', oldreg)
   return select
-endfunction
-function! s:virtualedit_in_normal() abort
-  return &virtualedit =~? '\<all\>'
 endfunction
 
 "
