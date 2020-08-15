@@ -1,4 +1,5 @@
 let s:max_tabstop = 1000000
+let s:uid = 0
 
 function! vsnip#snippet#node#placeholder#import() abort
   return s:Placeholder
@@ -10,7 +11,10 @@ let s:Placeholder = {}
 " new.
 "
 function! s:Placeholder.new(ast) abort
+  let s:uid += 1
+
   let l:node = extend(deepcopy(s:Placeholder), {
+  \   'uid': s:uid,
   \   'type': 'placeholder',
   \   'id': a:ast.id,
   \   'is_final': a:ast.id == 0,
@@ -27,8 +31,6 @@ function! s:Placeholder.new(ast) abort
     let l:node.children = [vsnip#snippet#node#create_text('')]
   endif
 
-  function! l:node.unique()
-  endfunction
   return l:node
 endfunction
 

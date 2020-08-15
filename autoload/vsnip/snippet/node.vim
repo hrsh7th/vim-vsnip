@@ -7,7 +7,7 @@ let s:Text = vsnip#snippet#node#text#import()
 "
 function! vsnip#snippet#node#create_from_ast(ast) abort
   if type(a:ast) == type([])
-    return map(a:ast, { k, v -> vsnip#snippet#node#create_from_ast(v) })
+    return map(a:ast, 'vsnip#snippet#node#create_from_ast(v:val)')
   endif
 
   if a:ast.type ==# 'placeholder'
