@@ -136,7 +136,7 @@ function! s:vsnip_set_text(type) abort
   endif
   execute 'normal! ' . select . 'y'
   call vsnip#selected_text(@")
-  call setreg('"', oldreg)
+  call setreg('"', oldreg[0], oldreg[1])
   return select
 endfunction
 
