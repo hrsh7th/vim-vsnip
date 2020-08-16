@@ -11,13 +11,20 @@ fun! vsnip#source#edit#snippet(name, bang) abort
     return
   endif
 
+  let create_new_file = 0
+
   let paths = filter(vsnip#source#user_snippet#paths(), 'filereadable(v:val)')
   if a:bang
     call filter(paths, 'v:val !~ "global.json"')
   endif
+
   if empty(paths)
     echo '[vsnip] no valid snippets json files found'
-    return
+    if !s:create_new_file(a:bang)
+      return
+    else
+      let create_new_file = 1
+    endif
   endif
 
   let s:name = a:name == '' ? input('Enter snippet name: ') : a:name
@@ -26,15 +33,50 @@ fun! vsnip#source#edit#snippet(name, bang) abort
     return
   endif
 
-  let s:json_path = s:get_path(paths)
-  if !filereadable(s:json_path)
-    redraw
-    echo '[vsnip] invalid path'
-    return
+  if !create_new_file
+    let s:json_path = s:get_path(paths)
+    if !filereadable(s:json_path)
+      redraw
+      echo '[vsnip] invalid path'
+      return
+    endif
   endif
 
   let s:snippets = json_decode(readfile(s:json_path))
   call s:temp_buffer(&filetype)
+endfun
+
+""
+" s:create_new_file
+""
+fun! s:create_new_file(bang)
+  if confirm('Do you want to create a snippet file at `' . g:vsnip_snippet_dir . '`?', "&Yes\n&No") == 1
+    let [type, ft, global] = ['', &filetype, 'global']
+    if a:bang
+      let type = ft
+    else
+      let ix = inputlist(['Select type: '] + map([ft, global], { k,v -> printf('%s: %s', k + 1, v) }))
+      if ix && ix <= 2
+        let type = [ft, global][ix - 1]
+      endif
+    endif
+    if type == ''
+      return v:false
+    else
+      if !isdirectory(g:vsnip_snippet_dir)
+        if confirm('Create directory `' .g:vsnip_snippet_dir . '`?' , "&Yes\n&No") == 1
+          call mkdir(expand(g:vsnip_snippet_dir), 'p')
+        else
+          return v:false
+        endif
+      endif
+      let s:json_path = expand(g:vsnip_snippet_dir) . '/' . type . '.json'
+      call writefile(['{}'], s:json_path)
+      return v:true
+    endif
+  else
+    return v:false
+  endif
 endfun
 
 ""
