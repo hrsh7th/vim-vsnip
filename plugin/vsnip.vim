@@ -45,7 +45,7 @@ function! s:open_command(bang, cmd)
 
   if !isdirectory(l:target_dir)
     if confirm(printf('`%s` does not exists, create? ', l:target_dir), "&Yes\n&No") == 1
-      call mkdir(l:target_dir, 'p')
+      call mkdir(expand(l:target_dir), 'p')
     else
       return
     endif
