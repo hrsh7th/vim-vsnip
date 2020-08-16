@@ -35,17 +35,24 @@ function! s:open_command(bang, cmd)
     endif
   endif
 
-  if !isdirectory(g:vsnip_snippet_dir)
-    let l:prompt = printf('`%s` does not exists, create? y(es)/n(o): ', g:vsnip_snippet_dir)
-    if index(['y', 'ye', 'yes'], input(l:prompt)) >= 0
-      call mkdir(g:vsnip_snippet_dir, 'p')
+  " if no valid directories, use g:vsnip_snippet_dir
+  let l:dirs = filter(vsnip#source#user_snippet#dirs(), 'isdirectory(v:val)')
+  if empty(l:dirs)
+    let l:dirs = [g:vsnip_snippet_dir]
+  endif
+
+  let l:target_dir = l:dirs[0]
+
+  if !isdirectory(l:target_dir)
+    if confirm(printf('`%s` does not exists, create? ', l:target_dir), "&Yes\n&No") == 1
+      call mkdir(l:target_dir, 'p')
     else
       return
     endif
   endif
 
   execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.json',
-  \   g:vsnip_snippet_dir,
+  \   l:target_dir,
   \   l:candidates[l:idx - 1]
   \ )))
 endfunction
