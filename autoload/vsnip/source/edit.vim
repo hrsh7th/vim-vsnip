@@ -11,7 +11,7 @@ fun! vsnip#source#edit#snippet(name, bang) abort
     return
   endif
 
-  let paths = vsnip#source#user_snippet#paths()
+  let paths = filter(vsnip#source#user_snippet#paths(), 'filereadable(v:val)')
   if a:bang
     call filter(paths, 'v:val !~ "global.json"')
   endif
