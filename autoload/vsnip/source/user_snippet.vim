@@ -64,7 +64,11 @@ endfun
 " vsnip#source#user_snippet#complete
 "
 fun! vsnip#source#user_snippet#complete(A, L, P) abort
+  let bang = a:L =~ '^VsnipEditSnippet!'
   let paths = s:get_source_paths(bufnr(''))
+  if bang
+    call filter(paths, 'v:val !~ "global.json"')
+  endif
   let snippets = []
   for p in paths
     let json = json_decode(readfile(p))

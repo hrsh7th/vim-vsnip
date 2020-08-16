@@ -25,7 +25,7 @@ command! -bang VsnipOpenEdit call s:open_command(<bang>0, 'edit')
 command! -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vsplit')
 command! -bang VsnipOpenSplit call s:open_command(<bang>0, 'split')
 
-command! -bang -nargs=? -complete=customlist,vsnip#source#user_snippet#complete VsnipEditSnippet call vsnip#source#edit#snippet(<q-args>)
+command! -bang -nargs=? -complete=customlist,vsnip#source#user_snippet#complete VsnipEditSnippet call vsnip#source#edit#snippet(<q-args>, <bang>0)
 
 function! s:open_command(bang, cmd)
   let l:candidates = vsnip#source#filetypes(bufnr('%'))

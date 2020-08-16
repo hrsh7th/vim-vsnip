@@ -1,7 +1,7 @@
 ""
 " vsnip#source#edit#snippet
 ""
-fun! vsnip#source#edit#snippet(name) abort
+fun! vsnip#source#edit#snippet(name, bang) abort
   if executable('python')
     let s:pretty_print = '%!python -m json.tool'
   elseif executable('python3')
@@ -12,6 +12,9 @@ fun! vsnip#source#edit#snippet(name) abort
   endif
 
   let paths = vsnip#source#user_snippet#paths()
+  if a:bang
+    call filter(paths, 'v:val !~ "global.json"')
+  endif
   if empty(paths)
     echo '[vsnip] no valid snippets json files found'
     return
@@ -23,9 +26,32 @@ fun! vsnip#source#edit#snippet(name) abort
     return
   endif
 
-  let s:json_path = paths[0]
+  let s:json_path = s:get_path(paths)
+  if !filereadable(s:json_path)
+    redraw
+    echo '[vsnip] invalid path'
+    return
+  endif
+
   let s:snippets = json_decode(readfile(s:json_path))
   call s:temp_buffer(&filetype)
+endfun
+
+""
+" s:get_path
+""
+fun! s:get_path(paths) abort
+  if len(a:paths) > 1
+    let choices = map(copy(a:paths), { k, v -> printf('%s: %s', k + 1, v) })
+    let idx = inputlist(['Select snippet file: '] + choices)
+  else
+    let idx = 1
+  endif
+  if !idx
+    return v:null
+  else
+    return a:paths[idx - 1]
+  endif
 endfun
 
 ""
