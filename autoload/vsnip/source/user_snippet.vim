@@ -53,3 +53,23 @@ function! s:get_source_paths(bufnr) abort
   return l:paths
 endfunction
 
+"
+" vsnip#source#user_snippet#paths
+"
+fun! vsnip#source#user_snippet#paths(...) abort
+  return s:get_source_paths(a:0 ? a:1 : bufnr(''))
+endfun
+
+"
+" vsnip#source#user_snippet#complete
+"
+fun! vsnip#source#user_snippet#complete(A, L, P) abort
+  let paths = s:get_source_paths(bufnr(''))
+  let snippets = []
+  for p in paths
+    let json = json_decode(readfile(p))
+    let snippets = snippets + keys(json)
+  endfor
+  return filter(sort(snippets), 'v:val=~#a:A')
+endfun
+
