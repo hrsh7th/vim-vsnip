@@ -72,13 +72,12 @@ endfun
 " s:update_snipptes_file
 ""
 fun! s:update_snipptes_file() abort
-  %d _
+  silent %d _
   put =json_encode(s:snippets)
-  1d _
+  silent 1d _
   exe s:pretty_print
   setlocal noexpandtab tabstop=4 softtabstop=4 shiftwidth=4
   retab!
-  update
   call search('^\s*"' . s:name)
 endfun
 
@@ -86,17 +85,20 @@ endfun
 " s:save_new_snippet
 ""
 fun! s:save_new_snippet(lines) abort
+  redraw
   let snip = {'body': a:lines}
 
   let desc = input('Enter a description: ')
-  if desc !~ '^\p*$'
-    echo '[vsnip] invalid description'
-    let desc = 'invalid description'
+  if desc !~ '^\p\+$'
+    redraw
+    echo '[vsnip] using' s:name 'as description'
+    let desc = s:name
   endif
   let prefix = input('Enter a prefix (no spaces): ')
-  if prefix !~ '^\p*$'
-    echo '[vsnip] invalid prefix'
+  if prefix !~ '^\p\+$'
+    redraw
     let prefix = split(s:name)[0]
+    echo '[vsnip] using' prefix 'as prefix'
   else
     let prefix = split(prefix)[0]
   endif
