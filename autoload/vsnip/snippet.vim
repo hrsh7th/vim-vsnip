@@ -120,12 +120,12 @@ function! s:Snippet.follow(current_tabstop, diff) abort
       let l:should_update = v:false
       let l:should_update = l:should_update || empty(self.context)
       let l:should_update = l:should_update || a:context.node.type ==# 'placeholder'
-      let l:should_update = l:should_update || self.context.node.type ==# 'text' && self.diff.range[0] == self.diff.range[1]
+      let l:should_update = l:should_update || self.context.depth > a:context.depth
       if l:should_update
         let self.context = a:context
       endif
       " Stop traversing when acceptable node is current tabstop.
-      return self.context.node.type ==# 'placeholder' && self.context.node.id == self.current_tabstop
+      return self.context.node.type ==# 'placeholder' && self.context.node.id == self.current_tabstop && !self.context.node.follower
     endif
   endfunction
   call self.traverse(self, l:fn.traverse)
@@ -151,11 +151,11 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   endif
 
   " Convert to text node when edited node is follower node.
-  if len(l:context.parents) > 1
-    echomsg string(["map(copy(l:context.parents), 'v:val.type)')", l:context.node.type, map(copy(l:context.parents), 'v:val.type . get(v:val, "follower", v:false)')])
-    for l:i in range(1, len(l:context.parents) - 1)
-      let l:parent = l:context.parents[l:i - 1]
-      let l:node = l:context.parents[l:i]
+  let l:folding_targets = l:context.parents + [l:context.node]
+  if len(l:folding_targets) > 1
+    for l:i in range(1, len(l:folding_targets) - 1)
+      let l:parent = l:folding_targets[l:i - 1]
+      let l:node = l:folding_targets[l:i]
       if get(l:node, 'follower', v:false)
         let l:index = index(l:parent.children, l:node)
         call remove(l:parent.children, l:index)
