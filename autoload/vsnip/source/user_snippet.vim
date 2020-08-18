@@ -53,3 +53,17 @@ function! s:get_source_paths(bufnr) abort
   return l:paths
 endfunction
 
+"
+" vsnip#source#user_snippet#dirs
+"
+fun! vsnip#source#user_snippet#dirs(...) abort
+  return s:get_source_dirs(a:0 ? a:1 : bufnr(''))
+endfun
+
+"
+" vsnip#source#user_snippet#paths
+"
+fun! vsnip#source#user_snippet#paths(...) abort
+  return s:get_source_paths(a:0 ? a:1 : bufnr(''))
+endfun
+
