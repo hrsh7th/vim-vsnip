@@ -20,11 +20,21 @@ let g:vsnip_filetypes.vimspec = get(g:vsnip_filetypes, 'vimspec', ['vim'])
 "
 " command
 "
-command! -bang VsnipOpen call s:open_command(<bang>0, 'vsplit')
-command! -bang VsnipOpenEdit call s:open_command(<bang>0, 'edit')
-command! -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vsplit')
-command! -bang VsnipOpenSplit call s:open_command(<bang>0, 'split')
-function! s:open_command(bang, cmd)
+command! -bang -nargs=? -complete=file VsnipOpen call s:open_command(<bang>0, <q-args>, 'vsplit')
+command! -bang -nargs=? -complete=file VsnipOpenEdit call s:open_command(<bang>0, <q-args>, 'edit')
+command! -bang -nargs=? -complete=file VsnipOpenVsplit call s:open_command(<bang>0, <q-args>, 'vsplit')
+command! -bang -nargs=? -complete=file VsnipOpenSplit call s:open_command(<bang>0, <q-args>, 'split')
+
+function! s:open_command(bang, path, cmd)
+  if a:path != ''
+    if filereadable(a:path)
+      execute a:cmd a:path
+    else
+      echo '[vsnip] file does not exist'
+    endif
+    return
+  endif
+
   let l:candidates = vsnip#source#filetypes(bufnr('%'))
   if a:bang
     let l:idx = 1
