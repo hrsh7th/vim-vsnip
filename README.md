@@ -117,6 +117,59 @@ Snippet file will store to `g:vsnip_snippet_dir` per filetype.
 The snippet format was described in [here](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax) or [here](https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md).
 
 
+# Recipe
+
+### $TM_FILENAME_BASE
+
+You can insert the filename via `fname\<Plug>(vsnip-expand)`.
+
+```json
+{
+  "filename": {
+    "prefix": ["fname"],
+    "body": "$TM_FILENAME_BASE"
+  }
+}
+```
+
+### Log $TM_SELECTED_TEXT
+
+You can fill `$TM_SELECTED_TEXT` by `<Plug>(vsnip-select-text)` or `<Plug>(vsnip-cut-text)`.
+
+```json
+{
+  "log": {
+    "prefix": ["log"],
+    "body": "console.log(${1:$TM_SELECTED_TEXT});"
+  }
+}
+```
+
+### Insert environment vars
+
+You can insert value by Vim script expression.
+
+```json
+{
+  "user": {
+    "prefix": "username",
+    "body": "${VIM:\\$USER}"
+  }
+}
+```
+
+
+# DEMO
+
+### LSP integration
+
+<img src="https://user-images.githubusercontent.com/629908/90160819-3bd3ec80-ddcd-11ea-919b-577d7eb559a4.gif" width="480" alt="Nested snippet expansion" />
+
+### `<Plug(vsnip-cut-text)` with `$TM_SELECTED_TEXT`
+
+<img src="https://user-images.githubusercontent.com/629908/90157756-17761100-ddc9-11ea-843f-d8b0d529ac61.gif" width="480" alt="&lt;Plug&rt;(vsnip-cut-text) with $TM_SELECTED_TEXT" />
+
+
 # Development
 
 ### How to run test it?
@@ -129,14 +182,3 @@ You can run `npm run test` after install [vim-themis](https://github.com/thinca/
 1. compute the `user-diff` ... `s:Session.flush_changes`
 2. reflect the `user-diff` to snippet ast ... `s:Snippet.follow`
 3. reflect the `sync-diff` to buffer content ... `s:Snippet.sync & s:Session.flush_changes`
-
-
-# DEMO
-
-### LSP integration
-
-<img src="https://user-images.githubusercontent.com/629908/90160819-3bd3ec80-ddcd-11ea-919b-577d7eb559a4.gif" width="480" alt="Nested snippet expansion" />
-
-### `<Plug(vsnip-cut-text)` with `$TM_SELECTED_TEXT`
-
-<img src="https://user-images.githubusercontent.com/629908/90157756-17761100-ddc9-11ea-843f-d8b0d529ac61.gif" width="480" alt="&lt;Plug&rt;(vsnip-cut-text) with $TM_SELECTED_TEXT" />
