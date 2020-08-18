@@ -1,3 +1,5 @@
+let s:uid = 0
+
 function! vsnip#snippet#node#text#import() abort
   return s:Text
 endfunction
@@ -8,14 +10,14 @@ let s:Text = {}
 " new.
 "
 function! s:Text.new(ast) abort
-  let l:node = extend(deepcopy(s:Text), {
+  let s:uid += 1
+
+  return extend(deepcopy(s:Text), {
+  \   'uid': s:uid,
   \   'type': 'text',
   \   'value': a:ast.escaped,
+  \   'children': [],
   \ })
-
-  function! l:node.unique()
-  endfunction
-  return l:node
 endfunction
 
 "
