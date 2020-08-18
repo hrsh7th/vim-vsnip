@@ -20,34 +20,12 @@ let g:vsnip_filetypes.vimspec = get(g:vsnip_filetypes, 'vimspec', ['vim'])
 "
 " command
 "
-command! -bang VsnipOpen call s:open_command(<bang>0, 'vsplit')
-command! -bang VsnipOpenEdit call s:open_command(<bang>0, 'edit')
-command! -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vsplit')
-command! -bang VsnipOpenSplit call s:open_command(<bang>0, 'split')
+command! -bang VsnipOpen call s:open_command(<bang>0, 'vnew')
+command! -bang VsnipOpenEdit call s:open_command(<bang>0, 'enew')
+command! -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vnew')
+command! -bang VsnipOpenSplit call s:open_command(<bang>0, 'new')
 function! s:open_command(bang, cmd)
-  let l:candidates = vsnip#source#filetypes(bufnr('%'))
-  if a:bang
-    let l:idx = 1
-  else
-    let l:idx = inputlist(['Select type: '] + map(copy(l:candidates), { k, v -> printf('%s: %s', k + 1, v) }))
-    if l:idx == 0
-      return
-    endif
-  endif
-
-  if !isdirectory(g:vsnip_snippet_dir)
-    let l:prompt = printf('`%s` does not exists, create? y(es)/n(o): ', g:vsnip_snippet_dir)
-    if index(['y', 'ye', 'yes'], input(l:prompt)) >= 0
-      call mkdir(g:vsnip_snippet_dir, 'p')
-    else
-      return
-    endif
-  endif
-
-  execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.json',
-  \   g:vsnip_snippet_dir,
-  \   l:candidates[l:idx - 1]
-  \ )))
+  call vsnip#editor#open(a:bang, a:cmd)
 endfunction
 
 "
