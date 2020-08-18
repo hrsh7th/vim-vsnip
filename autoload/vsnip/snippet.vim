@@ -444,7 +444,7 @@ endfunction
 function! s:Snippet.traverse(node, callback) abort
   let l:state = {
   \   'offset': 0,
-  \   'before_text': '',
+  \   'before_text': self.before_text,
   \ }
   let l:context = {
   \   'depth': 0,
