@@ -397,26 +397,11 @@ endfunction
 " @return 0-based index for snippet text.
 "
 function! s:Snippet.position_to_offset(position) abort
-  let a:position.line -= self.position.line
-  if a:position.line == 0
-    let a:position.character -= self.position.character
-  endif
-  let l:lines = split(self.text(), "\n", v:true)
-
-  let l:offset = 0
-  let l:i = 0
-  while l:i <= min([a:position.line, len(l:lines) - 1])
-    if l:i != a:position.line
-      let l:offset += strchars(l:lines[l:i]) + 1
-    elseif l:i == a:position.line
-      if a:position.character > 0
-        let l:offset += strchars(strcharpart(l:lines[l:i], 0, a:position.character))
-      endif
-    endif
-
-    let l:i += 1
-  endwhile
-  return l:offset
+  let l:line = a:position.line - self.position.line
+  let l:char = a:position.character - (l:line == 0 ? self.position.character : 0)
+  let l:lines = split(self.text(), "\n", v:true)[0 : l:line]
+  let l:lines[-1] = strcharpart(l:lines[-1], 0, l:char)
+  return strchars(join(l:lines, "\n"))
 endfunction
 
 "
