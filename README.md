@@ -30,6 +30,7 @@ VSCode(LSP)'s snippet feature in vim.
 # Concept
 
 - Pure Vim script
+- Well tested
 - Support VSCode snippet format
 - Provide integration with many plugins
 
