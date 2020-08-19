@@ -169,7 +169,7 @@ function! s:pattern(pattern) abort
   function! l:fn.parse(text, pos) abort
     let l:text = strcharpart(a:text, a:pos)
     let l:matches = matchstrpos(l:text, self.pattern, 0, 1)
-    if l:matches[0] !=# ''
+    if l:matches[1] != -1
       return [v:true, l:matches[0], a:pos + l:matches[2]]
     endif
     return [v:false, v:null, a:pos]

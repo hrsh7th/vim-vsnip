@@ -420,27 +420,8 @@ function! s:Snippet.traverse(node, callback) abort
   call s:traverse(a:node, a:callback, l:state, l:context)
 endfunction
 function! s:traverse(node, callback, state, context) abort
-  let l:text = ''
-  let l:length = 0
-  if a:node.type !=# 'snippet'
-    let l:text = a:node.text()
-    let l:length = strchars(l:text)
-    if a:callback({
-    \   'node': a:node,
-    \   'text': l:text,
-    \   'length': l:length,
-    \   'parent': a:context.parent,
-    \   'parents': a:context.parents,
-    \   'depth': a:context.depth,
-    \   'offset': a:state.offset,
-    \   'before_text': a:state.before_text,
-    \   'range': [a:state.offset, a:state.offset + l:length],
-    \ })
-      return v:true
-    endif
-  endif
-
-  if len(a:node.children) > 0
+  let l:has_children = len(a:node.children) > 0
+  if l:has_children
     let l:next_context = {
       \   'parent': a:node,
       \   'parents': a:context.parents + [a:node],
@@ -451,9 +432,28 @@ function! s:traverse(node, callback, state, context) abort
         return v:true
       endif
     endfor
-  else
-    let a:state.before_text .= l:text
-    let a:state.offset += l:length
+  endif
+
+  if a:node.type !=# 'snippet'
+    let l:text = a:node.text()
+    let l:length = strchars(l:text)
+    if a:callback({
+    \   'node': a:node,
+    \   'text': l:text,
+    \   'length': l:length,
+    \   'parent': a:context.parent,
+    \   'parents': a:context.parents,
+    \   'depth': a:context.depth,
+    \   'offset': a:state.offset - l:length,
+    \   'before_text': a:state.before_text,
+    \   'range': [a:state.offset - l:length, a:state.offset],
+    \ })
+      return v:true
+    endif
+    if !l:has_children
+      let a:state.before_text .= l:text
+      let a:state.offset += l:length
+    endif
   endif
 endfunction
 
