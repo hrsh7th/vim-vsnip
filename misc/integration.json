@@ -70,7 +70,7 @@
     ]
   },
   "realworld1": {
-    "description": "realworld1",
+    "description": "Complex example",
     "prefix": ["realworld1"],
     "body": [
       "/** @class ${1:ClassName} */",
@@ -82,19 +82,33 @@
     ]
   },
   "realworld2": {
-    "description": "realworld2",
+    "description": "$VIM variable",
     "prefix": ["realworld2"],
     "body": [
       "${VIM:\\$USER}"
     ]
   },
   "realworld3": {
-    "description": "realworld3",
+    "description": "indented $TM_SELECTED_TEXT",
     "prefix": ["realworld3"],
     "body": [
       "<div>",
       "\t$TM_SELECTED_TEXT",
       "</div>"
+    ]
+  },
+  "realworld4": {
+    "description": "no indented $TM_SELECTED_TEXT",
+    "prefix": ["realworld4"],
+    "body": [
+      "<div>$TM_SELECTED_TEXT</div>"
+    ]
+  },
+  "realworld5": {
+    "description": "modify follower placeholder manually",
+    "prefix": ["realworld5"],
+    "body": [
+      "$1, ${2:_${3:___$1___}_}"
     ]
   },
   "issue82": {
