@@ -383,29 +383,10 @@ endfunction
 " @return position buffer position
 "
 function! s:Snippet.offset_to_position(offset) abort
-  let l:text = self.text()
-
-  let l:line = 0
-  let l:character = 0
-  let l:offset = 0
-
-  let l:i = 0
-  while l:offset < min([a:offset, strchars(l:text)])
-    let l:char = nr2char(strgetchar(l:text, l:i))
-    if l:char ==# "\n"
-      let l:line += 1
-      let l:character = -1
-    endif
-
-    let l:width = strchars(l:char)
-    let l:character += l:width
-    let l:offset += l:width
-    let l:i += 1
-  endwhile
-
+  let l:lines = split(strcharpart(self.text(), 0, a:offset), "\n", v:true)
   return {
-  \   'line': l:line + self.position.line,
-  \   'character': l:line == 0 ? (self.position.character + l:character) : l:character
+  \   'line': self.position.line + len(l:lines) - 1,
+  \   'character': strchars(l:lines[-1]) + (len(l:lines) == 1 ? self.position.character : 0),
   \ }
 endfunction
 
