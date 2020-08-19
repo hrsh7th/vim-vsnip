@@ -1,4 +1,4 @@
-let s:uid = 0
+let s:AbstractNode = vsnip#snippet#node#abstract_node#import()
 
 "
 " vsnip#snippet#node#variable#import
@@ -7,30 +7,22 @@ function! vsnip#snippet#node#variable#import() abort
   return s:Variable
 endfunction
 
-let s:Variable = {}
+let s:Variable = deepcopy(s:AbstractNode)
 
 "
 " new.
 "
 function! s:Variable.new(ast) abort
-  let s:uid += 1
-
   let l:resolver = vsnip#variable#get(a:ast.name)
-  return extend(deepcopy(s:Variable), {
-  \   'uid': s:uid,
+  let l:node = extend(deepcopy(s:Variable), {
+  \   '_id': vsnip#snippet#node#id(),
   \   'type': 'variable',
   \   'name': a:ast.name,
   \   'unknown': empty(l:resolver),
   \   'resolver': l:resolver,
-  \   'children': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
   \ })
-endfunction
-
-"
-" text.
-"
-function! s:Variable.text() abort
-  return join(map(copy(self.children), 'v:val.text()'), '')
+  call l:node.replace_all(vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])))
+  return l:node
 endfunction
 
 "

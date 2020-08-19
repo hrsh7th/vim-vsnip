@@ -206,5 +206,8 @@ let s:choice = s:map(s:seq(
 "
 " parser.
 "
-let s:parser = s:many(s:or(s:any, s:text(['$'], ['}'])))
+let s:parser = s:map(s:many(s:or(s:any, s:text(['$'], ['}']))), { value -> {
+\   'type': 'snippet',
+\   'children': value
+\ } })
 

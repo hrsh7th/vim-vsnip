@@ -38,7 +38,7 @@ function! s:Session.insert() abort
   \     'start': self.snippet.position,
   \     'end': self.snippet.position
   \   },
-  \   'newText': self.snippet.text()
+  \   'newText': self.snippet.root_node.text()
   \ }])
   call self.store(changenr())
 endfunction
@@ -74,7 +74,7 @@ function! s:Session.merge(session) abort
     endif
   endfor
 
-  call self.snippet.insert_node(deepcopy(a:session.snippet.position), a:session.snippet.children)
+  call self.snippet.insert_node(deepcopy(a:session.snippet.position), a:session.snippet.root_node.children)
 
   call s:TextEdit.apply(self.bufnr, self.snippet.sync())
 endfunction
@@ -223,6 +223,7 @@ function! s:Session.on_text_changed() abort
     let self.timer_id = timer_start(g:vsnip_sync_delay, { -> self.flush_changes() }, { 'repeat': 1 })
   endif
 endfunction
+
 
 "
 " flush_changes

@@ -2,7 +2,6 @@ let s:Session = vsnip#session#import()
 let s:TextEdit = vital#vsnip#import('VS.LSP.TextEdit')
 let s:Position = vital#vsnip#import('VS.LSP.Position')
 
-let s:node_id = 0
 let s:session = v:null
 let s:selected_text = ''
 
@@ -96,14 +95,6 @@ endfunction
 "
 function! vsnip#deactivate() abort
   let s:session = {}
-endfunction
-
-"
-" vsip#node_id
-"
-function! vsip#node_id() abort
-  let s:node_id += 1
-  return s:node_id
 endfunction
 
 "

@@ -7,10 +7,10 @@ endfunction
 let s:Snippet = deepcopy(s:AbstractNode)
 
 function! s:Snippet.new(ast) abort
-  return extend(deepcopy(s:Snippet), {
-  \   'uid': vsnip#node_id(),
+  let l:node = extend(deepcopy(s:Snippet), {
+  \   '_id': vsnip#snippet#node#id(),
   \   'type': 'snippet',
-  \   'children': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
   \ })
+  call l:node.replace_all(vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])))
+  return l:node
 endfunction
-

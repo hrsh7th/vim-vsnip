@@ -19,7 +19,7 @@ function! s:Snippet.new(position, text) abort
   \   'type': 'snippet',
   \   'position': a:position,
   \   'before_text': getline(l:pos[0])[0 : l:pos[1] - 2],
-  \   'children': vsnip#snippet#node#create_from_ast(
+  \   'root_node': vsnip#snippet#node#create_from_ast(
   \     vsnip#snippet#parser#parse(a:text)
   \   )
   \ })
@@ -73,21 +73,18 @@ function s:Snippet.init() abort
       else
         let l:text = a:context.node.resolve(a:context)
         let l:text = l:text is# v:null ? a:context.text : l:text
-        let l:index = index(a:context.parent.children, a:context.node)
-        call remove(a:context.parent.children, l:index)
-        call insert(a:context.parent.children, vsnip#snippet#node#create_text(l:text), l:index)
+        call a:context.parent.replace(a:context.node, vsnip#snippet#node#create_text(l:text))
       endif
     endif
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
 
   " Append ${MAX_TABSTOP} for the end of snippet.
   if !l:fn.has_final_tabstop
-    let self.children += [vsnip#snippet#node#create_from_ast({
+    call self.root_node.insert(vsnip#snippet#node#create_from_ast({
     \   'type': 'placeholder',
     \   'id': 0,
-    \   'choice': [],
-    \ })]
+    \ }), len(self.root_node.children))
   endif
 endfunction
 
@@ -128,7 +125,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
       return self.context.node.type ==# 'placeholder' && self.context.node.id == self.current_tabstop && !self.context.node.follower
     endif
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
 
   let l:context = l:fn.context
   if empty(l:context)
@@ -144,11 +141,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:new_text .= strcharpart(l:context.text, l:end, l:context.length - l:end)
 
   " Apply patched new text.
-  if l:context.node.type ==# 'text'
-    let l:context.node.value = l:new_text
-  else
-    let l:context.node.children = [vsnip#snippet#node#create_text(l:new_text)]
-  endif
+  call l:context.node.replace_all(vsnip#snippet#node#create_text(l:new_text))
 
   " Convert to text node when edited node is follower node.
   let l:folding_targets = l:context.parents + [l:context.node]
@@ -157,9 +150,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
       let l:parent = l:folding_targets[l:i - 1]
       let l:node = l:folding_targets[l:i]
       if get(l:node, 'follower', v:false)
-        let l:index = index(l:parent.children, l:node)
-        call remove(l:parent.children, l:index)
-        call insert(l:parent.children, vsnip#snippet#node#create_text(l:node.text()), l:index)
+        call l:parent.replace(l:node, vsnip#snippet#node#create_text(l:node.text()))
         break
       endif
     endfor
@@ -190,7 +181,7 @@ function! s:Snippet.sync() abort
       endif
     endif
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
 
   " Create text_edits.
   let l:text_edits = []
@@ -207,7 +198,7 @@ function! s:Snippet.sync() abort
 
   " Sync placeholder text after created text_edits (the reason is to avoid using a modified range).
   for l:text_edit in l:text_edits
-    let l:text_edit.node.children = [vsnip#snippet#node#create_text(l:text_edit.newText)]
+    call l:text_edit.node.replace_all(vsnip#snippet#node#create_text(l:text_edit.newText))
   endfor
 
   return l:text_edits
@@ -219,15 +210,8 @@ endfunction
 function! s:Snippet.range() abort
   return {
   \   'start': self.offset_to_position(0),
-  \   'end': self.offset_to_position(strchars(self.text()))
+  \   'end': self.offset_to_position(strchars(self.root_node.text()))
   \ }
-endfunction
-
-"
-" text.
-"
-function! s:Snippet.text() abort
-  return join(map(copy(self.children), 'v:val.text()'), '')
 endfunction
 
 "
@@ -241,7 +225,7 @@ function! s:Snippet.get_placeholder_nodes() abort
       call add(self.nodes, a:context.node)
     endif
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
 
   return sort(l:fn.nodes, { a, b -> a.id - b.id })
 endfunction
@@ -262,7 +246,7 @@ function! s:Snippet.get_next_jump_point(current_tabstop) abort
       let self.context = copy(a:context)
     endif
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
 
   let l:context = l:fn.context
   if empty(l:context)
@@ -293,7 +277,7 @@ function! s:Snippet.get_prev_jump_point(current_tabstop) abort
       let self.context = copy(a:context)
     endif
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
 
   let l:context = l:fn.context
   if empty(l:context)
@@ -321,12 +305,12 @@ function! s:Snippet.normalize() abort
     if !empty(self.prev_context)
       if self.prev_context.node.type ==# 'text' && a:context.node.type ==# 'text' && self.prev_context.parent is# a:context.parent
         let a:context.node.value = self.prev_context.node.value . a:context.node.value
-        call remove(self.prev_context.parent.children, index(self.prev_context.parent.children, self.prev_context.node))
+        call self.prev_context.parent.remove(self.prev_context.node)
       endif
     endif
     let self.prev_context = copy(a:context)
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
 endfunction
 
 "
@@ -347,7 +331,7 @@ function! s:Snippet.insert_node(position, nodes_to_insert) abort
       endif
     endif
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
 
   " This condition is unexpected normally
   let l:context = l:fn.context
@@ -370,7 +354,7 @@ function! s:Snippet.insert_node(position, nodes_to_insert) abort
 
   " Insert nodes.
   for l:node in l:nodes_to_insert
-    call insert(l:context.parent.children, l:node, l:index)
+    call l:context.parent.insert(l:node, l:index)
   endfor
 
   call self.normalize()
@@ -383,7 +367,7 @@ endfunction
 " @return position buffer position
 "
 function! s:Snippet.offset_to_position(offset) abort
-  let l:text = self.text()
+  let l:text = self.root_node.text()
 
   let l:line = 0
   let l:character = 0
@@ -420,7 +404,7 @@ function! s:Snippet.position_to_offset(position) abort
   if a:position.line == 0
     let a:position.character -= self.position.character
   endif
-  let l:lines = split(self.text(), "\n", v:true)
+  let l:lines = split(self.root_node.text(), "\n", v:true)
 
   let l:offset = 0
   let l:i = 0
@@ -441,7 +425,7 @@ endfunction
 "
 " traverse.
 "
-function! s:Snippet.traverse(node, callback) abort
+function! s:Snippet.traverse(callback) abort
   let l:state = {
   \   'offset': 0,
   \   'before_text': self.before_text,
@@ -451,7 +435,7 @@ function! s:Snippet.traverse(node, callback) abort
   \   'parent': v:null,
   \   'parents': [],
   \ }
-  call s:traverse(a:node, a:callback, l:state, l:context)
+  call s:traverse(self.root_node, a:callback, l:state, l:context)
 endfunction
 function! s:traverse(node, callback, state, context) abort
   let l:text = ''
@@ -496,7 +480,7 @@ endfunction
 "
 function! s:Snippet.debug() abort
   echomsg 'snippet.text()'
-  for l:line in split(self.text(), "\n", v:true)
+  for l:line in split(self.root_node.text(), "\n", v:true)
     echomsg string(l:line)
   endfor
   echomsg '-----'
@@ -505,6 +489,6 @@ function! s:Snippet.debug() abort
   function! l:fn.traverse(context) abort
     echomsg repeat('    ', a:context.depth - 1) . a:context.node.to_string()
   endfunction
-  call self.traverse(self, l:fn.traverse)
+  call self.traverse(l:fn.traverse)
   echomsg ' '
 endfunction
