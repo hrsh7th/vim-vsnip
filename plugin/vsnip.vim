@@ -17,6 +17,12 @@ let g:vsnip_filetypes.typescriptreact = get(g:vsnip_filetypes, 'typescriptreact'
 let g:vsnip_filetypes.javascriptreact = get(g:vsnip_filetypes, 'javascriptreact', ['javascript'])
 let g:vsnip_filetypes.vimspec = get(g:vsnip_filetypes, 'vimspec', ['vim'])
 
+augroup vsnip#silent
+  autocmd!
+  autocmd User vsnip#expand silent
+  autocmd User vsnip#jump silent
+augroup END
+
 "
 " command
 "

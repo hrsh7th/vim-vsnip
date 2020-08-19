@@ -77,6 +77,8 @@ function! vsnip#anonymous(text, ...) abort
     call s:session.merge(l:session)
   endif
 
+  doautocmd User vsnip#expand
+
   call s:session.refresh()
   call s:session.jump(1)
 endfunction

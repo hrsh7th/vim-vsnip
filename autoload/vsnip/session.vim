@@ -121,6 +121,8 @@ function! s:Session.jump(direction) abort
   else
     call self.move(l:jump_point)
   endif
+
+  doautocmd User vsnip#jump
 endfunction
 
 "
