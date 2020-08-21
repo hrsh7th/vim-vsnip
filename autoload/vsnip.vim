@@ -120,7 +120,7 @@ function! vsnip#get_context() abort
         endif
 
         " should match word boundarly when prefix is word
-        if l:prefix =~# '^\h' && l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m\>$'
+        if l:prefix =~# '^\h' && l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m$'
           continue
         endif
 
