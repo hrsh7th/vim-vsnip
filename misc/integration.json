@@ -132,5 +132,12 @@
     "body": [
       "$1"
     ]
+  },
+  "issue122": {
+    "description": "issue122",
+    "prefix": ["issue122>"],
+    "body": [
+      "$1"
+    ]
   }
 }

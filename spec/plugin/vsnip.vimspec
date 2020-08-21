@@ -493,6 +493,19 @@ Describe vsnip
       call feedkeys("a\<C-j>\<Esc>gg0i_\<Plug>(vsnip-assert)", 'x')
     End
 
+    It should work issue122
+      enew!
+      set filetype=integration
+      call setline(1, ['foo', 'issue122>'])
+      call cursor([2, 9])
+
+      let g:vsnip_assert = {}
+      function g:vsnip_assert.step1()
+        call s:expect(getbufline('%', '^', '$')).to_equal(['foo', ''])
+      endfunction
+      call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
+    End
+
   End
 
 End
