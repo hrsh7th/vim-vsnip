@@ -159,6 +159,23 @@ You can insert value by Vim script expression.
 }
 ```
 
+### Insert UUID via python
+
+You can insert UUID via python.
+
+```json
+{
+  "uuid": {
+    "prefix": "uuid",
+    "body": [
+      "${VIM:system('python -c \"import uuid, sys;sys.stdout.write(str(uuid.uuid4()))\"')}"
+    ]
+  }
+}
+```
+
+NOTE: `$VIM` is only in vsnip. So that makes to lost the snippet portability.
+
 
 # DEMO
 
