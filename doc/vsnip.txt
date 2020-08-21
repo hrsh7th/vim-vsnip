@@ -88,6 +88,10 @@ VARIABLE                                                      *vsnip-variable*
 <
     Specify delay time to sync same tabstop placeholder.
 
+    -1: No sync
+     0: Always sync
+     N: Debounce N milliseconds
+
 
 >
   let g:vsnip_choice_delay = 500

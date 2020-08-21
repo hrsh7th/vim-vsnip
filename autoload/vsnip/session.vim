@@ -195,6 +195,13 @@ function! s:Session.refresh() abort
 endfunction
 
 "
+" on_insert_leave.
+"
+function! s:Session.on_insert_leave() abort
+  call self.flush_changes()
+endfunction
+
+"
 " on_text_changed.
 "
 function! s:Session.on_text_changed() abort
@@ -219,7 +226,7 @@ function! s:Session.on_text_changed() abort
 
   if g:vsnip_sync_delay == 0
     call self.flush_changes()
-  else
+  elseif g:vsnip_sync_delay > 0
     call timer_stop(self.timer_id)
     let self.timer_id = timer_start(g:vsnip_sync_delay, { -> self.flush_changes() }, { 'repeat': 1 })
   endif
