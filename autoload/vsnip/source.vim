@@ -39,7 +39,9 @@ function! vsnip#source#create(path) abort
     endif
   catch /.*/
     let l:json = {}
-    echomsg printf('Parsing error occurred on: %s', a:path)
+    echohl ErrorMsg
+    echomsg printf('[vsnip] Parsing error occurred on: %s', a:path)
+    echohl None
     echomsg string({ 'exception': v:exception, 'throwpint': v:throwpoint })
   endtry
 
