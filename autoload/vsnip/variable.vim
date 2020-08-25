@@ -165,9 +165,8 @@ endfunction
 call vsnip#variable#register('LINE_COMMENT', function('s:LINE_COMMENT'))
 
 function! s:VIM(context) abort
-  let l:script = join(map(copy(a:context.node.children), 'v:val.text()'), '')
   try
-    return eval(l:script)
+    return eval(join(a:context.arguments, ''))
   catch /.*/
   endtry
   return v:null

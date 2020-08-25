@@ -19,6 +19,7 @@ function! s:Snippet.new(position, text) abort
   \   'type': 'snippet',
   \   'position': a:position,
   \   'before_text': getline(l:pos[0])[0 : l:pos[1] - 2],
+  \   'origin_map': {},
   \   'children': vsnip#snippet#node#create_from_ast(
   \     vsnip#snippet#parser#parse(a:text)
   \   )
@@ -36,16 +37,17 @@ endfunction
 function s:Snippet.init() abort
   let l:fn = {}
   let l:fn.self = self
-  let l:fn.group = {}
+  let l:fn.origin_map = {}
   let l:fn.variable_placeholder = {}
   let l:fn.has_final_tabstop = v:false
   function! l:fn.traverse(context) abort
     if a:context.node.type ==# 'placeholder'
-      " Mark as follower placeholder.
-      if !has_key(self.group, a:context.node.id)
-        let self.group[a:context.node.id] = a:context.node
+      " Mark placeholder as origin/derived.
+      let a:context.node.origin = !has_key(self.origin_map, a:context.node.id)
+      if a:context.node.origin
+        let self.origin_map[a:context.node.id] = a:context.node
       else
-        let a:context.node.follower = v:true
+        let a:context.node.children = [vsnip#snippet#node#create_text('')]
       endif
 
       " Mark as having final tabstop
@@ -62,32 +64,30 @@ function s:Snippet.init() abort
         if !has_key(self.variable_placeholder, a:context.node.name)
           let self.variable_placeholder[a:context.node.name] = s:max_tabstop - (len(self.variable_placeholder) + 1)
           let a:context.node.id = self.variable_placeholder[a:context.node.name]
-          let a:context.node.follower = v:false
+          let a:context.node.origin = v:true
           let a:context.node.children = empty(a:context.node.children) ? [vsnip#snippet#node#create_text(a:context.node.name)] : a:context.node.children
-          let self.group[a:context.node.id] =  a:context.node
+          let self.origin_map[a:context.node.id] =  a:context.node
         else
           let a:context.node.id = self.variable_placeholder[a:context.node.name]
-          let a:context.node.follower = v:true
-          let a:context.node.children = [vsnip#snippet#node#create_text(self.group[a:context.node.id].text())]
+          let a:context.node.origin = v:false
+        let a:context.node.children = [vsnip#snippet#node#create_text('')]
         endif
-      else
-        let l:text = a:context.node.resolve(a:context)
-        let l:text = l:text is# v:null ? a:context.text : l:text
-        let l:index = index(a:context.parent.children, a:context.node)
-        call remove(a:context.parent.children, l:index)
-        call insert(a:context.parent.children, vsnip#snippet#node#create_text(l:text), l:index)
       endif
     endif
   endfunction
   call self.traverse(self, l:fn.traverse)
 
+  " Store origin_map
+  let self.origin_map = l:fn.origin_map
+
   " Append ${MAX_TABSTOP} for the end of snippet.
   if !l:fn.has_final_tabstop
-    let self.children += [vsnip#snippet#node#create_from_ast({
+    let l:final_placeholder = vsnip#snippet#node#create_from_ast({
     \   'type': 'placeholder',
     \   'id': 0,
-    \   'choice': [],
-    \ })]
+    \ })
+    let self.children += [l:final_placeholder]
+    let self.origin_map[l:final_placeholder.id] = l:final_placeholder
   endif
 endfunction
 
@@ -125,7 +125,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
         let self.context = a:context
       endif
       " Stop traversing when acceptable node is current tabstop.
-      return self.context.node.type ==# 'placeholder' && self.context.node.id == self.current_tabstop && !self.context.node.follower
+      return self.context.node.type ==# 'placeholder' && self.context.node.id == self.current_tabstop && self.context.node.origin
     endif
   endfunction
   call self.traverse(self, l:fn.traverse)
@@ -150,13 +150,13 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     let l:context.node.children = [vsnip#snippet#node#create_text(l:new_text)]
   endif
 
-  " Convert to text node when edited node is follower node.
+  " Convert to text node when edited node is derived node.
   let l:folding_targets = l:context.parents + [l:context.node]
   if len(l:folding_targets) > 1
     for l:i in range(1, len(l:folding_targets) - 1)
       let l:parent = l:folding_targets[l:i - 1]
       let l:node = l:folding_targets[l:i]
-      if get(l:node, 'follower', v:false)
+      if !get(l:node, 'origin', v:true) || l:node.type ==# 'variable'
         let l:index = index(l:parent.children, l:node)
         call remove(l:parent.children, l:index)
         call insert(l:parent.children, vsnip#snippet#node#create_text(l:node.text()), l:index)
@@ -173,21 +173,13 @@ endfunction
 "
 function! s:Snippet.sync() abort
   let l:fn = {}
-  let l:fn.new_texts = {}
   let l:fn.targets = []
   function! l:fn.traverse(context) abort
-    if a:context.node.type ==# 'placeholder'
-      if !has_key(self.new_texts, a:context.node.id)
-        let self.new_texts[a:context.node.id] = a:context.text
-      else
-        if self.new_texts[a:context.node.id] !=# a:context.text
-          call add(self.targets, {
-          \   'range': a:context.range,
-          \   'node': a:context.node,
-          \   'new_text': self.new_texts[a:context.node.id],
-          \ })
-        endif
-      endif
+    let l:is_target = v:false
+    let l:is_target = l:is_target || (a:context.node.type ==# 'placeholder' && !a:context.node.origin)
+    let l:is_target = l:is_target || (a:context.node.type ==# 'variable')
+    if l:is_target
+      call add(self.targets, a:context)
     endif
   endfunction
   call self.traverse(self, l:fn.traverse)
@@ -195,19 +187,22 @@ function! s:Snippet.sync() abort
   " Create text_edits.
   let l:text_edits = []
   for l:target in l:fn.targets
-    call add(l:text_edits, {
-    \   'node': l:target.node,
-    \   'range': {
-    \     'start': self.offset_to_position(l:target.range[0]),
-    \     'end': self.offset_to_position(l:target.range[1]),
-    \   },
-    \   'newText': l:target.new_text
-    \ })
+    let l:resolved = l:target.node.evaluate(self.origin_map)
+    if l:resolved isnot# v:null && l:target.node.text() !=# l:resolved
+      call add(l:text_edits, {
+      \   'node': l:target.node,
+      \   'range': {
+      \     'start': self.offset_to_position(l:target.range[0]),
+      \     'end': self.offset_to_position(l:target.range[1]),
+      \   },
+      \   'newText': l:resolved,
+      \ })
+    endif
   endfor
 
   " Sync placeholder text after created text_edits (the reason is to avoid using a modified range).
   for l:text_edit in l:text_edits
-    let l:text_edit.node.children = [vsnip#snippet#node#create_text(l:text_edit.newText)]
+    call l:text_edit.node.resolve(l:text_edit.newText)
   endfor
 
   return l:text_edits

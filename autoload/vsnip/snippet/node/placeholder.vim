@@ -18,7 +18,7 @@ function! s:Placeholder.new(ast) abort
   \   'type': 'placeholder',
   \   'id': a:ast.id,
   \   'is_final': a:ast.id == 0,
-  \   'follower': v:false,
+  \   'origin': v:false,
   \   'choice': get(a:ast, 'choice', []),
   \   'children': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
   \ })
@@ -35,6 +35,26 @@ function! s:Placeholder.new(ast) abort
 endfunction
 
 "
+" evaluate
+"
+function! s:Placeholder.evaluate(origin_map) abort
+  if self.origin
+    return self.text()
+  endif
+  return a:origin_map[self.id].text()
+endfunction
+
+"
+" resolved
+"
+function! s:Placeholder.resolve(resolved) abort
+  if self.origin
+    return
+  endif
+  let self.children = [vsnip#snippet#node#create_text(a:resolved)]
+endfunction
+
+"
 " text.
 "
 function! s:Placeholder.text() abort
@@ -45,10 +65,11 @@ endfunction
 " to_string
 "
 function! s:Placeholder.to_string() abort
-  return printf('%s(id=%s, follower=%s, choise=%s)',
+  return printf('%s(id=%s, origin=%s, choise=%s)',
   \   self.type,
   \   self.id,
-  \   self.follower ? 'true' : 'false',
+  \   self.origin ? 'true' : 'false',
   \   self.choice
   \ )
 endfunction
+
