@@ -24,7 +24,7 @@ endfunction
 " @see https://code.visualstudio.com/docs/editor/userdefinedsnippets#_variables
 "
 
-function! s:TM_SELECTED_TEXT(context) abort
+function! s:TM_SELECTED_TEXT(context, arguments) abort
   let l:selected_text = vsnip#selected_text()
   if empty(l:selected_text)
     return v:null
@@ -33,47 +33,47 @@ function! s:TM_SELECTED_TEXT(context) abort
 endfunction
 call vsnip#variable#register('TM_SELECTED_TEXT', function('s:TM_SELECTED_TEXT'))
 
-function! s:TM_CURRENT_LINE(context) abort
+function! s:TM_CURRENT_LINE(context, arguments) abort
   return getline('.')
 endfunction
 call vsnip#variable#register('TM_CURRENT_LINE', function('s:TM_CURRENT_LINE'))
 
-function! s:TM_CURRENT_WORD(context) abort
+function! s:TM_CURRENT_WORD(context, arguments) abort
   return v:null
 endfunction
 call vsnip#variable#register('TM_CURRENT_WORD', function('s:TM_CURRENT_WORD'))
 
-function! s:TM_LINE_INDEX(context) abort
+function! s:TM_LINE_INDEX(context, arguments) abort
   return line('.') - 1
 endfunction
 call vsnip#variable#register('TM_LINE_INDEX', function('s:TM_LINE_INDEX'))
 
-function! s:TM_LINE_NUMBER(context) abort
+function! s:TM_LINE_NUMBER(context, arguments) abort
   return line('.')
 endfunction
 call vsnip#variable#register('TM_LINE_NUMBER', function('s:TM_LINE_NUMBER'))
 
-function! s:TM_FILENAME(context) abort
+function! s:TM_FILENAME(context, arguments) abort
   return expand('%:p:t')
 endfunction
 call vsnip#variable#register('TM_FILENAME', function('s:TM_FILENAME'))
 
-function! s:TM_FILENAME_BASE(context) abort
+function! s:TM_FILENAME_BASE(context, arguments) abort
   return substitute(expand('%:p:t'), '^\@<!\..*$', '', '')
 endfunction
 call vsnip#variable#register('TM_FILENAME_BASE', function('s:TM_FILENAME_BASE'))
 
-function! s:TM_DIRECTORY(context) abort
+function! s:TM_DIRECTORY(context, arguments) abort
   return expand('%:p:h:t')
 endfunction
 call vsnip#variable#register('TM_DIRECTORY', function('s:TM_DIRECTORY'))
 
-function! s:TM_FILEPATH(context) abort
+function! s:TM_FILEPATH(context, arguments) abort
   return expand('%:p')
 endfunction
 call vsnip#variable#register('TM_FILEPATH', function('s:TM_FILEPATH'))
 
-function! s:CLIPBOARD(context) abort
+function! s:CLIPBOARD(context, arguments) abort
   let l:clipboard = getreg(v:register)
   if empty(l:clipboard)
     return v:null
@@ -82,94 +82,95 @@ function! s:CLIPBOARD(context) abort
 endfunction
 call vsnip#variable#register('CLIPBOARD', function('s:CLIPBOARD'))
 
-function! s:WORKSPACE_NAME(context) abort
+function! s:WORKSPACE_NAME(context, arguments) abort
   return v:null
 endfunction
 call vsnip#variable#register('WORKSPACE_NAME', function('s:WORKSPACE_NAME'))
 
-function! s:CURRENT_YEAR(context) abort
+function! s:CURRENT_YEAR(context, arguments) abort
   return strftime('%Y')
 endfunction
 call vsnip#variable#register('CURRENT_YEAR', function('s:CURRENT_YEAR'))
 
-function! s:CURRENT_YEAR_SHORT(context) abort
+function! s:CURRENT_YEAR_SHORT(context, arguments) abort
   return strftime('%y')
 endfunction
 call vsnip#variable#register('CURRENT_YEAR_SHORT', function('s:CURRENT_YEAR_SHORT'))
 
-function! s:CURRENT_MONTH(context) abort
+function! s:CURRENT_MONTH(context, arguments) abort
   return strftime('%m')
 endfunction
 call vsnip#variable#register('CURRENT_MONTH', function('s:CURRENT_MONTH'))
 
-function! s:CURRENT_MONTH_NAME(context) abort
+function! s:CURRENT_MONTH_NAME(context, arguments) abort
   return strftime('%B')
 endfunction
 call vsnip#variable#register('CURRENT_MONTH_NAME', function('s:CURRENT_MONTH_NAME'))
 
-function! s:CURRENT_MONTH_NAME_SHORT(context) abort
+function! s:CURRENT_MONTH_NAME_SHORT(context, arguments) abort
   return strftime('%b')
 endfunction
 call vsnip#variable#register('CURRENT_MONTH_NAME_SHORT', function('s:CURRENT_MONTH_NAME_SHORT'))
 
-function! s:CURRENT_DATE(context) abort
+function! s:CURRENT_DATE(context, arguments) abort
   return strftime('%d')
 endfunction
 call vsnip#variable#register('CURRENT_DATE', function('s:CURRENT_DATE'))
 
-function! s:CURRENT_DAY_NAME(context) abort
+function! s:CURRENT_DAY_NAME(context, arguments) abort
   return strftime('%A')
 endfunction
 call vsnip#variable#register('CURRENT_DAY_NAME', function('s:CURRENT_DAY_NAME'))
 
-function! s:CURRENT_DAY_NAME_SHORT(context) abort
+function! s:CURRENT_DAY_NAME_SHORT(context, arguments) abort
   return strftime('%a')
 endfunction
 call vsnip#variable#register('CURRENT_DAY_NAME_SHORT', function('s:CURRENT_DAY_NAME_SHORT'))
 
-function! s:CURRENT_HOUR(context) abort
+function! s:CURRENT_HOUR(context, arguments) abort
   return strftime('%H')
 endfunction
 call vsnip#variable#register('CURRENT_HOUR', function('s:CURRENT_HOUR'))
 
-function! s:CURRENT_MINUTE(context) abort
+function! s:CURRENT_MINUTE(context, arguments) abort
   return strftime('%M')
 endfunction
 call vsnip#variable#register('CURRENT_MINUTE', function('s:CURRENT_MINUTE'))
 
-function! s:CURRENT_SECOND(context) abort
+function! s:CURRENT_SECOND(context, arguments) abort
   return strftime('%S')
 endfunction
 call vsnip#variable#register('CURRENT_SECOND', function('s:CURRENT_SECOND'))
 
-function! s:CURRENT_SECONDS_UNIX(context) abort
+function! s:CURRENT_SECONDS_UNIX(context, arguments) abort
   return localtime()
 endfunction
 call vsnip#variable#register('CURRENT_SECONDS_UNIX', function('s:CURRENT_SECONDS_UNIX'))
 
-function! s:BLOCK_COMMENT_START(context) abort
+function! s:BLOCK_COMMENT_START(context, arguments) abort
   return split(&commentstring, '%s')[0]
 endfunction
 call vsnip#variable#register('BLOCK_COMMENT_START', function('s:BLOCK_COMMENT_START'))
 
-function! s:BLOCK_COMMENT_END(context) abort
+function! s:BLOCK_COMMENT_END(context, arguments) abort
   let l:chars = split(&commentstring, '%s')
   return len(l:chars) > 1 ? l:chars[1] : l:chars[0]
 endfunction
 call vsnip#variable#register('BLOCK_COMMENT_END', function('s:BLOCK_COMMENT_END'))
 
-function! s:LINE_COMMENT(context) abort
+function! s:LINE_COMMENT(context, arguments) abort
   let l:chars = split(&commentstring, '%s')
   return &commentstring =~ '^/\*' ? '//' : substitute(&commentstring, '%s', '', 'g')
 endfunction
 call vsnip#variable#register('LINE_COMMENT', function('s:LINE_COMMENT'))
 
-function! s:VIM(context) abort
+function! s:VIM(context, arguments) abort
   try
-    return eval(join(a:context.arguments, ''))
+    return eval(join(a:arguments, ''))
   catch /.*/
   endtry
   return v:null
 endfunction
 call vsnip#variable#register('VIM', function('s:VIM'))
+call vsnip#variable#register('VIM_ONCE', function('s:VIM'), { 'once': v:true })
 

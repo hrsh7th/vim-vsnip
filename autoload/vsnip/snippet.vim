@@ -19,7 +19,7 @@ function! s:Snippet.new(position, text) abort
   \   'type': 'snippet',
   \   'position': a:position,
   \   'before_text': getline(l:pos[0])[0 : l:pos[1] - 2],
-  \   'origin_map': {},
+  \   'origin_table': {},
   \   'children': vsnip#snippet#node#create_from_ast(
   \     vsnip#snippet#parser#parse(a:text)
   \   )
@@ -37,15 +37,15 @@ endfunction
 function s:Snippet.init() abort
   let l:fn = {}
   let l:fn.self = self
-  let l:fn.origin_map = {}
+  let l:fn.origin_table = {}
   let l:fn.variable_placeholder = {}
   let l:fn.has_final_tabstop = v:false
   function! l:fn.traverse(context) abort
     if a:context.node.type ==# 'placeholder'
       " Mark placeholder as origin/derived.
-      let a:context.node.origin = !has_key(self.origin_map, a:context.node.id)
+      let a:context.node.origin = !has_key(self.origin_table, a:context.node.id)
       if a:context.node.origin
-        let self.origin_map[a:context.node.id] = a:context.node
+        let self.origin_table[a:context.node.id] = a:context.node
       else
         let a:context.node.children = [vsnip#snippet#node#create_text('')]
       endif
@@ -66,7 +66,7 @@ function s:Snippet.init() abort
           let a:context.node.id = self.variable_placeholder[a:context.node.name]
           let a:context.node.origin = v:true
           let a:context.node.children = empty(a:context.node.children) ? [vsnip#snippet#node#create_text(a:context.node.name)] : a:context.node.children
-          let self.origin_map[a:context.node.id] =  a:context.node
+          let self.origin_table[a:context.node.id] =  a:context.node
         else
           let a:context.node.id = self.variable_placeholder[a:context.node.name]
           let a:context.node.origin = v:false
@@ -77,8 +77,8 @@ function s:Snippet.init() abort
   endfunction
   call self.traverse(self, l:fn.traverse)
 
-  " Store origin_map
-  let self.origin_map = l:fn.origin_map
+  " Store origin_table
+  let self.origin_table = l:fn.origin_table
 
   " Append ${MAX_TABSTOP} for the end of snippet.
   if !l:fn.has_final_tabstop
@@ -87,7 +87,7 @@ function s:Snippet.init() abort
     \   'id': 0,
     \ })
     let self.children += [l:final_placeholder]
-    let self.origin_map[l:final_placeholder.id] = l:final_placeholder
+    let self.origin_table[l:final_placeholder.id] = l:final_placeholder
   endif
 endfunction
 
@@ -173,27 +173,27 @@ endfunction
 "
 function! s:Snippet.sync() abort
   let l:fn = {}
-  let l:fn.targets = []
+  let l:fn.contexts = []
   function! l:fn.traverse(context) abort
     let l:is_target = v:false
     let l:is_target = l:is_target || (a:context.node.type ==# 'placeholder' && !a:context.node.origin)
     let l:is_target = l:is_target || (a:context.node.type ==# 'variable')
     if l:is_target
-      call add(self.targets, a:context)
+      call add(self.contexts, a:context)
     endif
   endfunction
   call self.traverse(self, l:fn.traverse)
 
   " Create text_edits.
   let l:text_edits = []
-  for l:target in l:fn.targets
-    let l:resolved = l:target.node.evaluate(self.origin_map)
-    if l:resolved isnot# v:null && l:target.node.text() !=# l:resolved
+  for l:context in l:fn.contexts
+    let l:resolved = l:context.node.evaluate(l:context)
+    if l:resolved isnot# v:null && l:context.node.text() !=# l:resolved
       call add(l:text_edits, {
-      \   'node': l:target.node,
+      \   'node': l:context.node,
       \   'range': {
-      \     'start': self.offset_to_position(l:target.range[0]),
-      \     'end': self.offset_to_position(l:target.range[1]),
+      \     'start': self.offset_to_position(l:context.range[0]),
+      \     'end': self.offset_to_position(l:context.range[1]),
       \   },
       \   'newText': l:resolved,
       \ })
@@ -369,6 +369,7 @@ function! s:Snippet.insert_node(position, nodes_to_insert) abort
   endfor
 
   call self.normalize()
+  call self.init()
 endfunction
 
 "
@@ -406,6 +407,7 @@ function! s:Snippet.traverse(node, callback) abort
   let l:state = {
   \   'offset': 0,
   \   'before_text': self.before_text,
+  \   'origin_table': self.origin_table,
   \ }
   let l:context = {
   \   'depth': 0,
@@ -429,6 +431,7 @@ function! s:traverse(node, callback, state, context) abort
     \   'depth': a:context.depth,
     \   'offset': a:state.offset,
     \   'before_text': a:state.before_text,
+    \   'origin_table': a:state.origin_table,
     \   'range': [a:state.offset, a:state.offset + l:length],
     \ })
       return v:true

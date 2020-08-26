@@ -37,11 +37,11 @@ endfunction
 "
 " evaluate
 "
-function! s:Placeholder.evaluate(origin_map) abort
+function! s:Placeholder.evaluate(context) abort
   if self.origin
     return self.text()
   endif
-  return a:origin_map[self.id].text()
+  return a:context.origin_table[self.id].text()
 endfunction
 
 "
