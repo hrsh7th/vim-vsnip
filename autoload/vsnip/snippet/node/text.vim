@@ -21,6 +21,20 @@ function! s:Text.new(ast) abort
 endfunction
 
 "
+" evaluate
+"
+function! s:Text.evaluate(context) abort
+  return self.value
+endfunction
+
+"
+" resolved
+"
+function! s:Text.resolve(resolved) abort
+  let self.value = a:resolved
+endfunction
+
+"
 " text.
 "
 function! s:Text.text() abort

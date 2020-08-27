@@ -15,16 +15,15 @@ let s:Variable = {}
 function! s:Variable.new(ast) abort
   let s:uid += 1
 
-  let l:resolver = vsnip#variable#get(a:ast.name)
   return extend(deepcopy(s:Variable), {
   \   'uid': s:uid,
   \   'type': 'variable',
   \   'name': a:ast.name,
-  \   'unknown': empty(l:resolver),
+  \   'unknown': !vsnip#variable#has(a:ast.name),
+  \   'resolver': vsnip#variable#get(a:ast.name),
   \   'resolved': v:null,
-  \   'resolver': l:resolver,
-  \   'children': [],
   \   'arguments': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
+  \   'children': [],
   \ })
 endfunction
 
@@ -34,17 +33,17 @@ endfunction
 function! s:Variable.evaluate(context) abort
   let l:resolved = self.resolved
 
-  if !(self.resolver.once && self.resolved isnot# v:null)
-    let l:arguments = []
-    for l:argument in self.arguments
-      if index(['placeholder', 'variable'], l:argument.type) >= 0
-        call add(l:arguments, l:argument.evaluate(a:context))
-      else
-        call add(l:arguments, l:argument.text())
-      endif
-    endfor
+  if (self.unknown || self.resolver.once) && self.resolved isnot# v:null
+    return self.resolved
+  endif
+
+  if self.unknown
+    let l:resolved = len(self.arguments) > 0 ? join(map(copy(self.arguments), 'v:val.text()'), '') : self.name
+  else
+    let l:arguments = map(copy(self.arguments), 'v:val.evaluate(a:context)')
     let l:resolved = self.resolver.func(a:context, l:arguments)
-    let l:resolved = l:resolved isnot# v:null ? l:resolved : join(l:arguments, '')
+    let l:resolved = l:resolved isnot# v:null ? l:resolved : self.resolved
+    let l:resolved = l:resolved isnot# v:null ? l:resolved : join(map(copy(self.arguments), 'v:val.text()'), '')
   endif
 
   if l:resolved isnot# v:null
@@ -65,9 +64,6 @@ endfunction
 " text.
 "
 function! s:Variable.text() abort
-  if self.unknown
-    return len(self.arguments) > 0 ? join(map(copy(self.arguments), 'v:val.text()'), '') : self.name
-  endif
   return self.resolved isnot# v:null ? self.resolved : ''
 endfunction
 

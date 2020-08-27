@@ -36,7 +36,7 @@ let s:colon = s:token(':')
 let s:slash = s:token('/')
 let s:comma = s:token(',')
 let s:pipe = s:token('|')
-let s:varname = s:pattern('[_[:alpha:]]\w*')
+let s:varname = s:pattern('\h\w*')
 let s:int = s:map(s:pattern('\d\+'), { value -> str2nr(value[0]) })
 let s:text = { stop, escape -> s:map(
 \   s:skip(stop, escape),

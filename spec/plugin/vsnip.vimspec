@@ -388,7 +388,7 @@ Describe vsnip
       call feedkeys("1GV3G\<Plug>(vsnip-cut-text)realworld4\<C-j>", 'x')
     End
 
-    It should work (modify follower placeholder manually)
+    It should work (modify derived placeholder manually)
       enew!
       set filetype=integration
       call setline(1, 'realworld5')
@@ -413,7 +413,7 @@ Describe vsnip
         \ ])
       endfunction
 
-      " edit $1's follower
+      " edit $1's derived node
       let l:sequence .= "\<Esc>1G16|dt_ibaz\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step3()
         call s:expect(getbufline('%', '^', '$')).to_equal([

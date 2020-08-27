@@ -58,19 +58,34 @@ function s:Snippet.init() abort
       " TODO refactor
       " variable placeholder
       if a:context.node.unknown
-        let a:context.node.type = 'placeholder'
-        let a:context.node.choice = []
-
         if !has_key(self.variable_placeholder, a:context.node.name)
           let self.variable_placeholder[a:context.node.name] = s:max_tabstop - (len(self.variable_placeholder) + 1)
-          let a:context.node.id = self.variable_placeholder[a:context.node.name]
-          let a:context.node.origin = v:true
-          let a:context.node.children = empty(a:context.node.children) ? [vsnip#snippet#node#create_text(a:context.node.name)] : a:context.node.children
-          let self.origin_table[a:context.node.id] =  a:context.node
+          let l:node = vsnip#snippet#node#create_from_ast({
+          \   'type': 'placeholder',
+          \   'id': self.variable_placeholder[a:context.node.name],
+          \   'children': [{
+          \     'type': 'text',
+          \     'escaped': a:context.node.evaluate(a:context),
+          \   }],
+          \ })
+          let l:node.origin = v:true
+          let self.origin_table[l:node.id] = l:node
         else
-          let a:context.node.id = self.variable_placeholder[a:context.node.name]
-          let a:context.node.origin = v:false
-        let a:context.node.children = [vsnip#snippet#node#create_text('')]
+          let l:node = vsnip#snippet#node#create_from_ast({
+          \   'type': 'placeholder',
+          \   'id': self.variable_placeholder[a:context.node.name],
+          \   'children': [{
+          \     'type': 'text',
+          \     'escaped': a:context.node.evaluate(a:context),
+          \   }],
+          \ })
+          let l:node.origin = v:false
+        endif
+
+        let l:index = index(a:context.parent.children, a:context.node)
+        if l:index >= 0
+          call remove(a:context.parent.children, l:index)
+          call insert(a:context.parent.children, l:node, l:index)
         endif
       endif
     endif

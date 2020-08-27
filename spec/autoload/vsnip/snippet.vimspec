@@ -10,10 +10,10 @@ Describe vsnip#snippet
 
   Describe #init
 
-    It should mark follower placeholders
+    It should mark derived placeholders
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1:default}, $1, $1)')
-      call s:expect(l:snippet.children[3].follower).to_equal(v:true)
-      call s:expect(l:snippet.children[5].follower).to_equal(v:true)
+      call s:expect(l:snippet.children[3].origin).to_equal(v:false)
+      call s:expect(l:snippet.children[5].origin).to_equal(v:false)
     End
 
     It should add final tabstop
@@ -24,7 +24,7 @@ Describe vsnip#snippet
     It should convert variable to placeholder
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(${variable:default}, $variable)')
       call s:expect(l:snippet.text()).to_equal('console.log(default, default)')
-      call s:expect(l:snippet.children[3].follower).to_equal(v:true)
+      call s:expect(l:snippet.children[3].origin).to_equal(v:false)
     End
 
     It should resolve known variables
@@ -184,13 +184,13 @@ Describe vsnip#snippet
       call s:expect(l:snippet.text()).to_equal('THIS_IS_SELECTED_TEXT')
     End
 
-    It should return text2
+    It should return text3
       call vsnip#selected_text('THIS_IS_SELECTED_TEXT')
       let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT}')
       call s:expect(l:snippet.text()).to_equal('THIS_IS_SELECTED_TEXT')
     End
 
-    It should return text3
+    It should return text4
       call vsnip#selected_text('')
       let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT:default}')
       call s:expect(l:snippet.text()).to_equal('default')

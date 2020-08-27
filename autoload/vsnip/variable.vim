@@ -12,6 +12,13 @@ function! vsnip#variable#register(name, func, ...) abort
 endfunction
 
 "
+" vsnip#variable#has
+"
+function! vsnip#variable#has(name) abort
+  return !empty(get(s:variables, a:name, v:null))
+endfunction
+
+"
 " vsnip#variable#get
 "
 function! vsnip#variable#get(name) abort
@@ -166,11 +173,20 @@ call vsnip#variable#register('LINE_COMMENT', function('s:LINE_COMMENT'))
 
 function! s:VIM(context, arguments) abort
   try
-    return eval(join(a:arguments, ''))
+    let l:output = eval(join(a:arguments, ''))
+    if type(l:output) ==# type('')
+      return l:output
+    endif
+    return string(l:output)
   catch /.*/
   endtry
   return v:null
 endfunction
 call vsnip#variable#register('VIM', function('s:VIM'))
 call vsnip#variable#register('VIM_ONCE', function('s:VIM'), { 'once': v:true })
+
+function! s:ID(context, arguments) abort
+  return join(a:arguments, '')
+endfunction
+call vsnip#variable#register('ID', function('s:ID'))
 
