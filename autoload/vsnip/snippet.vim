@@ -188,36 +188,36 @@ endfunction
 "
 function! s:Snippet.sync() abort
   let l:fn = {}
-  let l:fn.contexts = []
+  let l:fn.self = self
+  let l:fn.placeholders = []
+  let l:fn.variables = []
   function! l:fn.traverse(context) abort
-    let l:is_target = v:false
-    let l:is_target = l:is_target || (a:context.node.type ==# 'placeholder' && !a:context.node.origin)
-    let l:is_target = l:is_target || (a:context.node.type ==# 'variable')
-    if l:is_target
-      call add(self.contexts, a:context)
+    if a:context.node.type ==# 'placeholder' && !a:context.node.origin || a:context.node.type ==# 'variable'
+      let a:context.range = {
+      \     'start': self.self.offset_to_position(a:context.range[0]),
+      \     'end': self.self.offset_to_position(a:context.range[1]),
+      \ }
+      if a:context.node.type ==# 'placeholder'
+        call add(self.placeholders, a:context)
+      elseif a:context.node.type ==# 'variable'
+        call add(self.variables, a:context)
+      endif
     endif
   endfunction
   call self.traverse(self, l:fn.traverse)
 
-  " Create text_edits.
   let l:text_edits = []
-  for l:context in l:fn.contexts
+  for l:context in l:fn.variables + l:fn.placeholders
     let l:resolved = l:context.node.evaluate(l:context)
     if l:resolved isnot# v:null && l:context.node.text() !=# l:resolved
-      call add(l:text_edits, {
+      let l:text_edit = {
       \   'node': l:context.node,
-      \   'range': {
-      \     'start': self.offset_to_position(l:context.range[0]),
-      \     'end': self.offset_to_position(l:context.range[1]),
-      \   },
+      \   'range': l:context.range,
       \   'newText': l:resolved,
-      \ })
+      \ }
+      call l:context.node.resolve(l:text_edit.newText)
+      call add(l:text_edits, l:text_edit)
     endif
-  endfor
-
-  " Sync placeholder text after created text_edits (the reason is to avoid using a modified range).
-  for l:text_edit in l:text_edits
-    call l:text_edit.node.resolve(l:text_edit.newText)
   endfor
 
   return l:text_edits
