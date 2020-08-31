@@ -60,7 +60,7 @@ endfunction
 " extra mapping
 "
 if g:vsnip_extra_mapping
-  snoremap <BS> <BS>i
+  snoremap <expr> <bs> "\<BS>" . (getcurpos()[2] == col('$') - 1 ? 'a' : 'i')
 endif
 
 "
