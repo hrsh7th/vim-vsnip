@@ -40,10 +40,6 @@ function! s:assert() abort
     unlet! g:vsnip_assert[l:key]
   endif
 
-  if len(keys(g:vsnip_assert)) == 0
-    call vsnip#deactivate()
-  endif
-
   return ''
 endfunction
 
