@@ -95,6 +95,24 @@ Describe vsnip#snippet
       call s:expect(l:snippet.get_next_jump_point(1).placeholder.text()).to_equal('d___ult')
     End
 
+    It should follow when diff range included only text-node
+      let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
+      call l:snippet.follow(1, {
+      \   'range': {
+      \     'start': {
+      \       'line': 1,
+      \       'character': 1
+      \     },
+      \     'end': {
+      \       'line': 1,
+      \       'character': 6
+      \     }
+      \   },
+      \   'text': 'modified'
+      \ })
+      call s:expect(l:snippet.text()).to_equal("modified  {\n\tpublic default() {\n\t\t\n\t}\n}")
+    End
+
     It should prefer placeholder node than text node when both followable (left)
       let l:snippet = s:Snippet.new(s:start_position, '[${1:text1}][${2:text2}][${3:text3}]')
       call l:snippet.follow(1, {

@@ -140,7 +140,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
 
     " Create patched new text.
     let l:new_text = strcharpart(l:context.text, 0, l:start)
-    if l:context.parent.type ==# 'placeholder' && !l:followed
+    if !l:followed && (l:context.parent.type ==# 'placeholder' || l:context is l:fn.contexts[-1])
       let l:new_text .= l:diff_text
       let l:followed = v:true
     endif
