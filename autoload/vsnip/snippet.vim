@@ -98,7 +98,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:range = self.range()
   let l:in_range = v:true
   let l:in_range = l:in_range && (l:range.start.line < a:diff.range.start.line || l:range.start.line == a:diff.range.start.line && l:range.start.character <= a:diff.range.start.character)
-  let l:in_range = l:in_range && (l:range.end.line > a:diff.range.start.line || l:range.end.line == a:diff.range.end.line && l:range.end.character >= a:diff.range.end.character)
+  let l:in_range = l:in_range && (a:diff.range.end.line < l:range.end.line || a:diff.range.end.line == l:range.end.line && a:diff.range.end.character <= l:range.end.character)
   if !l:in_range
     return v:false
   endif
@@ -148,10 +148,8 @@ function! s:Snippet.follow(current_tabstop, diff) abort
 
     " Apply patched new text.
     let l:context.node.value = l:new_text
-  endfor
 
-  " Convert to text node when edited node is follower node.
-  for l:context in l:fn.contexts
+    " Fold nodes when the edit was unexpected
     let l:folding_targets = l:context.parents + [l:context.node]
     if len(l:folding_targets) > 1
       for l:i in range(1, len(l:folding_targets) - 1)
