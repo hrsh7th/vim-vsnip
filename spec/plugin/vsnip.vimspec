@@ -2,6 +2,10 @@ let s:expect = themis#helper('expect')
 
 Describe vsnip
 
+  After each
+    call vsnip#deactivate()
+  End
+
   Context expand
 
     It should expand when prefix start col is 1

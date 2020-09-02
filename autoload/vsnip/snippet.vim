@@ -98,7 +98,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:range = self.range()
   let l:in_range = v:true
   let l:in_range = l:in_range && (l:range.start.line < a:diff.range.start.line || l:range.start.line == a:diff.range.start.line && l:range.start.character <= a:diff.range.start.character)
-  let l:in_range = l:in_range && (l:range.end.line > a:diff.range.start.line || l:range.end.line == a:diff.range.end.line && l:range.end.character >= a:diff.range.end.character)
+  let l:in_range = l:in_range && (a:diff.range.end.line < l:range.end.line || a:diff.range.end.line == l:range.end.line && a:diff.range.end.character <= l:range.end.character)
   if !l:in_range
     return v:false
   endif
@@ -111,59 +111,68 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:fn = {}
   let l:fn.current_tabstop = a:current_tabstop
   let l:fn.diff = a:diff
-  let l:fn.context = v:null
+  let l:fn.contexts = []
   function! l:fn.traverse(context) abort
-    " diff:     s-------e
-    " text:   1-----------2
-    " expect:       ^
-    if a:context.range[0] <= self.diff.range[0] && self.diff.range[1] <= a:context.range[1]
-      let l:should_update = v:false
-      let l:should_update = l:should_update || empty(self.context)
-      let l:should_update = l:should_update || a:context.node.type ==# 'placeholder'
-      let l:should_update = l:should_update || self.context.depth > a:context.depth
-      if l:should_update
-        let self.context = a:context
-      endif
-      " Stop traversing when acceptable node is current tabstop.
-      return self.context.node.type ==# 'placeholder' && self.context.node.id == self.current_tabstop && !self.context.node.follower
+    if a:context.node.type !=# 'text'
+      return
+    endif
+
+    let l:included = v:false
+    let l:included = l:included || a:context.range[0] <= self.diff.range[0] && self.diff.range[0] < a:context.range[1] " right
+    let l:included = l:included || a:context.range[0] < self.diff.range[1] && self.diff.range[1] <= a:context.range[1] " left
+    let l:included = l:included || self.diff.range[0] <= a:context.range[0] && a:context.range[1] <= self.diff.range[1] " middle
+    if l:included
+      call add(self.contexts, a:context)
     endif
   endfunction
   call self.traverse(self, l:fn.traverse)
 
-  let l:context = l:fn.context
-  if empty(l:context)
+  if empty(l:fn.contexts)
     return v:false
   endif
 
-  " Create patched new text.
-  let l:start = a:diff.range[0] - l:context.range[0]
-  let l:end = a:diff.range[1] - l:context.range[0]
-  let l:new_text = ''
-  let l:new_text .= strcharpart(l:context.text, 0, l:start)
-  let l:new_text .= a:diff.text
-  let l:new_text .= strcharpart(l:context.text, l:end, l:context.length - l:end)
+  let l:followed = v:false
+  let l:diff_text = a:diff.text
+  for l:context in l:fn.contexts
+    let l:diff_range = [max([a:diff.range[0], l:context.range[0]]), min([a:diff.range[1], l:context.range[1]])]
+    let l:start = l:diff_range[0] - l:context.range[0]
+    let l:end = l:diff_range[1] - l:context.range[0]
 
-  " Apply patched new text.
-  if l:context.node.type ==# 'text'
+    " Create patched new text.
+    let l:new_text = strcharpart(l:context.text, 0, l:start)
+    if !l:followed && (l:context.parent.type ==# 'placeholder' || l:context is l:fn.contexts[-1])
+      let l:new_text .= l:diff_text
+      let l:followed = v:true
+      let l:context.followed = v:true
+    else
+      let l:context.followed = v:false
+    endif
+    let l:new_text .= strcharpart(l:context.text, l:end, l:context.length - l:end)
+
+    " Apply patched new text.
     let l:context.node.value = l:new_text
-  else
-    let l:context.node.children = [vsnip#snippet#node#create_text(l:new_text)]
-  endif
+  endfor
 
-  " Convert to text node when edited node is follower node.
-  let l:folding_targets = l:context.parents + [l:context.node]
-  if len(l:folding_targets) > 1
-    for l:i in range(1, len(l:folding_targets) - 1)
-      let l:parent = l:folding_targets[l:i - 1]
-      let l:node = l:folding_targets[l:i]
-      if get(l:node, 'follower', v:false)
+  " Squash nodes when the edit was unexpected
+  let l:squashed = []
+  for l:context in l:fn.contexts
+    let l:squash_targets = l:context.parents + [l:context.node]
+    for l:i in range(len(l:squash_targets) - 1, 1, -1)
+      let l:node = l:squash_targets[l:i]
+      let l:parent = l:squash_targets[l:i - 1]
+
+      let l:should_squash = v:false
+      let l:should_squash = l:should_squash || get(l:node, 'follower', v:false)
+      let l:should_squash = l:should_squash || get(l:parent, 'id', v:null) is# a:current_tabstop
+      let l:should_squash = l:should_squash || !l:context.followed && strlen(l:node.text()) == 0
+      if l:should_squash && index(l:squashed, l:node) == -1
         let l:index = index(l:parent.children, l:node)
         call remove(l:parent.children, l:index)
         call insert(l:parent.children, vsnip#snippet#node#create_text(l:node.text()), l:index)
-        break
+        call add(l:squashed, l:node)
       endif
     endfor
-  endif
+  endfor
 
   return v:true
 endfunction
