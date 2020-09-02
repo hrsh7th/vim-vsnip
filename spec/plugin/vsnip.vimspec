@@ -510,6 +510,36 @@ Describe vsnip
       call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
 
+    It should work issue129
+      enew!
+      set filetype=integration
+      call setline(1, ['issue129'])
+      call cursor([1, 8])
+
+      let g:vsnip_assert = {}
+      let l:sequence = ''
+
+      " expand
+      let l:sequence .= "a\<C-j>\<Plug>(vsnip-assert)"
+      function g:vsnip_assert.step1()
+        call s:expect(getbufline('%', '^', '$')).to_equal(["console.log('', );"])
+      endfunction
+
+      " modify 
+      let l:sequence .= "\<Esc>1G13|dt,iMODIFY\<Plug>(vsnip-assert)"
+      function g:vsnip_assert.step2()
+        call s:expect(getbufline('%', '^', '$')).to_equal(["console.log(MODIFY, );"])
+      endfunction
+
+      " jump
+      let l:sequence .= "\<Tab>\<Plug>(vsnip-assert)"
+      function g:vsnip_assert.step3()
+        call s:expect(getcurpos()[1 : 2]).to_equal([1, 21])
+      endfunction
+
+      call feedkeys(l:sequence, 'x')
+    End
+
   End
 
 End

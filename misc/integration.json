@@ -139,5 +139,12 @@
     "body": [
       "$1"
     ]
+  },
+  "issue129": {
+    "description": "issue129",
+    "prefix": ["issue129"],
+    "body": [
+      "console.log('$1', $2);"
+    ]
   }
 }
