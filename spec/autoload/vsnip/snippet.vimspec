@@ -77,7 +77,7 @@ Describe vsnip#snippet
       call s:expect(l:snippet.text()).to_equal("class  {\n\tpublic default() {\n\t\t\n\t}\n}")
     End
 
-    It should follow to the whole range diff
+    It should follow when diff range covers whole of snippet
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
       let l:followed = l:snippet.follow(0, {
       \   'range': {
@@ -96,7 +96,49 @@ Describe vsnip#snippet
       call s:expect(l:snippet.text()).to_equal("")
     End
 
-    It should follow when diff range included by node range
+    It should squash placeholder when diff range covers multiple placeholders
+      let l:snippet = s:Snippet.new(s:start_position, "console.log(${1:first}, ${2:second})")
+      call s:expect(l:snippet.get_placeholder_nodes()).to_have_length(3)
+      let l:followed = l:snippet.follow(0, {
+      \   'range': {
+      \     'start': {
+      \       'line': 1,
+      \       'character': 13
+      \     },
+      \     'end': {
+      \       'line': 1,
+      \       'character': 26
+      \     }
+      \   },
+      \   'text': ''
+      \ })
+      call s:expect(l:followed).to_equal(v:true)
+      call s:expect(l:snippet.get_placeholder_nodes()).to_have_length(2)
+      call s:expect(l:snippet.text()).to_equal('console.log()')
+    End
+
+    It should not squash placeholder when diff range includes multiple placeholders but last one does not covered
+      let l:snippet = s:Snippet.new(s:start_position, "console.log(${1:first}, ${2:second})")
+      call s:expect(l:snippet.get_placeholder_nodes()).to_have_length(3)
+      let l:followed = l:snippet.follow(0, {
+      \   'range': {
+      \     'start': {
+      \       'line': 1,
+      \       'character': 13
+      \     },
+      \     'end': {
+      \       'line': 1,
+      \       'character': 25
+      \     }
+      \   },
+      \   'text': ''
+      \ })
+      call s:expect(l:followed).to_equal(v:true)
+      call s:expect(l:snippet.get_placeholder_nodes()).to_have_length(3)
+      call s:expect(l:snippet.text()).to_equal('console.log(d)')
+    End
+
+    It should follow when diff range is within one node range
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
       call l:snippet.follow(0, {
       \   'range': {
@@ -115,7 +157,7 @@ Describe vsnip#snippet
       call s:expect(l:snippet.get_next_jump_point(1).placeholder.text()).to_equal('d___ult')
     End
 
-    It should follow when diff range included only text-node
+    It should follow when diff range included only text node
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
       call l:snippet.follow(1, {
       \   'range': {
