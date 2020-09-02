@@ -153,23 +153,23 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     let l:context.node.value = l:new_text
   endfor
 
-  " Fold nodes when the edit was unexpected
-  let l:folded = []
+  " Squash nodes when the edit was unexpected
+  let l:squashed = []
   for l:context in l:fn.contexts
-    let l:folding_targets = l:context.parents + [l:context.node]
-    for l:i in range(len(l:folding_targets) - 1, 1, -1)
-      let l:node = l:folding_targets[l:i]
-      let l:parent = l:folding_targets[l:i - 1]
+    let l:squash_targets = l:context.parents + [l:context.node]
+    for l:i in range(len(l:squash_targets) - 1, 1, -1)
+      let l:node = l:squash_targets[l:i]
+      let l:parent = l:squash_targets[l:i - 1]
 
-      let l:should_fold = v:false
-      let l:should_fold = l:should_fold || get(l:node, 'follower', v:false)
-      let l:should_fold = l:should_fold || get(l:parent, 'id', v:null) is# a:current_tabstop
-      let l:should_fold = l:should_fold || !l:context.followed && strlen(l:node.text()) == 0
-      if l:should_fold && index(l:folded, l:node) == -1
+      let l:should_squash = v:false
+      let l:should_squash = l:should_squash || get(l:node, 'follower', v:false)
+      let l:should_squash = l:should_squash || get(l:parent, 'id', v:null) is# a:current_tabstop
+      let l:should_squash = l:should_squash || !l:context.followed && strlen(l:node.text()) == 0
+      if l:should_squash && index(l:squashed, l:node) == -1
         let l:index = index(l:parent.children, l:node)
         call remove(l:parent.children, l:index)
         call insert(l:parent.children, vsnip#snippet#node#create_text(l:node.text()), l:index)
-        call add(l:folded, l:node)
+        call add(l:squashed, l:node)
       endif
     endfor
   endfor
