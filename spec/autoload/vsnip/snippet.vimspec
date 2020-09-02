@@ -60,20 +60,40 @@ Describe vsnip#snippet
 
     It should not affect following empty diff
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
-      call l:snippet.follow(0, {
+      let l:followed = l:snippet.follow(0, {
       \   'range': {
       \     'start': {
-      \       'line': 0,
-      \       'character': 0
+      \       'line': 1,
+      \       'character': 1
       \     },
       \     'end': {
-      \       'line': 0,
-      \       'character': 0
+      \       'line': 1,
+      \       'character': 1
       \     }
       \   },
       \   'text': ''
       \ })
+      call s:expect(l:followed).to_equal(v:true)
       call s:expect(l:snippet.text()).to_equal("class  {\n\tpublic default() {\n\t\t\n\t}\n}")
+    End
+
+    It should follow to the whole range diff
+      let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
+      let l:followed = l:snippet.follow(0, {
+      \   'range': {
+      \     'start': {
+      \       'line': 1,
+      \       'character': 1
+      \     },
+      \     'end': {
+      \       'line': 5,
+      \       'character': 1
+      \     }
+      \   },
+      \   'text': ''
+      \ })
+      call s:expect(l:followed).to_equal(v:true)
+      call s:expect(l:snippet.text()).to_equal("")
     End
 
     It should follow when diff range included by node range

@@ -118,9 +118,9 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     endif
 
     let l:included = v:false
-    let l:included = l:included || a:context.range[0] <= self.diff.range[0] && self.diff.range[0] <= a:context.range[1] " right
+    let l:included = l:included || a:context.range[0] <= self.diff.range[0] && self.diff.range[0] < a:context.range[1] " right
+    let l:included = l:included || a:context.range[0] < self.diff.range[1] && self.diff.range[1] <= a:context.range[1] " left
     let l:included = l:included || self.diff.range[0] <= a:context.range[0] && a:context.range[1] <= self.diff.range[1] " middle
-    let l:included = l:included || a:context.range[0] <= self.diff.range[1] && self.diff.range[1] <= a:context.range[1] " left
     if l:included
       call add(self.contexts, a:context)
     endif
@@ -131,8 +131,8 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     return v:false
   endif
 
-  let l:diff_text = a:diff.text
   let l:followed = v:false
+  let l:diff_text = a:diff.text
   for l:context in l:fn.contexts
     let l:diff_range = [max([a:diff.range[0], l:context.range[0]]), min([a:diff.range[1], l:context.range[1]])]
     let l:start = l:diff_range[0] - l:context.range[0]
@@ -143,26 +143,35 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     if !l:followed && (l:context.parent.type ==# 'placeholder' || l:context is l:fn.contexts[-1])
       let l:new_text .= l:diff_text
       let l:followed = v:true
+      let l:context.followed = v:true
+    else
+      let l:context.followed = v:false
     endif
     let l:new_text .= strcharpart(l:context.text, l:end, l:context.length - l:end)
 
     " Apply patched new text.
     let l:context.node.value = l:new_text
+  endfor
 
-    " Fold nodes when the edit was unexpected
+  " Fold nodes when the edit was unexpected
+  let l:folded = []
+  for l:context in l:fn.contexts
     let l:folding_targets = l:context.parents + [l:context.node]
-    if len(l:folding_targets) > 1
-      for l:i in range(1, len(l:folding_targets) - 1)
-        let l:parent = l:folding_targets[l:i - 1]
-        let l:node = l:folding_targets[l:i]
-        if get(l:node, 'follower', v:false) || get(l:parent, 'id', v:null) is# a:current_tabstop
-          let l:index = index(l:parent.children, l:node)
-          call remove(l:parent.children, l:index)
-          call insert(l:parent.children, vsnip#snippet#node#create_text(l:node.text()), l:index)
-          break
-        endif
-      endfor
-    endif
+    for l:i in range(len(l:folding_targets) - 1, 1, -1)
+      let l:node = l:folding_targets[l:i]
+      let l:parent = l:folding_targets[l:i - 1]
+
+      let l:should_fold = v:false
+      let l:should_fold = l:should_fold || get(l:node, 'follower', v:false)
+      let l:should_fold = l:should_fold || get(l:parent, 'id', v:null) is# a:current_tabstop
+      let l:should_fold = l:should_fold || !l:context.followed && strlen(l:node.text()) == 0
+      if l:should_fold && index(l:folded, l:node) == -1
+        let l:index = index(l:parent.children, l:node)
+        call remove(l:parent.children, l:index)
+        call insert(l:parent.children, vsnip#snippet#node#create_text(l:node.text()), l:index)
+        call add(l:folded, l:node)
+      endif
+    endfor
   endfor
 
   return v:true
