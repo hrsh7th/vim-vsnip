@@ -113,6 +113,9 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:fn.diff = a:diff
   let l:fn.contexts = []
   function! l:fn.traverse(context) abort
+    if self.diff.range[1] < a:context.range[0]
+      return v:true
+    endif
     if a:context.node.type !=# 'text'
       return
     endif
