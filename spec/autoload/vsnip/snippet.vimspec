@@ -138,6 +138,25 @@ Describe vsnip#snippet
       call s:expect(l:snippet.text()).to_equal('console.log(d)')
     End
 
+    It should prefer current placeholder
+      let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1}, ${2:, ${3:default}})')
+      let l:followed = l:snippet.follow(3, {
+      \   'range': {
+      \     'start': {
+      \       'line': 1,
+      \       'character': 17
+      \     },
+      \     'end': {
+      \       'line': 1,
+      \       'character': 17
+      \     }
+      \   },
+      \   'text': '___'
+      \ })
+      call s:expect(l:followed).to_equal(v:true)
+      call s:expect(l:snippet.get_placeholder_nodes()[2].text()).to_equal('___default')
+    End
+
     It should follow when diff range is within one node range
       let l:snippet = s:Snippet.new(s:start_position, "class $1 {\n\tpublic ${2:default}() {\n\t\t$0\n\t}\n}")
       call l:snippet.follow(0, {
