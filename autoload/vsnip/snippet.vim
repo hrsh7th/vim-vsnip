@@ -111,6 +111,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:fn = {}
   let l:fn.current_tabstop = a:current_tabstop
   let l:fn.diff = a:diff
+  let l:fn.target_context = v:null
   let l:fn.contexts = []
   function! l:fn.traverse(context) abort
     if self.diff.range[1] < a:context.range[0]
@@ -125,6 +126,9 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     let l:included = l:included || a:context.range[0] < self.diff.range[1] && self.diff.range[1] <= a:context.range[1] " left
     let l:included = l:included || self.diff.range[0] <= a:context.range[0] && a:context.range[1] <= self.diff.range[1] " middle
     if l:included
+      if empty(self.target_context) && a:context.parent.type ==# 'placeholder' || get(a:context.parent, 'id', -1) == self.current_tabstop
+        let self.target_context = a:context
+      endif
       call add(self.contexts, a:context)
     endif
   endfunction
@@ -134,7 +138,8 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     return v:false
   endif
 
-  let l:followed = v:false
+  let l:fn.target_context = empty(l:fn.target_context) ? l:fn.contexts[-1] : l:fn.target_context
+
   let l:diff_text = a:diff.text
   for l:context in l:fn.contexts
     let l:diff_range = [max([a:diff.range[0], l:context.range[0]]), min([a:diff.range[1], l:context.range[1]])]
@@ -143,12 +148,9 @@ function! s:Snippet.follow(current_tabstop, diff) abort
 
     " Create patched new text.
     let l:new_text = strcharpart(l:context.text, 0, l:start)
-    if !l:followed && (l:context.parent.type ==# 'placeholder' || l:context is l:fn.contexts[-1])
+    if l:fn.target_context is# l:context
       let l:new_text .= l:diff_text
       let l:followed = v:true
-      let l:context.followed = v:true
-    else
-      let l:context.followed = v:false
     endif
     let l:new_text .= strcharpart(l:context.text, l:end, l:context.length - l:end)
 
@@ -167,7 +169,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
       let l:should_squash = v:false
       let l:should_squash = l:should_squash || get(l:node, 'follower', v:false)
       let l:should_squash = l:should_squash || get(l:parent, 'id', v:null) is# a:current_tabstop
-      let l:should_squash = l:should_squash || !l:context.followed && strlen(l:node.text()) == 0
+      let l:should_squash = l:should_squash || l:context isnot# l:fn.target_context && strlen(l:node.text()) == 0
       if l:should_squash && index(l:squashed, l:node) == -1
         let l:index = index(l:parent.children, l:node)
         call remove(l:parent.children, l:index)
