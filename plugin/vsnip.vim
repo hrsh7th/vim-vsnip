@@ -61,6 +61,9 @@ endfunction
 "
 if g:vsnip_extra_mapping
   snoremap <expr> <bs> "\<BS>" . (getcurpos()[2] == col('$') - 1 ? 'a' : 'i')
+  for s:char in split('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890', '\zs')
+    execute printf('smap %s <BS>%s', s:char, s:char)
+  endfor
 endif
 
 "
