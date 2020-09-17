@@ -122,7 +122,7 @@ function! s:Session.jump(direction) abort
     call self.move(l:jump_point)
   endif
 
-  doautocmd User vsnip#jump
+  doautocmd <nomodeline> User vsnip#jump
 endfunction
 
 "
