@@ -111,6 +111,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
   let l:fn = {}
   let l:fn.current_tabstop = a:current_tabstop
   let l:fn.diff = a:diff
+  let l:fn.is_target_context_fixed = v:false
   let l:fn.target_context = v:null
   let l:fn.contexts = []
   function! l:fn.traverse(context) abort
@@ -126,7 +127,8 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     let l:included = l:included || a:context.range[0] < self.diff.range[1] && self.diff.range[1] <= a:context.range[1] " left
     let l:included = l:included || self.diff.range[0] <= a:context.range[0] && a:context.range[1] <= self.diff.range[1] " middle
     if l:included
-      if empty(self.target_context) && a:context.parent.type ==# 'placeholder' || get(a:context.parent, 'id', -1) == self.current_tabstop
+      if !self.is_target_context_fixed && (empty(self.target_context) || a:context.parent.type ==# 'placeholder' && a:context.depth > self.target_context.depth)
+        let self.is_target_context_fixed = get(a:context.parent, 'id', -1) == self.current_tabstop
         let self.target_context = a:context
       endif
       call add(self.contexts, a:context)
