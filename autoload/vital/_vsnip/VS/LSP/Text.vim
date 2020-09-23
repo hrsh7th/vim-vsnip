@@ -21,6 +21,6 @@ endfunction
 " split_by_eol
 "
 function! s:split_by_eol(text) abort
-  return split(s:normalize_eol(a:text), "\n", v:true)
+  return split(a:text, "\r\n\\|\r\\|\n", v:true)
 endfunction
 
