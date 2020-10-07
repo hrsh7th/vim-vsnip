@@ -85,6 +85,7 @@ function! s:get_language(filetype) abort
   return get({
   \   'javascript.jsx': 'javascriptreact',
   \   'typescript.tsx': 'typescriptreact',
+  \   'sh': 'shellscript',
   \ }, a:filetype, a:filetype)
 endfunction
 
