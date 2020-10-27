@@ -127,7 +127,7 @@ function! s:Snippet.follow(current_tabstop, diff) abort
     let l:included = l:included || a:context.range[0] < self.diff.range[1] && self.diff.range[1] <= a:context.range[1] " left
     let l:included = l:included || self.diff.range[0] <= a:context.range[0] && a:context.range[1] <= self.diff.range[1] " middle
     if l:included
-      if !self.is_target_context_fixed && (empty(self.target_context) || a:context.parent.type ==# 'placeholder' && a:context.depth > self.target_context.depth)
+      if !self.is_target_context_fixed && (empty(self.target_context) && a:context.parent.type ==# 'placeholder' || get(a:context.parent, 'id', -1) == self.current_tabstop)
         let self.is_target_context_fixed = get(a:context.parent, 'id', -1) == self.current_tabstop
         let self.target_context = a:context
       endif
