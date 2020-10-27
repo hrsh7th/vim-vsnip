@@ -264,6 +264,10 @@ below one is work as expected.
   }
 <
 
+3. if edit the placeholder that does not the current_tabstop, vsnip try to follow correctly but sometimes it makes unexpected result.~
+
+For example, you expand `console.log(${1:foo}${2:bar}, ${2})`, remove `foo` and change `bar` without jump.
+In this case, vsnip will detects `$1 is edited.` so vsnip does not sync $2 placeholder.
 
 
 ==============================================================================
