@@ -36,8 +36,9 @@ function! s:assert() abort
     endif
 
     let l:key = l:keys[0]
-    call g:vsnip_assert[l:key]()
+    let l:Fn = g:vsnip_assert[l:key]
     unlet! g:vsnip_assert[l:key]
+    call l:Fn()
   endif
 
   return ''

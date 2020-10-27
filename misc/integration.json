@@ -146,5 +146,14 @@
     "body": [
       "console.log('$1', $2);"
     ]
+  },
+  "issue139": {
+    "description": "issue139",
+    "prefix": "issue139",
+    "body": [
+      "for (${1:size_t }${2:i}=0; ${2} < ${3:count}; ${4:${2}++}) {",
+      "\t$TM_SELECTED_TEXT$5",
+      "}$0"
+    ]
   }
 }
