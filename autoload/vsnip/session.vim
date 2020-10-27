@@ -29,9 +29,9 @@ function! s:Session.new(bufnr, position, text) abort
 endfunction
 
 "
-" insert.
+" expand.
 "
-function! s:Session.insert() abort
+function! s:Session.expand() abort
   " insert snippet.
   call s:TextEdit.apply(self.bufnr, [{
   \   'range': {
@@ -47,35 +47,9 @@ endfunction
 " merge.
 "
 function! s:Session.merge(session) abort
-  call a:session.insert()
-
-  " increase new snippet's tabstop by current snippet's current tabstop
-  let l:offset = 1
-  let l:tabstop_map = {}
-  for l:node in a:session.snippet.get_placeholder_nodes()
-    if !has_key(l:tabstop_map, l:node.id)
-      let l:tabstop_map[l:node.id] = self.tabstop + l:offset
-    endif
-    let l:node.id = l:tabstop_map[l:node.id]
-    let l:offset += 1
-  endfor
-  let l:tail = l:node
-
-  " re-assign current snippet's tabstop by new snippet's final tabstop
-  let l:offset = 1
-  let l:tabstop_map = {}
-  for l:node in self.snippet.get_placeholder_nodes()
-    if l:node.id > self.tabstop
-      if !has_key(l:tabstop_map, l:node.id)
-        let l:tabstop_map[l:node.id] = l:tail.id + l:offset
-      endif
-      let l:node.id = l:tabstop_map[l:node.id]
-      let l:offset += 1
-    endif
-  endfor
-
-  call self.snippet.insert_node(deepcopy(a:session.snippet.position), a:session.snippet.children)
-
+  call a:session.expand()
+  call self.snippet.merge(self.tabstop, a:session.snippet)
+  call self.snippet.insert(deepcopy(a:session.snippet.position), a:session.snippet.children)
   call s:TextEdit.apply(self.bufnr, self.snippet.sync())
 endfunction
 

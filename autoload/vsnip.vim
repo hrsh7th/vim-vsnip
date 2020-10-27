@@ -72,7 +72,7 @@ function! vsnip#anonymous(text, ...) abort
 
   if empty(s:session)
     let s:session = l:session
-    call s:session.insert()
+    call s:session.expand()
   else
     call s:session.merge(l:session)
   endif

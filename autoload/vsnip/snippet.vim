@@ -346,9 +346,39 @@ function! s:Snippet.normalize() abort
 endfunction
 
 "
-" insert_node
+" merge
 "
-function! s:Snippet.insert_node(position, nodes_to_insert) abort
+function! s:Snippet.merge(tabstop, snippet) abort
+  " increase new snippet's tabstop by current snippet's current tabstop
+  let l:offset = 1
+  let l:tabstop_map = {}
+  for l:node in a:snippet.get_placeholder_nodes()
+    if !has_key(l:tabstop_map, l:node.id)
+      let l:tabstop_map[l:node.id] = a:tabstop + l:offset
+    endif
+    let l:node.id = l:tabstop_map[l:node.id]
+    let l:offset += 1
+  endfor
+  let l:tail = l:node
+
+  " re-assign current snippet's tabstop by new snippet's final tabstop
+  let l:offset = 1
+  let l:tabstop_map = {}
+  for l:node in self.get_placeholder_nodes()
+    if l:node.id > a:tabstop
+      if !has_key(l:tabstop_map, l:node.id)
+        let l:tabstop_map[l:node.id] = l:tail.id + l:offset
+      endif
+      let l:node.id = l:tabstop_map[l:node.id]
+      let l:offset += 1
+    endif
+  endfor
+endfunction
+
+"
+" insert
+"
+function! s:Snippet.insert(position, nodes_to_insert) abort
   let l:offset = self.position_to_offset(a:position)
 
   " Search target node for inserting nodes.

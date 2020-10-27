@@ -384,36 +384,36 @@ Describe vsnip#snippet
 
   End
 
-  Describe #insert_node
+  Describe #insert
 
     It should insert node 1
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1}, ${2:${1}})')
-      call l:snippet.insert_node({ 'line': 1, 'character': 13 }, s:Snippet.new(s:start_position, 'console.log(${3}, ${4:${3}})').children)
+      call l:snippet.insert({ 'line': 1, 'character': 13 }, s:Snippet.new(s:start_position, 'console.log(${3}, ${4:${3}})').children)
       call s:expect(l:snippet.text()).to_equal('console.log(console.log(, ), )')
     End
 
     It should insert node 2
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(${1}, ${2:${1}})')
-      call l:snippet.insert_node({ 'line': 1, 'character': 15 }, s:Snippet.new(s:start_position, 'console.log()').children)
+      call l:snippet.insert({ 'line': 1, 'character': 15 }, s:Snippet.new(s:start_position, 'console.log()').children)
       call s:expect(l:snippet.text()).to_equal('console.log(, console.log())')
       call s:expect(len(l:snippet.get_placeholder_nodes())).to_equal(5)
     End
 
     It should insert node 3
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(aiueo)')
-      call l:snippet.insert_node({ 'line': 1, 'character': 13 }, s:Snippet.new(s:start_position, '___').children)
+      call l:snippet.insert({ 'line': 1, 'character': 13 }, s:Snippet.new(s:start_position, '___').children)
       call s:expect(l:snippet.text()).to_equal('console.log(___aiueo)')
     End
 
     It should insert node 4
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(aiueo)')
-      call l:snippet.insert_node({ 'line': 1, 'character': 15 }, s:Snippet.new(s:start_position, '___').children)
+      call l:snippet.insert({ 'line': 1, 'character': 15 }, s:Snippet.new(s:start_position, '___').children)
       call s:expect(l:snippet.text()).to_equal('console.log(ai___ueo)')
     End
 
     It should insert node 5
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(aiueo)')
-      call l:snippet.insert_node({ 'line': 1, 'character': 18 }, [vsnip#snippet#node#create_text('___')])
+      call l:snippet.insert({ 'line': 1, 'character': 18 }, [vsnip#snippet#node#create_text('___')])
       call s:expect(l:snippet.text()).to_equal('console.log(aiueo___)')
     End
 
