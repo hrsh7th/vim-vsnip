@@ -14,11 +14,12 @@ end
 execute printf('source %s', expand('~/.vim/plugged/vim-plug/plug.vim'))
 
 call plug#begin('~/.vim/plugged')
-Plug 'Shougo/deoplete.nvim'
 Plug 'gruvbox-community/gruvbox'
 Plug expand('<sfile>:p:h:h') . '/vim-vsnip'
 Plug expand('<sfile>:p:h:h') . '/vim-vsnip-integ'
 call plug#end()
+
+PlugInstall
 
 colorscheme gruvbox
 
@@ -31,10 +32,7 @@ set hidden
 set ambiwidth=double
 set completeopt=menu,menuone,noselect
 
-"
-" deoplete configuration.
-"
-let g:deoplete#enable_at_startup = 1
+let g:vsnip_snippet_dirs = [dein#get('vim-vsnip').rtp . '/misc']
 
 "
 " vim-vsnip mapping.

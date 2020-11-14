@@ -18,8 +18,9 @@ Describe vsnip#indent
       \ ]
         execute l:execute
         %delete _
-        call feedkeys("i\<Tab>", 'nx') 
-        call s:expect(vsnip#indent#get_one_indent()).to_equal(getline(1))
+        call setline(1, '<')
+        normal! >>
+        call s:expect(vsnip#indent#get_one_indent()).to_equal(getline(1)[0 : -2])
       endfor
 
     End
