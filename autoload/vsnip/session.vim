@@ -139,7 +139,7 @@ function! s:Session.select(jump_point) abort
     execute printf('normal! %s', l:cmd)
   else
     let l:cmd .= "o\<C-g>"
-    call feedkeys(l:cmd, 'nt')
+    call feedkeys(l:cmd, 'n')
   endif
 endfunction
 
