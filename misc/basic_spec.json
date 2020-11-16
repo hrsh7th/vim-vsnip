@@ -1,9 +1,16 @@
 {
-  "simple": {
-    "description": "simple snippet",
-    "prefix": ["simple"],
+  "if": {
+    "prefix": "if",
     "body": [
-      "snippet"
+      "if ${1:condition}",
+      "\t$0",
+      "endif"
+    ]
+  },
+  "inline-fn": {
+    "prefix": ["inline-fn"],
+    "body": [
+      "{ -> $1 }$0"
     ]
   }
 }

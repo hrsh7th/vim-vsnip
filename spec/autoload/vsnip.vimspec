@@ -7,8 +7,8 @@ Describe vsnip
     It should return context information in insert-mode
       enew!
       set filetype=basic_spec
-      call setline(1, 'simple')
-      call cursor([1, 6])
+      call setline(1, 'if')
+      call cursor([1, 2])
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
@@ -21,16 +21,18 @@ Describe vsnip
         \     },
         \     'end': {
         \       'line': 0,
-        \       'character': 6,
+        \       'character': 2,
         \     },
         \   },
         \   'snippet': {
-        \     'label': 'simple',
-        \     'description': 'simple snippet',
-        \     'prefix': ['simple'],
+        \     'label': 'if',
+        \     'description': '',
+        \     'prefix': ['if'],
         \     'prefix_alias': [],
         \     'body': [
-        \       'snippet'
+        \       "if ${1:condition}",
+        \       "\t$0",
+        \       "endif",
         \     ],
         \   }
         \ })
@@ -41,8 +43,8 @@ Describe vsnip
     It should return context information in normal-mode
       enew!
       set filetype=basic_spec
-      call setline(1, 'simple')
-      call cursor([1, 6])
+      call setline(1, 'if')
+      call cursor([1, 2])
 
       call s:expect(mode(1)).to_equal('n')
       call s:expect(vsnip#get_context()).to_equal({
@@ -53,16 +55,18 @@ Describe vsnip
       \     },
       \     'end': {
       \       'line': 0,
-      \       'character': 6,
+      \       'character': 2,
       \     },
       \   },
       \   'snippet': {
-      \     'label': 'simple',
-      \     'description': 'simple snippet',
-      \     'prefix': ['simple'],
+      \     'label': 'if',
+      \     'description': '',
+      \     'prefix': ['if'],
       \     'prefix_alias': [],
       \     'body': [
-      \       'snippet'
+      \       "if ${1:condition}",
+      \       "\t$0",
+      \       "endif",
       \     ],
       \   }
       \ })
@@ -71,9 +75,9 @@ Describe vsnip
     It should return context information in select-mode
       enew!
       set filetype=basic_spec
-      call setline(1, 'simple')
+      call setline(1, 'if')
       call feedkeys("v\<C-g>", 'x')
-      call cursor([1, 6])
+      call cursor([1, 2])
 
       call s:expect(mode(1)).to_equal('s')
       call s:expect(vsnip#get_context()).to_equal({
@@ -84,16 +88,18 @@ Describe vsnip
       \     },
       \     'end': {
       \       'line': 0,
-      \       'character': 6,
+      \       'character': 2,
       \     },
       \   },
       \   'snippet': {
-      \     'label': 'simple',
-      \     'description': 'simple snippet',
-      \     'prefix': ['simple'],
+      \     'label': 'if',
+      \     'description': '',
+      \     'prefix': ['if'],
       \     'prefix_alias': [],
       \     'body': [
-      \       'snippet'
+      \       "if ${1:condition}",
+      \       "\t$0",
+      \       "endif",
       \     ],
       \   }
       \ })
@@ -107,15 +113,30 @@ Describe vsnip
       enew!
       set filetype=basic_spec
       call s:expect(vsnip#get_complete_items(bufnr('%'))[-1]).to_equal({
-      \   'word': 'simple',
-      \   'abbr': 'simple',
+      \   'word': 'if',
+      \   'abbr': 'if',
       \   'kind': 'Snippet',
-      \   'menu': '[v] simple snippet',
+      \   'menu': '[v] if',
       \   'dup': 1,
       \   'user_data': json_encode({
       \     'vsnip': {
       \       'snippet': [
-      \         "snippet"
+      \         "if ${1:condition}",
+      \         "\t$0",
+      \         "endif",
+      \       ]
+      \     }
+      \   })
+      \ }, {
+      \   'word': 'inline-fn',
+      \   'abbr': 'inline-fn',
+      \   'kind': 'Snippet',
+      \   'menu': '[v] inline-fn',
+      \   'dup': 1,
+      \   'user_data': json_encode({
+      \     'vsnip': {
+      \       'snippet': [
+      \         "{ -> $1 }$0"
       \       ]
       \     }
       \   })

@@ -109,38 +109,43 @@ function! vsnip#get_context() abort
     return {}
   endif
 
-  for l:source in vsnip#source#find(bufnr('%'))
-    for l:snippet in l:source
-      for l:prefix in (l:snippet.prefix + l:snippet.prefix_alias)
-        let l:prefix_len = strchars(l:prefix)
+  let l:sources = vsnip#source#find(bufnr('%'))
 
-        " just match prefix.
+  let l:target = v:null
+
+  " Search prefix
+  for l:source in l:sources
+    for l:snippet in l:source
+      for l:prefix in l:snippet.prefix
+        let l:prefix_len = strchars(l:prefix)
         if strcharpart(l:before_text, l:before_text_len - l:prefix_len, l:prefix_len) !=# l:prefix
           continue
         endif
-
-        " should match word boundarly when prefix is word
         if l:prefix =~# '^\h' && l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m$'
           continue
         endif
-
-        let l:line = line('.') - 1
-        return {
-        \   'range': {
-        \     'start': {
-        \       'line': l:line,
-        \       'character': l:before_text_len - l:prefix_len
-        \     },
-        \     'end': {
-        \       'line': l:line,
-        \       'character': l:before_text_len
-        \     }
-        \   },
-        \   'snippet': l:snippet
-        \ }
+        return s:create_context(l:snippet, l:before_text_len, l:prefix_len)
       endfor
     endfor
   endfor
+
+  " Search prefix-alias
+  if empty(l:target)
+    for l:source in l:sources
+      for l:snippet in l:source
+        for l:prefix in l:snippet.prefix_alias
+          let l:prefix_len = strchars(l:prefix)
+          if strcharpart(l:before_text, l:before_text_len - l:prefix_len, l:prefix_len) !=# l:prefix
+            continue
+          endif
+          if l:prefix =~# '^\h' && l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m$'
+            continue
+          endif
+          return s:create_context(l:snippet, l:before_text_len, l:prefix_len)
+        endfor
+      endfor
+    endfor
+  endif
 
   return {}
 endfunction
@@ -149,30 +154,33 @@ endfunction
 " vsnip#get_complete_items
 "
 function! vsnip#get_complete_items(bufnr) abort
+  let l:uniq = {}
   let l:candidates = []
 
   for l:source in vsnip#source#find(a:bufnr)
     for l:snippet in l:source
-      for l:prefix in l:snippet.prefix
-        let l:menu = ''
-        let l:menu .= '[v]'
-        let l:menu .= ' '
-        let l:menu .= (strlen(l:snippet.description) > 0 ? l:snippet.description : l:snippet.label)
-        let l:candidate = {
-        \   'word': l:prefix,
-        \   'abbr': l:prefix,
-        \   'kind': 'Snippet',
-        \   'menu': l:menu,
-        \   'dup': 1,
-        \   'user_data': json_encode({
-        \     'vsnip': {
-        \       'snippet': l:snippet.body
-        \     }
-        \   })
-        \ }
+      let l:prefix = type(l:snippet.prefix) == type([]) ? l:snippet.prefix[0] : l:snippet.prefix
+      if has_key(l:uniq, l:prefix)
+        continue
+      endif
 
-        call add(l:candidates, l:candidate)
-      endfor
+      let l:menu = ''
+      let l:menu .= '[v]'
+      let l:menu .= ' '
+      let l:menu .= (strlen(l:snippet.description) > 0 ? l:snippet.description : l:snippet.label)
+
+      call add(l:candidates, {
+      \   'word': l:prefix,
+      \   'abbr': l:prefix,
+      \   'kind': 'Snippet',
+      \   'menu': l:menu,
+      \   'dup': 1,
+      \   'user_data': json_encode({
+      \     'vsnip': {
+      \       'snippet': l:snippet.body
+      \     }
+      \   })
+      \ })
     endfor
   endfor
 
@@ -186,4 +194,24 @@ function! vsnip#debug() abort
   if !empty(s:session)
     call s:session.snippet.debug()
   endif
+endfunction
+
+"
+" create_context
+"
+function! s:create_context(snippet, before_text_len, prefix_len) abort
+  let l:line = line('.') - 1
+  return {
+  \   'range': {
+  \     'start': {
+  \       'line': l:line,
+  \       'character': a:before_text_len - a:prefix_len
+  \     },
+  \     'end': {
+  \       'line': l:line,
+  \       'character': a:before_text_len
+  \     }
+  \   },
+  \   'snippet': a:snippet
+  \ }
 endfunction
