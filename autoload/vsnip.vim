@@ -111,8 +111,6 @@ function! vsnip#get_context() abort
 
   let l:sources = vsnip#source#find(bufnr('%'))
 
-  let l:target = v:null
-
   " Search prefix
   for l:source in l:sources
     for l:snippet in l:source
@@ -130,22 +128,20 @@ function! vsnip#get_context() abort
   endfor
 
   " Search prefix-alias
-  if empty(l:target)
-    for l:source in l:sources
-      for l:snippet in l:source
-        for l:prefix in l:snippet.prefix_alias
-          let l:prefix_len = strchars(l:prefix)
-          if strcharpart(l:before_text, l:before_text_len - l:prefix_len, l:prefix_len) !=# l:prefix
-            continue
-          endif
-          if l:prefix =~# '^\h' && l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m$'
-            continue
-          endif
-          return s:create_context(l:snippet, l:before_text_len, l:prefix_len)
-        endfor
+  for l:source in l:sources
+    for l:snippet in l:source
+      for l:prefix in l:snippet.prefix_alias
+        let l:prefix_len = strchars(l:prefix)
+        if strcharpart(l:before_text, l:before_text_len - l:prefix_len, l:prefix_len) !=# l:prefix
+          continue
+        endif
+        if l:prefix =~# '^\h' && l:before_text !~# '\<\V' . escape(l:prefix, '\/?') . '\m$'
+          continue
+        endif
+        return s:create_context(l:snippet, l:before_text_len, l:prefix_len)
       endfor
     endfor
-  endif
+  endfor
 
   return {}
 endfunction
@@ -159,28 +155,30 @@ function! vsnip#get_complete_items(bufnr) abort
 
   for l:source in vsnip#source#find(a:bufnr)
     for l:snippet in l:source
-      let l:prefix = type(l:snippet.prefix) == type([]) ? l:snippet.prefix[0] : l:snippet.prefix
-      if has_key(l:uniq, l:prefix)
-        continue
-      endif
+      for l:prefix in l:snippet.prefix
+        if has_key(l:uniq, l:prefix)
+          continue
+        endif
+        let l:uniq[l:prefix] = v:true
 
-      let l:menu = ''
-      let l:menu .= '[v]'
-      let l:menu .= ' '
-      let l:menu .= (strlen(l:snippet.description) > 0 ? l:snippet.description : l:snippet.label)
+        let l:menu = ''
+        let l:menu .= '[v]'
+        let l:menu .= ' '
+        let l:menu .= (strlen(l:snippet.description) > 0 ? l:snippet.description : l:snippet.label)
 
-      call add(l:candidates, {
-      \   'word': l:prefix,
-      \   'abbr': l:prefix,
-      \   'kind': 'Snippet',
-      \   'menu': l:menu,
-      \   'dup': 1,
-      \   'user_data': json_encode({
-      \     'vsnip': {
-      \       'snippet': l:snippet.body
-      \     }
-      \   })
-      \ })
+        call add(l:candidates, {
+        \   'word': l:prefix,
+        \   'abbr': l:prefix,
+        \   'kind': 'Snippet',
+        \   'menu': l:menu,
+        \   'dup': 1,
+        \   'user_data': json_encode({
+        \     'vsnip': {
+        \       'snippet': l:snippet.body
+        \     }
+        \   })
+        \ })
+      endfor
     endfor
   endfor
 

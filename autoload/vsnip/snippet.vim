@@ -33,7 +33,7 @@ endfunction
 "
 " NOTE: Must not use the node range in this method.
 "
-function s:Snippet.init() abort
+function! s:Snippet.init() abort
   let l:fn = {}
   let l:fn.self = self
   let l:fn.group = {}
