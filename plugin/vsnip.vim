@@ -51,7 +51,7 @@ function! s:open_command(bang, cmd)
   endif
 
   execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.json',
-  \   g:vsnip_snippet_dir,
+  \   resolve(expand(g:vsnip_snippet_dir)),
   \   l:candidates[l:idx - 1]
   \ )))
 endfunction
