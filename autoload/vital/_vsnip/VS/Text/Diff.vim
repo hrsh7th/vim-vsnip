@@ -76,52 +76,10 @@ function! s:compute(old, new) abort
   endif
 
   if s:is_lua_enabled
-    let l:first_line = luaeval('vital_vs_text_diff_search_first_line(_A[1], _A[2])', [l:old, l:new])
+    let [l:first_line, l:last_line, l:first_char, l:last_char, l:old_lines, l:new_lines, l:old_text, l:new_text, l:old_text_len, l:new_text_len] = luaeval('vital_vs_text_diff_compute(_A[1], _A[2])', [l:old, l:new])
   else
-    let l:first_line = 0
-    while l:first_line < l:min_len - 1
-      if l:old[l:first_line] !=# l:new[l:first_line]
-        break
-      endif
-      let l:first_line += 1
-    endwhile
+    let [l:first_line, l:last_line, l:first_char, l:last_char, l:old_lines, l:new_lines, l:old_text, l:new_text, l:old_text_len, l:new_text_len] = s:_compute(l:old, l:new, l:old_len, l:new_len, l:min_len)
   endif
-
-  if s:is_lua_enabled
-    let l:last_line = luaeval('vital_vs_text_diff_search_last_line(_A[1], _A[2], _A[3])', [l:old, l:new, l:first_line])
-  else
-    let l:last_line = -1
-    while l:last_line > -l:min_len + l:first_line
-      if l:old[l:last_line] !=# l:new[l:last_line]
-        break
-      endif
-      let l:last_line -= 1
-    endwhile
-  endif
-
-  let l:old_lines = l:old[l:first_line : l:last_line]
-  let l:new_lines = l:new[l:first_line : l:last_line]
-  let l:old_text = join(l:old_lines, "\n") . "\n"
-  let l:new_text = join(l:new_lines, "\n") . "\n"
-  let l:old_text_len = strchars(l:old_text)
-  let l:new_text_len = strchars(l:new_text)
-  let l:min_text_len = min([l:old_text_len, l:new_text_len])
-
-  let l:first_char = 0
-  while l:first_char < l:min_text_len - 1
-    if strgetchar(l:old_text, l:first_char) != strgetchar(l:new_text, l:first_char)
-      break
-    endif
-    let l:first_char += 1
-  endwhile
-
-  let l:last_char = 0
-  while l:last_char > -l:min_text_len + l:first_char
-    if strgetchar(l:old_text, l:old_text_len + l:last_char - 1) != strgetchar(l:new_text, l:new_text_len + l:last_char - 1)
-      break
-    endif
-    let l:last_char -= 1
-  endwhile
 
   return {
   \   'range': {
@@ -139,32 +97,105 @@ function! s:compute(old, new) abort
   \ }
 endfunction
 
+"
+" _compute
+"
+function! s:_compute(old, new, old_len, new_len, min_len) abort
+  for l:first_line in range(0, a:min_len - 1)
+    if a:old[l:first_line] !=# a:new[l:first_line]
+      break
+    endif
+  endfor
+
+  for l:last_line in range(-1, (-a:min_len + l:first_line), -1)
+    if a:old[l:last_line] !=# a:new[l:last_line]
+      break
+    endif
+  endfor
+
+  let l:old_lines = a:old[l:first_line : l:last_line]
+  let l:new_lines = a:new[l:first_line : l:last_line]
+  let l:old_text = join(l:old_lines, "\n") . "\n"
+  let l:new_text = join(l:new_lines, "\n") . "\n"
+  let l:old_text_len = strchars(l:old_text)
+  let l:new_text_len = strchars(l:new_text)
+  let l:min_text_len = min([l:old_text_len, l:new_text_len])
+
+  let l:first_char = 0
+  for l:first_char in range(0, l:min_text_len - 1)
+    if strgetchar(l:old_text, l:first_char) != strgetchar(l:new_text, l:first_char)
+      break
+    endif
+  endfor
+
+  let l:last_char = 0
+  for l:last_char in range(0, -l:min_text_len + l:first_char, -1)
+    if strgetchar(l:old_text, l:old_text_len + l:last_char - 1) != strgetchar(l:new_text, l:new_text_len + l:last_char - 1)
+      break
+    endif
+  endfor
+
+  return [l:first_line, l:last_line, l:first_char, l:last_char, l:old_lines, l:new_lines, l:old_text, l:new_text, l:old_text_len, l:new_text_len]
+endfunction
+
 let s:is_lua_enabled = v:false
 function! s:try_enable_lua() abort
 lua <<EOF
-function vital_vs_text_diff_search_first_line(old, new)
-  local min_len = math.min(#old, #new)
+function vital_vs_text_diff_compute(old, new)
+  local old_len = #old
+  local new_len = #new
+  local min_len = math.min(old_len, new_len)
+
   local first_line = 0
   while first_line < min_len - 1 do
     if old[first_line + 1] ~= new[first_line + 1] then
-      return first_line
+      break
     end
     first_line = first_line + 1
   end
-  return min_len - 1
-end
-function vital_vs_text_diff_search_last_line(old, new, first_line)
-  local old_len = #old
-  local new_len = #new
-  local min_len = math.min(#old, #new)
+
   local last_line = -1
   while last_line > -min_len + first_line do
     if old[(old_len + last_line) + 1] ~= new[(new_len + last_line) + 1] then
-      return last_line
+      break
     end
     last_line = last_line - 1
   end
-  return -min_len + first_line
+
+  local old_lines = {}
+  for i = first_line, (old_len + last_line) do
+    table.insert(old_lines, old[i + 1])
+  end
+
+  local new_lines = {}
+  for i = first_line, (new_len + last_line) do
+    table.insert(new_lines, new[i + 1])
+  end
+
+  local old_text = table.concat(old_lines, "\n") .. "\n"
+  local new_text = table.concat(new_lines, "\n") .. "\n"
+
+  local old_text_len = vim.fn.strchars(old_text)
+  local new_text_len = vim.fn.strchars(new_text)
+  local min_text_len = math.min(old_text_len, new_text_len)
+
+  local first_char = 0
+  while first_char < min_text_len - 1 do
+    if vim.fn.strgetchar(old_text, first_char) ~= vim.fn.strgetchar(new_text, first_char) then
+      break
+    end
+    first_char = first_char + 1
+  end
+
+  local last_char = 0
+  while last_char > -min_text_len + first_char do
+    if vim.fn.strgetchar(old_text, old_text_len + last_char - 1) ~= vim.fn.strgetchar(new_text, new_text_len + last_char - 1) then
+      break
+    end
+    last_char = last_char - 1
+  end
+
+  return { first_line, last_line, first_char, last_char, old_lines, new_lines, old_text, new_text, old_text_len, new_text_len }
 end
 EOF
 let s:is_lua_enabled = v:true
