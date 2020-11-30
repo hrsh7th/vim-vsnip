@@ -164,6 +164,12 @@ VsnipOpen~
 Open snippet source file under `g:vsnip_snippet_dir`.
 
 
+VsnipAdd~
+
+Copy the given range formatted as json into the clipboard.
+Then opens snippet source file under `g:vsnip_snippet_dir`.
+
+
 
 ==============================================================================
 BULT-IN VARIABLE                                     *vsnip-built-in-variable*
