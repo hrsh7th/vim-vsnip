@@ -59,11 +59,11 @@ endfunction
 command! -range -bang -nargs=? VsnipAdd call s:add_command(<bang>0, 'vsplit', <line1>, <line2>, <q-args>)
 function! s:add_command(bang, cmd, start, end, name) abort
   let lines = map(getbufline('%', a:start, a:end), { key, val -> json_encode(substitute(val, '\$', '\\$', 'ge')) })
-	let format = "  \"VsnipAdd\": {\n    \"prefix\": [\"%s\"],\n    \"body\": [%s]\n  }"
-	let name = empty(a:name) ? 'new' : a:name
+  let format = "  \"%s\": {\n    \"prefix\": [\"%s\"],\n    \"body\": [\n      %s\n    ]\n  }"
+  let name = empty(a:name) ? 'new' : a:name
 
-	let reg = &clipboard =~# 'unnamed' ? '*' : '"'
-	call setreg(reg, printf(format, name, join(lines, ', ')), 'l')
+  let reg = &clipboard =~# 'unnamed' ? '*' : '"'
+  call setreg(reg, printf(format, name, name, join(lines, ",\n      ")), 'l')
   call s:open_command(a:bang, a:cmd)
 endfunction
 
