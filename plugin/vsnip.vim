@@ -56,6 +56,16 @@ function! s:open_command(bang, cmd)
   \ )))
 endfunction
 
+command! -range -nargs=? -bar VsnipYank call s:add_command(<line1>, <line2>, <q-args>)
+function! s:add_command(start, end, name) abort
+  let lines = map(getbufline('%', a:start, a:end), { key, val -> json_encode(substitute(val, '\$', '\\$', 'ge')) })
+  let format = "  \"%s\": {\n    \"prefix\": [\"%s\"],\n    \"body\": [\n      %s\n    ]\n  }"
+  let name = empty(a:name) ? 'new' : a:name
+
+  let reg = &clipboard =~# 'unnamed' ? '*' : '"'
+  call setreg(reg, printf(format, name, name, join(lines, ",\n      ")), 'l')
+endfunction
+
 "
 " extra mapping
 "

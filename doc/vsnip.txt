@@ -164,6 +164,16 @@ VsnipOpen~
 Open snippet source file under `g:vsnip_snippet_dir`.
 
 
+VsnipYank~
+
+Copy the given range formatted as json into the clipboard.
+Use this command to yank the current line as a snippet with the keyword 'key'
+and open the snippets file.
+>
+  :VsnipYank key | VsnipOpen
+<
+
+
 
 ==============================================================================
 BULT-IN VARIABLE                                     *vsnip-built-in-variable*
