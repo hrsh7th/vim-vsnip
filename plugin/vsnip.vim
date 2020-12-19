@@ -63,6 +63,7 @@ function! s:add_command(start, end, name) abort
   let name = empty(a:name) ? 'new' : a:name
 
   let reg = &clipboard =~# 'unnamed' ? '*' : '"'
+  let reg = &clipboard =~# 'unnamedplus' ? '+' : reg
   call setreg(reg, printf(format, name, name, join(lines, ",\n      ")), 'l')
 endfunction
 
