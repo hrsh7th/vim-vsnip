@@ -6,5 +6,8 @@
   "prefix-alias": {
     "prefix": ["arrow-function"],
     "body": "() => "
+  },
+  "has-no-prefix": {
+    "body": "() => "
   }
 }

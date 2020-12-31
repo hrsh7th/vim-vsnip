@@ -52,7 +52,9 @@ function! vsnip#source#create(path) abort
       call add(l:source, s:format_snippet(l:key, l:value))
     else
       for [l:key, l:value_] in items(l:value)
-        call add(l:source, s:format_snippet(l:key, l:value_))
+        if s:is_snippet(l:value_)
+          call add(l:source, s:format_snippet(l:key, l:value_))
+        endif
       endfor
     endif
   endfor
@@ -60,7 +62,7 @@ function! vsnip#source#create(path) abort
 endfunction
 
 "
-" parse_snippets
+" format_snippet
 "
 function! s:format_snippet(label, snippet) abort
   let [l:prefixes, l:prefixes_alias] = s:resolve_prefix(a:snippet.prefix)
@@ -77,7 +79,7 @@ endfunction
 " is_snippet
 "
 function! s:is_snippet(snippet_or_source) abort
-  return has_key(a:snippet_or_source, 'body') && has_key(a:snippet_or_source, 'prefix')
+  return type(a:snippet_or_source) == type({}) && has_key(a:snippet_or_source, 'prefix') && has_key(a:snippet_or_source, 'body')
 endfunction
 
 "
