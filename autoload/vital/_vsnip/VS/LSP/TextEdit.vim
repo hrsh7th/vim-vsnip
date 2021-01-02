@@ -38,18 +38,29 @@ function! s:apply(path, text_edits) abort
   let l:target_bufname = a:path
   let l:cursor_position = s:Position.cursor()
 
+  let l:old_virtualedit = &virtualedit
+  let l:old_whichwrap = &whichwrap
+  let l:old_winview = winsaveview()
+  let l:old_reg = getreg('x')
+
+  let &virtualedit = 'onemore'
+  let &whichwrap = 'h'
+
+  let l:fix_cursor = v:false
   call s:_switch(l:target_bufname)
   for l:text_edit in s:_normalize(a:text_edits)
-    call s:_apply(bufnr(l:target_bufname), l:text_edit, l:cursor_position)
+    call setreg('x', l:text_edit.newText, 'c')
+    let l:fix_cursor = l:fix_cursor || s:_apply(bufnr(l:target_bufname), l:text_edit, l:cursor_position)
   endfor
   call s:_switch(l:current_bufname)
 
-  if bufnr(l:current_bufname) == bufnr(l:target_bufname)
-    try
-      call cursor(s:Position.lsp_to_vim('%', l:cursor_position))
-    catch /.*/
-      echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
-    endtry
+  let &virtualedit = l:old_virtualedit
+  let &whichwrap = l:old_whichwrap
+  call winrestview(l:old_winview)
+  call setreg('x', l:old_reg)
+
+  if l:fix_cursor && bufnr(l:current_bufname) == bufnr(l:target_bufname)
+    call cursor(s:Position.lsp_to_vim('%', l:cursor_position))
   endif
 endfunction
 
@@ -57,60 +68,31 @@ endfunction
 " _apply
 "
 function! s:_apply(bufnr, text_edit, cursor_position) abort
-  " create before/after line.
-  let l:start_line = getline(a:text_edit.range.start.line + 1)
-  let l:end_line = getline(a:text_edit.range.end.line + 1)
-  let l:before_line = strcharpart(l:start_line, 0, a:text_edit.range.start.character)
-  let l:after_line = strcharpart(l:end_line, a:text_edit.range.end.character, strchars(l:end_line) - a:text_edit.range.end.character)
-
-  " create lines.
+  " prepare.
+  let l:start = s:Position.lsp_to_vim(a:bufnr, a:text_edit.range.start)
+  let l:end = s:Position.lsp_to_vim(a:bufnr, a:text_edit.range.end)
   let l:lines = s:Text.split_by_eol(a:text_edit.newText)
-  let l:lines[0] = l:before_line . l:lines[0]
-  let l:lines[-1] = l:lines[-1] . l:after_line
-
-  " save length.
   let l:lines_len = len(l:lines)
-  let l:range_len = (a:text_edit.range.end.line - a:text_edit.range.start.line) + 1
+  let l:range_len = (l:end[0] - l:start[0]) + 1
 
-  " fix eol.
-  let l:buf_len = len(getbufline(a:bufnr, '^', '$'))
-  let l:fixeol = s:_fixeol
-  let l:fixeol = l:fixeol && &fixendofline
-  let l:fixeol = l:fixeol && l:lines[-1] ==# ''
-  let l:fixeol = l:fixeol && l:buf_len <= a:text_edit.range.end.line
-  let l:fixeol = l:fixeol && a:text_edit.range.end.character == 0
-  if l:fixeol
-    call remove(l:lines, -1)
+  " apply edit.
+  let l:old_reg = getreg('x')
+  if l:start[0] == l:end[0] && l:start[1] == l:end[1]
+    execute printf("keepjumps noautocmd silent! normal! %sG%s|\"xP", l:start[0], l:start[1])
+  else
+    execute printf("keepjumps noautocmd silent! normal! %sG%s|v%sG%s|h\"_d\"xP", l:start[0], l:start[1], l:end[0], l:end[1])
   endif
 
-  " fix cursor
+  " fix cursor.
   if a:text_edit.range.end.line < a:cursor_position.line
-    " fix cursor line
     let a:cursor_position.line += l:lines_len - l:range_len
+    return v:true
   elseif a:text_edit.range.end.line == a:cursor_position.line && a:text_edit.range.end.character <= a:cursor_position.character
-    " fix cursor line and col
     let a:cursor_position.line += l:lines_len - l:range_len
-    let l:end_character = strchars(get(l:lines, -1, '')) - strchars(l:after_line)
-    let l:end_offset = a:cursor_position.character - a:text_edit.range.end.character
-    let a:cursor_position.character = l:end_character + l:end_offset
+    let a:cursor_position.character += strchars(l:lines[-1]) - a:text_edit.range.end.character
+    return v:true
   endif
-
-  " append or delete lines.
-  if l:lines_len > l:range_len
-    call append(a:text_edit.range.end.line, repeat([''], l:lines_len - l:range_len))
-  elseif l:lines_len < l:range_len
-    call s:_delete(a:bufnr, a:text_edit.range.start.line + l:lines_len, a:text_edit.range.end.line)
-  endif
-
-  " set lines.
-  let l:i = 0
-  while l:i < len(l:lines)
-    let l:lnum = a:text_edit.range.start.line + l:i + 1
-    if get(getbufline(a:bufnr, l:lnum), 0, v:null) !=# l:lines[l:i]
-      call setline(l:lnum, l:lines[l:i])
-    endif
-    let l:i += 1
-  endwhile
+  return v:false
 endfunction
 
 "
@@ -177,20 +159,6 @@ function! s:_switch(path) abort
     execute printf('keepalt keepjumps %sbuffer!', bufnr(a:path))
   else
     execute printf('keepalt keepjumps edit! %s', fnameescape(a:path))
-  endif
-endfunction
-
-"
-" _delete
-"
-function! s:_delete(bufnr, start, end) abort
-  if exists('*deletebufline')
-    call deletebufline(a:bufnr, a:start, a:end)
-  else
-    let l:foldenable = &foldenable
-    setlocal nofoldenable
-    execute printf('%s,%sdelete _', a:start, a:end)
-    let &foldenable = l:foldenable
   endif
 endfunction
 

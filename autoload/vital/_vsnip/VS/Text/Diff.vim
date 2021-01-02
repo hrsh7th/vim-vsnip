@@ -11,7 +11,7 @@ delfunction s:_SID
 " is_lua_enabled
 "
 function! s:is_lua_enabled(is_lua_enabled) abort
-  let s:is_lua_enabled = a:is_lua_enabled
+  let s:is_lua_enabled = a:is_lua_enabled && has('nvim')
 endfunction
 
 "
