@@ -359,6 +359,10 @@ function! s:Snippet.merge(tabstop, snippet) abort
     let l:node.id = l:tabstop_map[l:node.id]
     let l:offset += 1
   endfor
+  if empty(l:tabstop_map)
+    return
+  endif
+
   let l:tail = l:node
 
   " re-assign current snippet's tabstop by new snippet's final tabstop
