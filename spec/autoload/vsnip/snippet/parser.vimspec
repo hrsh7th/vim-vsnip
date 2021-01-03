@@ -170,9 +170,9 @@ Describe vsnip#snippet#parser
       \ })
     End
 
-    It should parse variable
-      let l:parsed = vsnip#snippet#parser#parse('${variable:default}${variable/(.*)/${1:/capitalize}/}')
-      call s:expect(len(l:parsed)).to_equal(2)
+    It should parse simple variable
+      let l:parsed = vsnip#snippet#parser#parse('${variable:default}')
+      call s:expect(len(l:parsed)).to_equal(1)
       call s:expect(l:parsed[0]).to_equal({
       \   'type': 'variable',
       \   'name': 'variable',
@@ -182,7 +182,30 @@ Describe vsnip#snippet#parser
       \     'escaped': 'default',
       \   }]
       \ })
-      call s:expect(l:parsed[1]).to_equal({
+    End
+
+    It should parse variable with multiple children
+      let l:parsed = vsnip#snippet#parser#parse('${variable: $1}')
+      call s:expect(len(l:parsed)).to_equal(1)
+      call s:expect(l:parsed[0]).to_equal({
+      \   'type': 'variable',
+      \   'name': 'variable',
+      \   'children': [{
+      \     'type': 'text',
+      \     'raw': ' ',
+      \     'escaped': ' ',
+      \   }, {
+      \     'type': 'placeholder',
+      \     'id': 1,
+      \     'children': []
+      \   }],
+      \ })
+    End
+
+    It should parse variable with regex
+      let l:parsed = vsnip#snippet#parser#parse('${variable/(.*)/${1:/capitalize}/}')
+      call s:expect(len(l:parsed)).to_equal(1)
+      call s:expect(l:parsed[0]).to_equal({
       \   'type': 'variable',
       \   'name': 'variable',
       \   'children': [],
