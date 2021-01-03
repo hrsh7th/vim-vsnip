@@ -4,7 +4,7 @@
 function! s:_SID() abort
   return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze__SID$')
 endfunction
-execute join(['function! vital#_vsnip#VS#LSP#TextEdit#import() abort', printf("return map({'_vital_depends': '', 'fixeol': '', 'apply': '', '_vital_loaded': ''}, \"vital#_vsnip#function('<SNR>%s_' . v:key)\")", s:_SID()), 'endfunction'], "\n")
+execute join(['function! vital#_vsnip#VS#LSP#TextEdit#import() abort', printf("return map({'set_method': '', '_vital_depends': '', 'get_method': '', 'is_text_mark_preserved': '', 'apply': '', 'get_methods': '', '_vital_loaded': ''}, \"vital#_vsnip#function('<SNR>%s_' . v:key)\")", s:_SID()), 'endfunction'], "\n")
 delfunction s:_SID
 " ___vital___
 "
@@ -13,21 +13,67 @@ delfunction s:_SID
 function! s:_vital_loaded(V) abort
   let s:Text = a:V.import('VS.LSP.Text')
   let s:Position = a:V.import('VS.LSP.Position')
+  let s:Option = a:V.import('VS.Vim.Option')
 endfunction
 
 "
 " _vital_depends
 "
 function! s:_vital_depends() abort
-  return ['VS.LSP.Text']
+  return ['VS.LSP.Text', 'VS.LSP.Position', 'VS.Vim.Option']
 endfunction
 
 "
-" fixeol
+" Current selected method.
 "
-let s:_fixeol = v:false
-function! s:fixeol(bool) abort
-  let s:_fixeol = a:bool
+let s:_method = 'auto'
+
+"
+" This dict contains some logics for patching text.
+"
+let s:_methods = {}
+
+"
+" set_method
+"
+function! s:set_method(method) abort
+  if !has_key(s:_methods, a:method)
+    let s:_method = 'auto'
+  elseif a:method ==# 'nvim_buf_set_text' && !exists('*nvim_buf_set_text')
+    let s:_method = 'auto'
+  elseif a:method ==# 'normal' && has('nvim')
+    let s:_method = 'auto'
+  else
+    let s:_method = a:method
+  endif
+endfunction
+
+"
+" get_method
+"
+function! s:get_method() abort
+  if s:_method ==# 'auto'
+    if exists('*nvim_buf_set_text')
+      return 'nvim_buf_set_text'
+    else
+      return 'normal'
+    endif
+  endif
+  return s:_method
+endfunction
+
+"
+" get_methods
+"
+function! s:get_methods() abort
+  return ['function', 'nvim_buf_set_text', 'normal']
+endfunction
+
+"
+" is_text_mark_preserved
+"
+function! s:is_text_mark_preserved() abort
+  return index(['nvim_buf_set_text'], s:get_method()) >= 0
 endfunction
 
 "
@@ -38,90 +84,173 @@ function! s:apply(path, text_edits) abort
   let l:target_bufname = a:path
   let l:cursor_position = s:Position.cursor()
 
-  call s:_switch(l:target_bufname)
-  for l:text_edit in s:_normalize(a:text_edits)
-    call s:_apply(bufnr(l:target_bufname), l:text_edit, l:cursor_position)
-  endfor
-  call s:_switch(l:current_bufname)
+  try
+    call s:_switch(a:path)
+    let [l:has_overflowed, l:text_edits] = s:_normalize(bufnr(l:target_bufname), a:text_edits)
+    let l:fix_cursor = s:_methods[s:get_method()](bufnr(l:target_bufname), l:text_edits, l:cursor_position)
+    if l:has_overflowed && getline('$') ==# ''
+      $delete _
+    endif
+    call s:_switch(l:current_bufname)
+  catch /.*/
+    call themis#log(string({ 'exception': v:exception, 'throwpoint': v:throwpoint }))
+  endtry
 
-  if bufnr(l:current_bufname) == bufnr(l:target_bufname)
-    try
-      call cursor(s:Position.lsp_to_vim('%', l:cursor_position))
-    catch /.*/
-      echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
-    endtry
+  if get(l:, 'fix_cursor', v:false) && bufnr(l:current_bufname) == bufnr(l:target_bufname)
+    call cursor(s:Position.lsp_to_vim('%', l:cursor_position))
   endif
 endfunction
 
-"
-" _apply
-"
-function! s:_apply(bufnr, text_edit, cursor_position) abort
-  " create before/after line.
-  let l:start_line = getline(a:text_edit.range.start.line + 1)
-  let l:end_line = getline(a:text_edit.range.end.line + 1)
-  let l:before_line = strcharpart(l:start_line, 0, a:text_edit.range.start.character)
-  let l:after_line = strcharpart(l:end_line, a:text_edit.range.end.character, strchars(l:end_line) - a:text_edit.range.end.character)
+let s:_methods = {}
 
-  " create lines.
-  let l:lines = s:Text.split_by_eol(a:text_edit.newText)
-  let l:lines[0] = l:before_line . l:lines[0]
-  let l:lines[-1] = l:lines[-1] . l:after_line
+"
+" nvim_buf_set_text
+"
+function! s:_methods.nvim_buf_set_text(bufnr, text_edits, cursor_position) abort
+  let l:fix_cursor = v:false
 
-  " save length.
-  let l:lines_len = len(l:lines)
+  for l:text_edit in a:text_edits
+    let l:start = s:Position.lsp_to_vim(a:bufnr, l:text_edit.range.start)
+    let l:end = s:Position.lsp_to_vim(a:bufnr, l:text_edit.range.end)
+    let l:lines = s:Text.split_by_eol(l:text_edit.newText)
+    call nvim_buf_set_text(
+    \   a:bufnr,
+    \   l:start[0] - 1,
+    \   l:start[1] - 1,
+    \   l:end[0] - 1,
+    \   l:end[1] - 1,
+    \   l:lines
+    \ )
+    let l:fix_cursor = s:_fix_cursor(a:cursor_position, l:text_edit, l:lines) || l:fix_cursor
+  endfor
+
+  return l:fix_cursor
+endfunction
+
+"
+" normal
+"
+function! s:_methods.normal(bufnr, text_edits, cursor_position) abort
+  let l:fix_cursor = v:false
+
+  try
+    let l:Restore = s:Option.define({
+    \   'foldenable': '1',
+    \   'virtualedit': 'onemore',
+    \   'whichwrap': 'h',
+    \   'selection': 'exclusive',
+    \ })
+    let l:view = winsaveview()
+    let l:regx = getreg('x')
+
+    for l:text_edit in a:text_edits
+      let l:start = s:Position.lsp_to_vim(a:bufnr, l:text_edit.range.start)
+      let l:end = s:Position.lsp_to_vim(a:bufnr, l:text_edit.range.end)
+      if l:start[0] != l:end[0] || l:start[1] != l:end[1]
+        let l:command = printf('%sG%s|v%sG%s|"_d', l:start[0], l:start[1], l:end[0], l:end[1])
+      else
+        let l:command = printf('%sG%s|', l:start[0], l:start[1])
+      endif
+      call setreg('x', s:Text.normalize_eol(l:text_edit.newText), 'c')
+      execute printf('noautocmd keepjumps normal! %s"xP', l:command)
+
+      let l:fix_cursor = s:_fix_cursor(a:cursor_position, l:text_edit, s:Text.split_by_eol(l:text_edit.newText)) || l:fix_cursor
+    endfor
+  catch /.*/
+    echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
+  finally
+    call l:Restore()
+    call winrestview(l:view)
+    call setreg('x', l:regx)
+  endtry
+
+  return l:fix_cursor
+endfunction
+
+"
+" function
+"
+function! s:_methods.function(bufnr, text_edits, cursor_position) abort
+  let l:fix_cursor = v:false
+  try
+    let l:Restore = s:Option.define({
+    \   'foldenable': '1',
+    \ })
+
+    for l:text_edit in a:text_edits
+      let l:start_line = getline(l:text_edit.range.start.line + 1)
+      let l:end_line = getline(l:text_edit.range.end.line + 1)
+      let l:before_line = strcharpart(l:start_line, 0, l:text_edit.range.start.character)
+      let l:after_line = strcharpart(l:end_line, l:text_edit.range.end.character, strchars(l:end_line) - l:text_edit.range.end.character)
+
+      " create lines.
+      let l:lines = s:Text.split_by_eol(l:text_edit.newText)
+      let l:lines[0] = l:before_line . l:lines[0]
+      let l:lines[-1] = l:lines[-1] . l:after_line
+
+      " save length.
+      let l:lines_len = len(l:lines)
+      let l:range_len = (l:text_edit.range.end.line - l:text_edit.range.start.line) + 1
+
+      " append or delete lines.
+      if l:lines_len > l:range_len
+        call append(l:text_edit.range.end.line, repeat([''], l:lines_len - l:range_len))
+      elseif l:lines_len < l:range_len
+        execute printf('%s,%sdelete _', l:text_edit.range.start.line + l:lines_len, l:text_edit.range.end.line)
+      endif
+
+      " set lines.
+      let l:i = 0
+      while l:i < len(l:lines)
+        let l:lnum = l:text_edit.range.start.line + l:i + 1
+        if get(getbufline(a:bufnr, l:lnum), 0, v:null) !=# l:lines[l:i]
+          call setline(l:lnum, l:lines[l:i])
+        endif
+        let l:i += 1
+      endwhile
+
+      let l:fix_cursor = s:_fix_cursor(a:cursor_position, l:text_edit, s:Text.split_by_eol(l:text_edit.newText))
+    endfor
+  catch /.*/
+    echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
+  finally
+    call l:Restore()
+  endtry
+
+  return l:fix_cursor
+endfunction
+
+"
+" _fix_cursor
+"
+function! s:_fix_cursor(position, text_edit, lines) abort
+  let l:lines_len = len(a:lines)
   let l:range_len = (a:text_edit.range.end.line - a:text_edit.range.start.line) + 1
 
-  " fix eol.
-  let l:buf_len = len(getbufline(a:bufnr, '^', '$'))
-  let l:fixeol = s:_fixeol
-  let l:fixeol = l:fixeol && &fixendofline
-  let l:fixeol = l:fixeol && l:lines[-1] ==# ''
-  let l:fixeol = l:fixeol && l:buf_len <= a:text_edit.range.end.line
-  let l:fixeol = l:fixeol && a:text_edit.range.end.character == 0
-  if l:fixeol
-    call remove(l:lines, -1)
-  endif
-
-  " fix cursor
-  if a:text_edit.range.end.line < a:cursor_position.line
-    " fix cursor line
-    let a:cursor_position.line += l:lines_len - l:range_len
-  elseif a:text_edit.range.end.line == a:cursor_position.line && a:text_edit.range.end.character <= a:cursor_position.character
-    " fix cursor line and col
-    let a:cursor_position.line += l:lines_len - l:range_len
-    let l:end_character = strchars(get(l:lines, -1, '')) - strchars(l:after_line)
-    let l:end_offset = a:cursor_position.character - a:text_edit.range.end.character
-    let a:cursor_position.character = l:end_character + l:end_offset
-  endif
-
-  " append or delete lines.
-  if l:lines_len > l:range_len
-    call append(a:text_edit.range.end.line, repeat([''], l:lines_len - l:range_len))
-  elseif l:lines_len < l:range_len
-    call s:_delete(a:bufnr, a:text_edit.range.start.line + l:lines_len, a:text_edit.range.end.line)
-  endif
-
-  " set lines.
-  let l:i = 0
-  while l:i < len(l:lines)
-    let l:lnum = a:text_edit.range.start.line + l:i + 1
-    if get(getbufline(a:bufnr, l:lnum), 0, v:null) !=# l:lines[l:i]
-      call setline(l:lnum, l:lines[l:i])
+  if a:text_edit.range.end.line < a:position.line
+    let a:position.line += l:lines_len - l:range_len
+    return v:true
+  elseif a:text_edit.range.end.line == a:position.line && a:text_edit.range.end.character <= a:position.character
+    let a:position.line += l:lines_len - l:range_len
+    let a:position.character = strchars(a:lines[-1]) + (a:position.character - a:text_edit.range.end.character)
+    if l:lines_len == 1
+      let a:position.character += a:text_edit.range.start.character
     endif
-    let l:i += 1
-  endwhile
+    return v:true
+  endif
+  return v:false
 endfunction
 
 "
 " _normalize
 "
-function! s:_normalize(text_edits) abort
+function! s:_normalize(bufnr, text_edits) abort
   let l:text_edits = type(a:text_edits) == type([]) ? a:text_edits : [a:text_edits]
   let l:text_edits = s:_range(l:text_edits)
   let l:text_edits = sort(copy(l:text_edits), function('s:_compare', [], {}))
   let l:text_edits = s:_check(l:text_edits)
-  return reverse(l:text_edits)
+  let l:text_edits =  reverse(l:text_edits)
+  return s:_fix_text_edits(a:bufnr, l:text_edits)
 endfunction
 
 "
@@ -150,7 +279,8 @@ function! s:_check(text_edits) abort
       \   l:range.end.line == l:text_edit.range.start.line &&
       \   l:range.end.character > l:text_edit.range.start.character
       \ )
-        throw 'VS.LSP.TextEdit: range overlapped.'
+
+        echomsg 'VS.LSP.TextEdit: range overlapped.'
       endif
       let l:range = l:text_edit.range
     endfor
@@ -170,6 +300,33 @@ function! s:_compare(text_edit1, text_edit2) abort
 endfunction
 
 "
+" _fix_text_edits
+"
+function! s:_fix_text_edits(bufnr, text_edits) abort
+  let l:buf = getbufline(a:bufnr, '^', '$')
+  let l:max = len(l:buf)
+
+  let l:has_overflowed = v:false
+  let l:text_edits = []
+  for l:text_edit in a:text_edits
+    if l:max <= l:text_edit.range.start.line
+      let l:text_edit.range.start.line = l:max - 1
+      let l:text_edit.range.start.character = strchars(get(l:buf, -1, 0))
+      let l:text_edit.newText = "\n" . l:text_edit.newText
+      let l:has_overflowed = v:true
+    endif
+    if l:max <= l:text_edit.range.end.line
+      let l:text_edit.range.end.line = l:max - 1
+      let l:text_edit.range.end.character = strchars(get(l:buf, -1, 0))
+      let l:has_overflowed = v:true
+    endif
+    call add(l:text_edits, l:text_edit)
+  endfor
+
+  return [l:has_overflowed, l:text_edits]
+endfunction
+
+"
 " _switch
 "
 function! s:_switch(path) abort
@@ -177,20 +334,6 @@ function! s:_switch(path) abort
     execute printf('keepalt keepjumps %sbuffer!', bufnr(a:path))
   else
     execute printf('keepalt keepjumps edit! %s', fnameescape(a:path))
-  endif
-endfunction
-
-"
-" _delete
-"
-function! s:_delete(bufnr, start, end) abort
-  if exists('*deletebufline')
-    call deletebufline(a:bufnr, a:start, a:end)
-  else
-    let l:foldenable = &foldenable
-    setlocal nofoldenable
-    execute printf('%s,%sdelete _', a:start, a:end)
-    let &foldenable = l:foldenable
   endif
 endfunction
 
