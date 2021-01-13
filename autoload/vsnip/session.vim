@@ -1,7 +1,7 @@
 let s:Snippet = vsnip#snippet#import()
 let s:TextEdit = vital#vsnip#import('VS.LSP.TextEdit')
 let s:Position = vital#vsnip#import('VS.LSP.Position')
-let s:Diff = vital#vsnip#import('VS.Text.Diff')
+let s:Diff = vital#vsnip#import('VS.LSP.Diff')
 
 "
 " import.

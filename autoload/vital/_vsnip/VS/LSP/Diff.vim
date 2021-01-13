@@ -4,16 +4,9 @@
 function! s:_SID() abort
   return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze__SID$')
 endfunction
-execute join(['function! vital#_vsnip#VS#Text#Diff#import() abort', printf("return map({'try_enable_lua': '', 'is_lua_enabled': '', 'compute': ''}, \"vital#_vsnip#function('<SNR>%s_' . v:key)\")", s:_SID()), 'endfunction'], "\n")
+execute join(['function! vital#_vsnip#VS#LSP#Diff#import() abort', printf("return map({'try_enable_lua': '', 'compute': ''}, \"vital#_vsnip#function('<SNR>%s_' . v:key)\")", s:_SID()), 'endfunction'], "\n")
 delfunction s:_SID
 " ___vital___
-"
-" is_lua_enabled
-"
-function! s:is_lua_enabled(is_lua_enabled) abort
-  let s:is_lua_enabled = a:is_lua_enabled && has('nvim')
-endfunction
-
 "
 " compute
 "
@@ -76,7 +69,7 @@ function! s:compute(old, new) abort
   endif
 
   if s:is_lua_enabled
-    let l:first_line = luaeval('vital_vs_text_diff_search_first_line(_A[1], _A[2])', [l:old, l:new])
+    let l:first_line = luaeval('vital_vs_lsp_diff_search_first_line(_A[1], _A[2])', [l:old, l:new])
   else
     let l:first_line = 0
     while l:first_line < l:min_len - 1
@@ -88,7 +81,7 @@ function! s:compute(old, new) abort
   endif
 
   if s:is_lua_enabled
-    let l:last_line = luaeval('vital_vs_text_diff_search_last_line(_A[1], _A[2], _A[3])', [l:old, l:new, l:first_line])
+    let l:last_line = luaeval('vital_vs_lsp_diff_search_last_line(_A[1], _A[2], _A[3])', [l:old, l:new, l:first_line])
   else
     let l:last_line = -1
     while l:last_line > -l:min_len + l:first_line
@@ -139,10 +132,9 @@ function! s:compute(old, new) abort
   \ }
 endfunction
 
-let s:is_lua_enabled = v:false
 function! s:try_enable_lua() abort
 lua <<EOF
-function vital_vs_text_diff_search_first_line(old, new)
+function vital_vs_lsp_diff_search_first_line(old, new)
   local min_len = math.min(#old, #new)
   local first_line = 0
   while first_line < min_len - 1 do
@@ -153,7 +145,7 @@ function vital_vs_text_diff_search_first_line(old, new)
   end
   return min_len - 1
 end
-function vital_vs_text_diff_search_last_line(old, new, first_line)
+function vital_vs_lsp_diff_search_last_line(old, new, first_line)
   local old_len = #old
   local new_len = #new
   local min_len = math.min(#old, #new)
@@ -167,12 +159,13 @@ function vital_vs_text_diff_search_last_line(old, new, first_line)
   return -min_len + first_line
 end
 EOF
-let s:is_lua_enabled = v:true
 endfunction
 
+let s:is_lua_enabled = v:false
 if has('nvim')
   try
     call s:try_enable_lua()
+    let s:is_lua_enabled = v:true
   catch /.*/
   endtry
 endif
