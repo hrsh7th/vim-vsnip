@@ -60,7 +60,22 @@ endfunction
 "
 function! vsnip#anonymous(text, ...) abort
   let l:option = get(a:000, 0, {})
+  let l:prefix = get(l:option, 'prefix', v:null)
   let l:position = get(l:option, 'position', s:Position.cursor())
+
+  if l:prefix isnot# v:null
+    let l:position.character -= strchars(l:prefix)
+    call s:TextEdit.apply(bufnr('%'), [{
+    \   'range': {
+    \     'start': l:position,
+    \     'end': {
+    \       'line': l:position.line,
+    \       'character': l:position.character + strchars(l:prefix),
+    \     },
+    \   },
+    \   'newText': ''
+    \ }])
+  endif
 
   let l:session = s:Session.new(bufnr('%'), l:position, a:text)
 
