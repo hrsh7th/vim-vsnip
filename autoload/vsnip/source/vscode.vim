@@ -20,13 +20,13 @@ endfunction
 " vsnip#source#vscode#find.
 "
 function! vsnip#source#vscode#find(bufnr) abort
-  return s:find(s:get_language(getbufvar(a:bufnr, '&filetype', '')))
+  return s:find(map(vsnip#source#filetypes(a:bufnr), 's:get_language(v:val)'))
 endfunction
 
 "
 " find.
 "
-function! s:find(language) abort
+function! s:find(languages) abort
   " Load `package.json#contributes.snippets` if does not exists it's cache.
   for l:rtp in split(&runtimepath, ',')
     if has_key(s:runtimepaths, l:rtp)
@@ -70,10 +70,12 @@ function! s:find(language) abort
 
   " filter by language.
   let l:sources = []
-  for [l:path, l:snippet] in items(s:snippets)
-    if index(l:snippet.languages, a:language) >= 0
-      call add(l:sources, l:snippet.source)
-    endif
+  for l:language in a:languages
+    for [l:path, l:snippet] in items(s:snippets)
+      if index(l:snippet.languages, l:language) >= 0
+        call add(l:sources, l:snippet.source)
+      endif
+    endfor
   endfor
   return l:sources
 endfunction

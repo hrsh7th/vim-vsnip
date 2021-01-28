@@ -4,9 +4,13 @@
 function! s:_SID() abort
   return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze__SID$')
 endfunction
-execute join(['function! vital#_vsnip#VS#Vim#Buffer#import() abort', printf("return map({'get_line_count': ''}, \"vital#_vsnip#function('<SNR>%s_' . v:key)\")", s:_SID()), 'endfunction'], "\n")
+execute join(['function! vital#_vsnip#VS#Vim#Buffer#import() abort', printf("return map({'get_line_count': '', 'do': '', 'create': '', 'load': ''}, \"vital#_vsnip#function('<SNR>%s_' . v:key)\")", s:_SID()), 'endfunction'], "\n")
 delfunction s:_SID
 " ___vital___
+let s:Do = { -> {} }
+
+let g:___VS_Vim_Buffer_id = get(g:, '___VS_Vim_Buffer_id', 0)
+
 "
 " get_line_count
 "
@@ -26,4 +30,62 @@ else
     return len(getbufline(a:bufnr, '^', '$'))
   endfunction
 endif
+
+"
+" create
+"
+function! s:create(...) abort
+  let g:___VS_Vim_Buffer_id += 1
+  let l:bufnr = bufnr(printf('VS.Vim.Buffer: %s: %s',
+  \   g:___VS_Vim_Buffer_id,
+  \   get(a:000, 0, 'VS.Vim.Buffer.Default')
+  \ ), v:true)
+  call s:load(l:bufnr)
+  return l:bufnr
+endfunction
+
+"
+" load
+"
+if exists('*bufload')
+  function! s:load(bufnr_or_path) abort
+    let l:bufnr = bufnr(a:bufnr_or_path, v:true)
+    silent call bufload(l:bufnr)
+    return l:bufnr
+  endfunction
+else
+  function! s:load(bufnr_or_path) abort
+    let l:curr_bufnr = bufnr('%')
+
+    try
+      let l:bufnr = bufnr(a:bufnr_or_path, v:true)
+      execute printf('keepalt keepjumps silent %sbuffer', l:bufnr)
+    catch /.*/
+      echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
+    finally
+      execute printf('noautocmd keepalt keepjumps silent %sbuffer', l:curr_bufnr)
+    endtry
+    return l:bufnr
+  endfunction
+endif
+
+"
+" do
+"
+function! s:do(bufnr, func) abort
+  let l:curr_bufnr = bufnr('%')
+  if l:curr_bufnr == a:bufnr
+    call a:func()
+    return
+  endif
+
+  try
+    execute printf('noautocmd keepalt keepjumps silent %sbuffer', a:bufnr)
+    call a:func()
+  catch /.*/
+    echomsg string({ 'exception': v:exception, 'throwpoint': v:throwpoint })
+  finally
+    execute printf('noautocmd keepalt keepjumps silent %sbuffer', l:curr_bufnr)
+  endtry
+endfunction
 
