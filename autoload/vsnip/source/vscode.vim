@@ -53,14 +53,21 @@ function! s:find(languages) abort
       " Create source if does not exists it's cache.
       for l:snippet in l:package_json.contributes.snippets
         let l:path = resolve(expand(l:rtp . '/' . l:snippet.path))
+        let l:languages = type(l:snippet.language) == type([]) ? l:snippet.language : [l:snippet.language]
 
-        " if already cached `snippets.json`, skip it.
+        " if already cached `snippets.json`, add new language.
         if has_key(s:snippets, l:path)
+          for l:language in l:languages
+            if index(s:snippets[l:path].languages, l:language) == -1
+              call add(s:snippets[l:path].languages, l:language)
+            endif
+          endfor
           continue
         endif
 
+        " register new snippet.
         let s:snippets[l:path] = {
-        \   'languages': type(l:snippet.language) == type([]) ? l:snippet.language : [l:snippet.language],
+        \   'languages': l:languages,
         \   'source': vsnip#source#create(l:path)
         \ }
       endfor
