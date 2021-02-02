@@ -1,4 +1,5 @@
 let s:Session = vsnip#session#import()
+let s:Snippet = vsnip#snippet#import()
 let s:TextEdit = vital#vsnip#import('VS.LSP.TextEdit')
 let s:Position = vital#vsnip#import('VS.LSP.Position')
 
@@ -198,6 +199,14 @@ function! vsnip#get_complete_items(bufnr) abort
   endfor
 
   return l:candidates
+endfunction
+
+"
+" vsnip#decode
+"
+function! vsnip#to_string(text) abort
+  let l:text = type(a:text) == type([]) ? join(a:text, "\n") : a:text
+  return s:Snippet.new(s:Position.cursor(), l:text).text()
 endfunction
 
 "
