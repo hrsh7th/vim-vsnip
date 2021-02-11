@@ -10,7 +10,7 @@ VSCode(LSP)'s snippet feature in vim.
 - Nested snippet expansion
     - You can expand snippet even if you already activated other snippet (it will be merged as one snippet)
 - Load snippet from VSCode extension
-    - If you install VSCode extension via `Plug 'microsoft/vscode-python'`, vsnip will load those snippets.
+    - If you install VSCode extension via `Plug 'golang/vscode-go'`, vsnip will load those snippets.
 - Support many LSP-client & completion-engine by [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ)
     - LSP-client
       - [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
