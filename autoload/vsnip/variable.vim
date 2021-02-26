@@ -154,13 +154,15 @@ call vsnip#variable#register('BLOCK_COMMENT_START', function('s:BLOCK_COMMENT_ST
 
 function! s:BLOCK_COMMENT_END(context) abort
   let l:chars = split(&commentstring, '%s')
-  return len(l:chars) > 1 ? l:chars[1] : l:chars[0]
+  let l:comment = len(l:chars) > 1 ? l:chars[1] : l:chars[0]
+  return trim(l:comment)
 endfunction
 call vsnip#variable#register('BLOCK_COMMENT_END', function('s:BLOCK_COMMENT_END'))
 
 function! s:LINE_COMMENT(context) abort
   let l:chars = split(&commentstring, '%s')
-  return &commentstring =~ '^/\*' ? '//' : substitute(&commentstring, '%s', '', 'g')
+  let l:comment = &commentstring =~ '^/\*' ? '//' : substitute(&commentstring, '%s', '', 'g')
+  return trim(l:comment)
 endfunction
 call vsnip#variable#register('LINE_COMMENT', function('s:LINE_COMMENT'))
 
