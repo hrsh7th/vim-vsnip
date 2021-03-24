@@ -41,17 +41,18 @@ function! s:open_command(bang, cmd)
     endif
   endif
 
-  if !isdirectory(g:vsnip_snippet_dir)
+  let l:expanded_dir = expand(g:vsnip_snippet_dir)
+  if !isdirectory(l:expanded_dir)
     let l:prompt = printf('`%s` does not exists, create? y(es)/n(o): ', g:vsnip_snippet_dir)
     if index(['y', 'ye', 'yes'], input(l:prompt)) >= 0
-      call mkdir(g:vsnip_snippet_dir, 'p')
+      call mkdir(l:expanded_dir, 'p')
     else
       return
     endif
   endif
 
   execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.json',
-  \   resolve(expand(g:vsnip_snippet_dir)),
+  \   resolve(l:expanded_dir),
   \   l:candidates[l:idx - 1]
   \ )))
 endfunction
