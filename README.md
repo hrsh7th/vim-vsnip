@@ -2,30 +2,28 @@
 
 VSCode(LSP)'s snippet feature in vim.
 
-
 # Features
 
 - Nested placeholders
   - You can define snippet like `console.log($1${2:, $1})$0`
 - Nested snippet expansion
-    - You can expand snippet even if you already activated other snippet (it will be merged as one snippet)
+  - You can expand snippet even if you already activated other snippet (it will be merged as one snippet)
 - Load snippet from VSCode extension
-    - If you install VSCode extension via `Plug 'golang/vscode-go'`, vsnip will load those snippets.
+  - If you install VSCode extension via `Plug 'golang/vscode-go'`, vsnip will load those snippets.
 - Support many LSP-client & completion-engine by [vim-vsnip-integ](https://github.com/hrsh7th/vim-vsnip-integ)
-    - LSP-client
-      - [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
-      - [vim-lsc](https://github.com/natebosch/vim-lsc)
-      - [LanguageClient-neovim](https://github.com/autozimu/LanguageClient-neovim)
-      - [neovim built-in lsp](https://github.com/neovim/neovim)
-      - [vim-lamp](https://github.com/hrsh7th/vim-lamp)
-    - completion-engine
-      - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
-      - [asyncomplete.vim](https://github.com/prabirshrestha/asyncomplete.vim)
-      - [vim-mucomplete](https://github.com/lifepillar/vim-mucomplete)
-      - [completion-nvim](https://github.com/nvim-lua/completion-nvim)
+  - LSP-client
+    - [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
+    - [vim-lsc](https://github.com/natebosch/vim-lsc)
+    - [LanguageClient-neovim](https://github.com/autozimu/LanguageClient-neovim)
+    - [neovim built-in lsp](https://github.com/neovim/neovim)
+    - [vim-lamp](https://github.com/hrsh7th/vim-lamp)
+  - completion-engine
+    - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
+    - [asyncomplete.vim](https://github.com/prabirshrestha/asyncomplete.vim)
+    - [vim-mucomplete](https://github.com/lifepillar/vim-mucomplete)
+    - [completion-nvim](https://github.com/nvim-lua/completion-nvim)
 - Vim script interpolation
-    - You can use Vim script interpolation as `${VIM:...Vim script expression...}`.
-
+  - You can use Vim script interpolation as `${VIM:...Vim script expression...}`.
 
 # Concept
 
@@ -34,6 +32,22 @@ VSCode(LSP)'s snippet feature in vim.
 - Support VSCode snippet format
 - Provide integration with many plugins
 
+# Related repository
+
+[friendly-snippets](https://github.com/rafamadriz/friendly-snippets) - Set of preconfigured snippets for all kind of programming languages that integrates really well with [vim-vsnip](https://github.com/hrsh7th/vim-vsnip), so all users can benefit from them and not to worry about setting up snippets on their own. It already includes:
+
+- HTML, Pug, Jade
+- CSS, Sass, Less, Stylus
+- Javascript, Typescript, Javascriptreact, Typescriptreact
+- PHP
+- Python
+- C
+- C++
+- Rust
+- Go
+- Eruby
+- Ruby
+- Swift
 
 # Usage
 
@@ -51,7 +65,6 @@ call dein#add('hrsh7th/vim-vsnip-integ')
 NeoBundle 'hrsh7th/vim-vsnip'
 NeoBundle 'hrsh7th/vim-vsnip-integ'
 ```
-
 
 ### 2. Setting
 
@@ -85,7 +98,6 @@ let g:vsnip_filetypes.javascriptreact = ['javascript']
 let g:vsnip_filetypes.typescriptreact = ['typescript']
 ```
 
-
 ### 3. Create your own snippet
 
 Snippet file will store to `g:vsnip_snippet_dir` per filetype.
@@ -114,7 +126,6 @@ Snippet file will store to `g:vsnip_snippet_dir` per filetype.
 ```
 
 The snippet format was described in [here](https://code.visualstudio.com/docs/editor/userdefinedsnippets#_snippet-syntax) or [here](https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md).
-
 
 # Recipe
 
@@ -174,7 +185,6 @@ You can insert UUID via python.
 
 NOTE: `$VIM` is only in vsnip. So that makes to lost the snippet portability.
 
-
 # DEMO
 
 ### LSP integration
@@ -185,13 +195,11 @@ NOTE: `$VIM` is only in vsnip. So that makes to lost the snippet portability.
 
 <img src="https://user-images.githubusercontent.com/629908/90157756-17761100-ddc9-11ea-843f-d8b0d529ac61.gif" width="480" alt="&lt;Plug&rt;(vsnip-cut-text) with $TM_SELECTED_TEXT" />
 
-
 # Development
 
 ### How to run test it?
 
 You can run `npm run test` after install [vim-themis](https://github.com/thinca/vim-themis).
-
 
 ### How sync same tabstop placeholders?
 
