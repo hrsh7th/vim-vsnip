@@ -66,12 +66,14 @@ endfunction
 "
 function! s:format_snippet(label, snippet) abort
   let [l:prefixes, l:prefixes_alias] = s:resolve_prefix(a:snippet.prefix)
+  let l:description = get(a:snippet, 'description', '')
+
   return {
   \   'label': a:label,
   \   'prefix': l:prefixes,
   \   'prefix_alias': l:prefixes_alias,
   \   'body': type(a:snippet.body) == type([]) ? a:snippet.body : [a:snippet.body],
-  \   'description': get(a:snippet, 'description', '')
+  \   'description': type(l:description) == type([]) ? join(l:description, '') :  l:description,
   \ }
 endfunction
 
