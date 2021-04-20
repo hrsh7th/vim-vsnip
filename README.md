@@ -28,7 +28,7 @@ VSCode(LSP)'s snippet feature in vim.
 # Concept
 
 - Pure Vim script
-- Well tested
+- Well tested (neovim/0.4.4, vim/8.0.1567)
 - Support VSCode snippet format
 - Provide integration with many plugins
 
@@ -206,3 +206,4 @@ You can run `npm run test` after install [vim-themis](https://github.com/thinca/
 1. compute the `user-diff` ... `s:Session.flush_changes`
 2. reflect the `user-diff` to snippet ast ... `s:Snippet.follow`
 3. reflect the `sync-diff` to buffer content ... `s:Snippet.sync & s:Session.flush_changes`
+
