@@ -50,5 +50,7 @@ jobs:
           SET PATH=%USERPROFILE%\themis\bin;%PATH%;
           vim --version
           ls -al
-          VIRTUALEDIT=0 themis ./spec
-          VIRTUALEDIT=1 themis ./spec
+          export VIRTUALEDIT=0
+          themis ./spec
+          export VIRTUALEDIT=1
+          themis ./spec
