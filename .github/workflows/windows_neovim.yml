@@ -36,11 +36,6 @@ jobs:
       - name: Download test runner
         shell: PowerShell
         run: git clone --depth 1 --branch v1.5.5 --single-branch https://github.com/thinca/vim-themis $env:USERPROFILE\themis
-      - name: Download dependencies
-        shell: bash
-        run: |
-          git clone --depth 1 https://github.com/vim-jp/vital.vim misc/vital.vim
-          git clone --depth 1 https://github.com/hrsh7th/vim-vsnip misc/vim-vsnip
       - name: Run tests
         shell: cmd
         run: |
@@ -49,4 +44,5 @@ jobs:
           SET THEMIS_VIM=nvim
           nvim --version
           ls -al
-          themis .
+          VIRTUALEDIT=0 themis ./spec
+          VIRTUALEDIT=1 themis ./spec
