@@ -139,7 +139,7 @@ function! s:Session.select(jump_point) abort
     execute printf('normal! %s', l:cmd)
   else
     let l:cmd .= "o\<C-g>"
-    call s:feedkeys(l:cmd, 'n')
+    call feedkeys(l:cmd, 'n')
   endif
 endfunction
 
@@ -249,31 +249,5 @@ function! s:Session.store(changenr) abort
   \   'tabstop': self.tabstop,
   \   'snippet': deepcopy(self.snippet)
   \ }
-endfunction
-
-inoremap <silent><expr> <Plug>(_vsnip-feedkeys-s) <SID>feedkeys_s()
-inoremap <silent><expr> <Plug>(_vsnip-feedkeys-e) <SID>feedkeys_e()
-nnoremap <silent><expr> <Plug>(_vsnip-feedkeys-s) <SID>feedkeys_s()
-nnoremap <silent><expr> <Plug>(_vsnip-feedkeys-e) <SID>feedkeys_e()
-xnoremap <silent><expr> <Plug>(_vsnip-feedkeys-s) <SID>feedkeys_s()
-xnoremap <silent><expr> <Plug>(_vsnip-feedkeys-e) <SID>feedkeys_e()
-snoremap <silent><expr> <Plug>(_vsnip-feedkeys-s) <SID>feedkeys_s()
-snoremap <silent><expr> <Plug>(_vsnip-feedkeys-e) <SID>feedkeys_e()
-function! s:feedkeys_s() abort
-  let s:selection = &selection
-  set selection=inclusive
-  return "\<Ignore>"
-endfunction
-function! s:feedkeys(keys, mode) abort
-  call feedkeys("\<Plug>(_vsnip-feedkeys-s)", '')
-  call feedkeys(a:keys, a:mode)
-  call feedkeys("\<Plug>(_vsnip-feedkeys-e)", '')
-endfunction
-function! s:feedkeys_e() abort
-  if exists('s:selection')
-    let &selection = s:selection
-    unlet s:selection
-  endif
-  return "\<Ignore>"
 endfunction
 
