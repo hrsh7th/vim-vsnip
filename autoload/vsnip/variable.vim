@@ -176,3 +176,9 @@ function! s:VIM(context) abort
 endfunction
 call vsnip#variable#register('VIM', function('s:VIM'))
 
+function! s:VSNIP_CAMELCASE_FILENAME(context) abort
+  let l:basename = substitute(expand('%:p:t'), '^\@<!\..*$', '', '')
+  return substitute(l:basename, '\(\%(\<\l\+\)\%(_\)\@=\)\|_\(\l\)', '\u\1\2', 'g')
+endfunction
+call vsnip#variable#register('VSNIP_CAMELCASE_FILENAME', function('s:VSNIP_CAMELCASE_FILENAME'))
+

@@ -218,6 +218,7 @@ For inserting line or block comments, honoring the current language:
 
 In addition, vsnip provides the below custom variables too.
 
+  `VSNIP_CAMELCASE_FILENAME`   The filename of the current document without its extensions in CamelCase format
 
 ${VIM:...Vim script expression...}~
 
