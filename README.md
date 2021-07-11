@@ -38,16 +38,28 @@ VSCode(LSP)'s snippet feature in vim.
 
 - HTML, Pug, Jade
 - CSS, Sass, Less, Stylus
-- Javascript, Typescript, Javascriptreact, Typescriptreact
+- JavaScript, Typescript, Javascriptreact, Typescriptreact
+- Vue
 - PHP
 - Python
 - C
 - C++
 - Rust
 - Go
+- Haskell
 - Eruby
 - Ruby
 - Swift
+- Java
+- Fortran
+- Lua
+- LaTex
+- Shell
+- Markdown
+- Sql
+- Rails
+- Elixir
+- Fennel
 
 # Usage
 
