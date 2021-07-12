@@ -34,32 +34,7 @@ VSCode(LSP)'s snippet feature in vim.
 
 # Related repository
 
-[friendly-snippets](https://github.com/rafamadriz/friendly-snippets) - Set of preconfigured snippets for all kind of programming languages that integrates really well with [vim-vsnip](https://github.com/hrsh7th/vim-vsnip), so all users can benefit from them and not to worry about setting up snippets on their own. It already includes:
-
-- HTML, Pug, Jade
-- CSS, Sass, Less, Stylus
-- JavaScript, Typescript, Javascriptreact, Typescriptreact
-- Vue
-- PHP
-- Python
-- C
-- C++
-- Rust
-- Go
-- Haskell
-- Eruby
-- Ruby
-- Swift
-- Java
-- Fortran
-- Lua
-- LaTex
-- Shell
-- Markdown
-- Sql
-- Rails
-- Elixir
-- Fennel
+[friendly-snippets](https://github.com/rafamadriz/friendly-snippets) - Set of preconfigured snippets for all kind of programming languages that integrates really well with [vim-vsnip](https://github.com/hrsh7th/vim-vsnip), so all users can benefit from them and not to worry about setting up snippets on their own.
 
 # Usage
 
