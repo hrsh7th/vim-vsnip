@@ -22,6 +22,7 @@ VSCode(LSP)'s snippet feature in vim.
     - [asyncomplete.vim](https://github.com/prabirshrestha/asyncomplete.vim)
     - [vim-mucomplete](https://github.com/lifepillar/vim-mucomplete)
     - [completion-nvim](https://github.com/nvim-lua/completion-nvim)
+    - [nvim-compe](https://github.com/hrsh7th/nvim-compe)
 - Vim script interpolation
   - You can use Vim script interpolation as `${VIM:...Vim script expression...}`.
 
