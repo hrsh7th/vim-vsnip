@@ -68,7 +68,6 @@ function! s:find(languages) abort
         " register new snippet.
         let s:snippets[l:path] = {
         \   'languages': l:languages,
-        \   'source': vsnip#source#create(l:path)
         \ }
       endfor
     catch /.*/
@@ -80,6 +79,9 @@ function! s:find(languages) abort
   for l:language in a:languages
     for [l:path, l:snippet] in items(s:snippets)
       if index(l:snippet.languages, l:language) >= 0
+        if !has_key(l:snippet, 'source')
+          let l:snippet.source = vsnip#source#create(l:path)
+        end
         call add(l:sources, l:snippet.source)
       endif
     endfor
