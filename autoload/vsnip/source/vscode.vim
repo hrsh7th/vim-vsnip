@@ -28,7 +28,8 @@ endfunction
 "
 function! s:find(languages) abort
   " Load `package.json#contributes.snippets` if does not exists it's cache.
-  for l:rtp in split(&runtimepath, ',')
+  let l:rtp_list = exists('*nvim_list_runtime_paths') ? nvim_list_runtime_paths() : split(&runtimepath, ',')
+  for l:rtp in l:rtp_list
     if has_key(s:runtimepaths, l:rtp)
       continue
     endif
