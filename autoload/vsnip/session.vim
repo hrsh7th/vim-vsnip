@@ -130,7 +130,7 @@ function! s:Session.select(jump_point) abort
   let l:pos = s:Position.lsp_to_vim('%', a:jump_point.range.end)
   call cursor([l:pos[0], l:pos[1] - 1]) " Use `a:jump_point.range.end as inclusive position
 
-  let l:select_length = strlen(a:jump_point.placeholder.text()) - 1
+  let l:select_length = strchars(a:jump_point.placeholder.text()) - 1
   let l:cmd = ''
   let l:cmd .= mode()[0] ==# 'i' ? "\<Esc>l" : ''
   let l:cmd .= printf('v%s', l:select_length > 0 ? l:select_length . 'h' : '')
@@ -153,7 +153,7 @@ function! s:Session.move(jump_point) abort
 
   call cursor(l:pos)
 
-  if l:pos[1] > strlen(getline(l:pos[0]))
+  if l:pos[1] > strchars(getline(l:pos[0]))
     startinsert!
   else
     startinsert
