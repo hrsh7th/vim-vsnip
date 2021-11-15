@@ -25,7 +25,7 @@ function! vsnip#indent#adjust_snippet_body(line, text) abort
     endwhile
   endif
   let l:text = substitute(l:text, "\n\\zs", l:base_indent, 'g') " add base_indent for all lines
-  let l:text = substitute(l:text, "\n\\s*\\ze\\(\n\\|$\\)", "\n", 'g') " remove empty line's indent
+  let l:text = substitute(l:text, "\n\\s*\\ze\n", "\n", 'g') " remove empty line's indent
   return l:text
 endfunction
 
