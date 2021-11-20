@@ -280,6 +280,12 @@ Describe vsnip#snippet
       let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/capitalize}/}')
       call s:expect(l:snippet.text()).to_equal('VarName')
     End
+
+    It should support whole word transform with additional text
+      call vsnip#selected_text('varName')
+      let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/start-lowercase-${1:/downcase}/}-end')
+      call s:expect(l:snippet.text()).to_equal('start-lowercase-varname-end')
+    End
   End
 
   Describe #range

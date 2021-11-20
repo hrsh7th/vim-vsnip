@@ -38,12 +38,16 @@ function! s:Transform.text(input_text) abort
   let l:text = ''
  
   for l:replacement in self.replacements
-    if l:replacement.modifier ==# '/capitalize'
-      let l:text = toupper(strpart(a:input_text, 0, 1)) . strpart(a:input_text, 1)
-    elseif l:replacement.modifier ==# '/downcase'
-      let l:text = tolower(a:input_text)
-    elseif l:replacement.modifier ==# '/upcase'
-      let l:text = toupper(a:input_text)
+    if l:replacement.type ==# 'format'
+      if l:replacement.modifier ==# '/capitalize'
+        let l:text .= toupper(strpart(a:input_text, 0, 1)) . strpart(a:input_text, 1)
+      elseif l:replacement.modifier ==# '/downcase'
+        let l:text .= tolower(a:input_text)
+      elseif l:replacement.modifier ==# '/upcase'
+        let l:text .= toupper(a:input_text)
+      endif
+    elseif l:replacement.type ==# 'text'
+      let l:text .= l:replacement.escaped
     endif
   endfor
 
