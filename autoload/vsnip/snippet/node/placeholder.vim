@@ -21,6 +21,7 @@ function! s:Placeholder.new(ast) abort
   \   'follower': v:false,
   \   'choice': get(a:ast, 'choice', []),
   \   'children': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
+  \   'transform': vsnip#snippet#node#create_transform(get(a:ast, 'transform')),
   \ })
 
   if l:node.is_final

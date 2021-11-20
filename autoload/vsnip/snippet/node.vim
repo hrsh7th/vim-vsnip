@@ -1,6 +1,7 @@
 let s:Placeholder = vsnip#snippet#node#placeholder#import()
 let s:Variable = vsnip#snippet#node#variable#import()
 let s:Text = vsnip#snippet#node#text#import()
+let s:Transform = vsnip#snippet#node#transform#import()
 
 "
 " vsnip#snippet#node#create_from_ast
@@ -32,4 +33,11 @@ function! vsnip#snippet#node#create_text(text) abort
   \   'raw': a:text,
   \   'escaped': a:text
   \ })
+endfunction
+
+"
+" vsnip#snippet#node#create_transform
+"
+function! vsnip#snippet#node#create_transform(transform) abort
+  return s:Transform.new(a:transform)
 endfunction

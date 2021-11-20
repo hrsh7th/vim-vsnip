@@ -31,6 +31,11 @@ Describe vsnip#snippet
       let l:snippet = s:Snippet.new(s:start_position, 'console.log(${CURRENT_YEAR})')
       call s:expect(l:snippet.text()).to_equal('console.log(' . strftime('%Y') . ')')
     End
+
+    It should support whole word transform
+      let l:snippet = s:Snippet.new(s:start_position, '${1:state}, set${1/(.*)/${1:/capitalize}/}')
+      call s:expect(l:snippet.text()).to_equal('state, setState')
+    End
   End
 
   Describe #sync
@@ -259,6 +264,22 @@ Describe vsnip#snippet
       call s:expect(l:snippet.text()).to_equal('default')
     End
 
+    It should support whole word transform (upcase) on tabstop
+      let l:snippet = s:Snippet.new(s:start_position, '${1:varName}, ${1/(.*)/${1:/upcase}/}')
+      call s:expect(l:snippet.text()).to_equal('varName, VARNAME')
+    End
+
+    It should support whole word transform (downcase) on variable
+      call vsnip#selected_text('varName')
+      let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/downcase}/}')
+      call s:expect(l:snippet.text()).to_equal('varname')
+    End
+
+    It should support whole word transform (capitalize)
+      call vsnip#selected_text('varName')
+      let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/capitalize}/}')
+      call s:expect(l:snippet.text()).to_equal('VarName')
+    End
   End
 
   Describe #range

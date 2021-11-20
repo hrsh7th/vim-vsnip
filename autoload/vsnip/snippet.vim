@@ -200,7 +200,7 @@ function! s:Snippet.sync() abort
           call add(self.targets, {
           \   'range': a:context.range,
           \   'node': a:context.node,
-          \   'new_text': self.new_texts[a:context.node.id],
+          \   'new_text': a:context.node.transform.text(self.new_texts[a:context.node.id]),
           \ })
         endif
       endif
