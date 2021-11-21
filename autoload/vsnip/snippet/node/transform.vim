@@ -4,6 +4,21 @@ endfunction
 
 let s:Transform = {}
 
+function! s:upcase(word)
+  let word = toupper(a:word)
+  return word
+endfunction
+
+function! s:downcase(word)
+  let word = tolower(a:word)
+  return word
+endfunction
+
+function! s:capitalize(word)
+  let word = s:upcase(strpart(a:word, 0, 1)) . strpart(a:word, 1)
+  return word
+endfunction
+
 "
 " new.
 "
@@ -40,11 +55,11 @@ function! s:Transform.text(input_text) abort
   for l:replacement in self.replacements
     if l:replacement.type ==# 'format'
       if l:replacement.modifier ==# '/capitalize'
-        let l:text .= toupper(strpart(a:input_text, 0, 1)) . strpart(a:input_text, 1)
+        let l:text .= s:capitalize(a:input_text)
       elseif l:replacement.modifier ==# '/downcase'
-        let l:text .= tolower(a:input_text)
+        let l:text .= s:downcase(a:input_text)
       elseif l:replacement.modifier ==# '/upcase'
-        let l:text .= toupper(a:input_text)
+        let l:text .= s:upcase(a:input_text)
       endif
     elseif l:replacement.type ==# 'text'
       let l:text .= l:replacement.escaped
