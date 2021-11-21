@@ -19,6 +19,16 @@ function! s:capitalize(word)
   return word
 endfunction
 
+" https://github.com/tpope/vim-abolish/blob/3f0c8faa/plugin/abolish.vim#L111-L118
+function! s:camelcase(word)
+  let word = substitute(a:word, '-', '_', 'g')
+  if word !~# '_' && word =~# '\l'
+    return substitute(word,'^.','\l&','')
+  else
+    return substitute(word,'\C\(_\)\=\(.\)','\=submatch(1)==""?tolower(submatch(2)) : toupper(submatch(2))','g')
+  endif
+endfunction
+
 "
 " new.
 "
@@ -60,6 +70,10 @@ function! s:Transform.text(input_text) abort
         let l:text .= s:downcase(a:input_text)
       elseif l:replacement.modifier ==# '/upcase'
         let l:text .= s:upcase(a:input_text)
+      elseif l:replacement.modifier ==# '/camelcase'
+        let l:text .= s:camelcase(a:input_text)
+      elseif l:replacement.modifier ==# '/pascalcase'
+        let l:text .= s:capitalize(s:camelcase(a:input_text))
       endif
     elseif l:replacement.type ==# 'text'
       let l:text .= l:replacement.escaped

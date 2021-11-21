@@ -281,6 +281,40 @@ Describe vsnip#snippet
       call s:expect(l:snippet.text()).to_equal('VarName')
     End
 
+    It should support whole word transform (camelcase)
+      call vsnip#selected_text('var_name')
+      call s:expect(
+      \   s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/camelcase}/}').text()
+      \ ).to_equal('varName')
+
+      call vsnip#selected_text('VAR_NAME')
+      call s:expect(
+      \   s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/camelcase}/}').text()
+      \ ).to_equal('varName')
+
+      call vsnip#selected_text('VarName')
+      call s:expect(
+      \   s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/camelcase}/}').text()
+      \ ).to_equal('varName')
+    End
+
+    It should support whole word transform (pascalcase)
+      call vsnip#selected_text('var_name')
+      call s:expect(
+      \   s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/pascalcase}/}').text()
+      \ ).to_equal('VarName')
+
+      call vsnip#selected_text('VAR_NAME')
+      call s:expect(
+      \   s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/pascalcase}/}').text()
+      \ ).to_equal('VarName')
+
+      call vsnip#selected_text('varName')
+      call s:expect(
+      \   s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/${1:/pascalcase}/}').text()
+      \ ).to_equal('VarName')
+    End
+
     It should support whole word transform with additional text
       call vsnip#selected_text('varName')
       let l:snippet = s:Snippet.new(s:start_position, '${TM_SELECTED_TEXT/(.*)/start-lowercase-${1:/downcase}/}-end')
