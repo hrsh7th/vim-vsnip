@@ -82,6 +82,8 @@ let s:format3 = s:map(
 \     s:token('/upcase'),
 \     s:token('/downcase'),
 \     s:token('/capitalize'),
+\     s:token('/camelcase'),
+\     s:token('/pascalcase'),
 \     s:token('+if'),
 \     s:token('?if:else'),
 \     s:token('-else'),

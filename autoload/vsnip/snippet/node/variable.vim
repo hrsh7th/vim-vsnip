@@ -23,6 +23,7 @@ function! s:Variable.new(ast) abort
   \   'unknown': empty(l:resolver),
   \   'resolver': l:resolver,
   \   'children': vsnip#snippet#node#create_from_ast(get(a:ast, 'children', [])),
+  \   'transform': vsnip#snippet#node#create_transform(get(a:ast, 'transform')),
   \ })
 endfunction
 
@@ -30,7 +31,7 @@ endfunction
 " text.
 "
 function! s:Variable.text() abort
-  return join(map(copy(self.children), 'v:val.text()'), '')
+  return self.transform.text(join(map(copy(self.children), 'v:val.text()'), ''))
 endfunction
 
 "
@@ -38,7 +39,7 @@ endfunction
 "
 function! s:Variable.resolve(context) abort
   if !self.unknown
-    let l:resolved = self.resolver.func({ 'node': self })
+    let l:resolved = self.transform.text(self.resolver.func({ 'node': self }))
     if l:resolved isnot v:null
       " Fix indent when one variable returns multiple lines
       let l:base_indent = vsnip#indent#get_base_indent(split(a:context.before_text, "\n", v:true)[-1])
