@@ -218,6 +218,40 @@ Describe vsnip
 
   End
 
+  Context multiByte
+
+    It should jump to middle of snippet
+      enew!
+      set filetype=integration
+      call setline(1, 'マルチ1')
+      call cursor([1, 10])
+
+      let g:vsnip_assert = {}
+      function g:vsnip_assert.step1()
+        call s:expect(getcurpos()[1 : 2]).to_equal([1, 7])
+        call s:expect(getbufline('%', '^', '$')).to_equal(['あいう'])
+      endfunction
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
+    End
+
+    It should select 4 length middle of snippet text 
+      enew!
+      set filetype=integration
+      call setline(1, 'マルチ2')
+      call cursor([1, 10])
+
+      let g:vsnip_assert = {}
+      function g:vsnip_assert.step1()
+        call s:expect(mode(1)).to_equal('s')
+        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 7])
+        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 12])
+        call s:expect(getbufline('%', '^', '$')).to_equal(['あいかkaかう'])
+      endfunction
+      call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
+    End
+
+  End
+
   Context realworld
 
     It should work (complex example)
