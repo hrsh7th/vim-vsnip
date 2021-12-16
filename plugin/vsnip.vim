@@ -186,6 +186,7 @@ endfunction
 augroup vsnip
   autocmd!
   autocmd InsertLeave * call s:on_insert_leave()
+  autocmd InsertCharPre * call s:on_insert_char_pre()
   autocmd TextChanged,TextChangedI,TextChangedP * call s:on_text_changed()
   autocmd BufWritePost * call s:on_buf_write_post()
 augroup END
@@ -197,6 +198,16 @@ function! s:on_insert_leave() abort
   let l:session = vsnip#get_session()
   if !empty(l:session)
     call l:session.on_insert_leave()
+  endif
+endfunction
+
+"
+" on_insert_char_pre
+"
+function! s:on_insert_char_pre() abort
+  let l:session = vsnip#get_session()
+  if !empty(l:session)
+    call l:session.on_insert_char_pre(v:char)
   endif
 endfunction
 

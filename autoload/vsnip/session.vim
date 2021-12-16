@@ -173,14 +173,30 @@ function! s:Session.refresh() abort
 endfunction
 
 "
-" on_insert_leave.
+" on_insert_leave
 "
 function! s:Session.on_insert_leave() abort
   call self.flush_changes()
 endfunction
 
 "
-" on_text_changed.
+" on_insert_char_pre
+"
+function! s:Session.on_insert_char_pre(char) abort
+  if a:char =~# '^[:print:]\+$'
+    let l:range = self.snippet.range()
+    let l:position = s:Position.cursor()
+    let l:is_out_of_range = v:false
+    let l:is_out_of_range = l:is_out_of_range || l:position.line < l:range.start.line || (l:position.line == l:range.start.line && l:position.character < l:range.start.character)
+    let l:is_out_of_range = l:is_out_of_range || l:position.line > l:range.end.line || (l:position.line == l:range.end.line && l:position.character > l:range.end.character)
+    if l:is_out_of_range
+      call vsnip#deactivate()
+    endif
+  endif
+endfunction
+
+"
+" on_text_changed
 "
 function! s:Session.on_text_changed() abort
   if self.bufnr != bufnr('%')
