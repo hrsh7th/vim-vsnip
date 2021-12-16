@@ -4,31 +4,6 @@ endfunction
 
 let s:Transform = {}
 
-function! s:upcase(word)
-  let word = toupper(a:word)
-  return word
-endfunction
-
-function! s:downcase(word)
-  let word = tolower(a:word)
-  return word
-endfunction
-
-function! s:capitalize(word)
-  let word = s:upcase(strpart(a:word, 0, 1)) . strpart(a:word, 1)
-  return word
-endfunction
-
-" https://github.com/tpope/vim-abolish/blob/3f0c8faa/plugin/abolish.vim#L111-L118
-function! s:camelcase(word)
-  let word = substitute(a:word, '-', '_', 'g')
-  if word !~# '_' && word =~# '\l'
-    return substitute(word,'^.','\l&','')
-  else
-    return substitute(word,'\C\(_\)\=\(.\)','\=submatch(1)==""?tolower(submatch(2)) : toupper(submatch(2))','g')
-  endif
-endfunction
-
 "
 " new.
 "
@@ -97,4 +72,41 @@ function! s:Transform.to_string() abort
   \   len(self.replacements),
   \   join(self.options, ''),
   \ )
+endfunction
+
+"
+" upcase
+"
+function! s:upcase(word) abort
+  let word = toupper(a:word)
+  return word
+endfunction
+
+"
+" downcase
+"
+function! s:downcase(word) abort
+  let word = tolower(a:word)
+  return word
+endfunction
+
+"
+" capitalize
+"
+function! s:capitalize(word) abort
+  let word = s:upcase(strpart(a:word, 0, 1)) . strpart(a:word, 1)
+  return word
+endfunction
+
+"
+" camelcase
+" @see https://github.com/tpope/vim-abolish/blob/3f0c8faa/plugin/abolish.vim#L111-L118
+"
+function! s:camelcase(word) abort
+  let word = substitute(a:word, '-', '_', 'g')
+  if word !~# '_' && word =~# '\l'
+    return substitute(word,'^.','\l&','')
+  else
+    return substitute(word,'\C\(_\)\=\(.\)','\=submatch(1)==""?tolower(submatch(2)) : toupper(submatch(2))','g')
+  endif
 endfunction

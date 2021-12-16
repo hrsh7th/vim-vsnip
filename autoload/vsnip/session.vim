@@ -47,10 +47,14 @@ endfunction
 " merge.
 "
 function! s:Session.merge(session) abort
+  call s:TextEdit.apply(self.bufnr, self.snippet.sync())
+  call self.store(self.changenr)
+
   call a:session.expand()
   call self.snippet.merge(self.tabstop, a:session.snippet)
   call self.snippet.insert(deepcopy(a:session.snippet.position), a:session.snippet.children)
   call s:TextEdit.apply(self.bufnr, self.snippet.sync())
+  call self.store(changenr())
 endfunction
 
 "
@@ -188,7 +192,6 @@ function! s:Session.on_text_changed() abort
   " save state.
   if self.changenr != l:changenr
     call self.store(self.changenr)
-    let self.changenr = l:changenr
     if has_key(self.changenrs, l:changenr)
       let self.tabstop = self.changenrs[l:changenr].tabstop
       let self.snippet = self.changenrs[l:changenr].snippet
@@ -249,5 +252,6 @@ function! s:Session.store(changenr) abort
   \   'tabstop': self.tabstop,
   \   'snippet': deepcopy(self.snippet)
   \ }
+  let self.changenr = a:changenr
 endfunction
 
