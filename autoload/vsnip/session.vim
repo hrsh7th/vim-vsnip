@@ -157,7 +157,7 @@ function! s:Session.move(jump_point) abort
 
   call cursor(l:pos)
 
-  if l:pos[1] > strchars(getline(l:pos[0]))
+  if l:pos[1] > strlen(getline(l:pos[0]))
     startinsert!
   else
     startinsert

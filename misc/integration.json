@@ -69,6 +69,20 @@
       "$1snip${2:pet}"
     ]
   },
+  "multi1": {
+    "description": "jump at middle of snippet",
+    "prefix": ["マルチ1"],
+    "body": [
+      "あ$1い$2う"
+    ]
+  },
+  "multi2": {
+    "description": "select 4 length middle of snippet text",
+    "prefix": ["マルチ2"],
+    "body": [
+      "あ$1い${2:かkaか}う"
+    ]
+  },
   "realworld1": {
     "description": "Complex example",
     "prefix": ["realworld1"],
