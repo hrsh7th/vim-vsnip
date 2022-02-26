@@ -11,9 +11,11 @@ endif
 
 let g:vsnip_test_mode = v:true
 let g:vsnip_snippet_dir = fnamemodify(expand('<sfile>'), ':h') . '/misc'
-let &runtimepath .= ',' . g:vsnip_snippet_dir . '/source_spec_vscode'
+let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfSnippet
 let g:vsnip_filetypes = {}
 let g:vsnip_filetypes.source_spec_enhanced = ['source_spec']
+
+let &runtimepath .= ',' . g:vsnip_snippet_dir . '/source_spec_vscode'
 
 imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
 smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'

@@ -53,57 +53,45 @@ If you want to know supported plugins, you can see https://github.com/hrsh7th/vi
 ==============================================================================
 VARIABLE                                                      *vsnip-variable*
 
->
-  let g:vsnip_extra_mapping = v:true
-<
+  let g:vsnip_extra_mapping = v:true~
     Enable or disable extra mappings.
 
-
->
-  let g:vsnip_snippet_dir = expand('~/.vsnip')
-<
+  let g:vsnip_snippet_dir = expand('~/.vsnip')~
     Specify user snippet directory.
     Also as buffer-local variable:    `b:vsnip_snippet_dir`
 
-
->
-  let g:vsnip_snippet_dirs = []
-<
+  let g:vsnip_snippet_dirs = []~
     List of user snippet directories.
     Also as buffer-local variable:    `b:vsnip_snippet_dirs`
 
-
->
-  let g:vsnip_filetypes = {}
-<
+  let g:vsnip_filetypes = {}~
     Specify extended filetypes.
     For example, you can extend `javascript` filetype with `javascriptreact` filetype.
 >
       let g:vsnip_filetypes = {}
       let g:vsnip_filetypes.javascriptreact = ['javascript']
 <
+ let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfSnippet~
+    Specify when to deactivate the current snippet.
 
->
-  let g:vsnip_sync_delay = 0
-<
+    `g:vsnip#DeactivateOn.OutsideOfSnippet`:
+      Deactivate on edit the outside of snippet.
+    `g:vsnip#DeactivateOn.OutsideOfCurrentTabstop`:
+      Deactivate on edit the outside of current tabstop.
+
+  let g:vsnip_sync_delay = 0~
     Specify delay time to sync same tabstop placeholder.
 
     -1: No sync
      0: Always sync
      N: Debounce N milliseconds
 
-
->
-  let g:vsnip_choice_delay = 500
-<
+  let g:vsnip_choice_delay = 500~
     Specify delay time to show choice candidates.
     Sometimes choice completion menu is closed by auto-completion engine.
     You can use this variable to solve this conflict.
 
-
->
-  let g:vsnip_namespace = ''
-<
+  let g:vsnip_namespace = ''~
     Specify all snippet prefix's prefix.
     It useful when you use auto-completion.
 

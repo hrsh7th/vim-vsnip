@@ -6,6 +6,10 @@ let s:Position = vital#vsnip#import('VS.LSP.Position')
 let s:session = v:null
 let s:selected_text = ''
 
+let g:vsnip#DeactivateOn = {}
+let g:vsnip#DeactivateOn.OutsideOfSnippet = 1
+let g:vsnip#DeactivateOn.OutsideOfCurrentTabstop = 2
+
 "
 " vsnip#selected_text.
 "

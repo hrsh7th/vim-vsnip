@@ -95,11 +95,7 @@ endfunction
 " follow.
 "
 function! s:Snippet.follow(current_tabstop, diff) abort
-  let l:range = self.range()
-  let l:in_range = v:true
-  let l:in_range = l:in_range && (l:range.start.line < a:diff.range.start.line || l:range.start.line == a:diff.range.start.line && l:range.start.character <= a:diff.range.start.character)
-  let l:in_range = l:in_range && (a:diff.range.end.line < l:range.end.line || a:diff.range.end.line == l:range.end.line && a:diff.range.end.character <= l:range.end.character)
-  if !l:in_range
+  if !self.is_followable(a:current_tabstop, a:diff)
     return v:false
   endif
 
@@ -247,6 +243,24 @@ function! s:Snippet.text() abort
 endfunction
 
 "
+" is_followable.
+"
+function! s:Snippet.is_followable(current_tabstop, diff) abort
+  if g:vsnip#DeactivateOn.OutsideOfSnippet == g:vsnip_deactivate_on
+    return vsnip#range#cover(self.range(), a:diff.range)
+  elseif g:vsnip#DeactivateOn.OutsideOfCurrentTabstop == g:vsnip_deactivate_on
+    let l:context = self.get_placeholder_context_by_tabstop(a:current_tabstop)
+    if empty(l:context)
+      return v:false
+    endif
+    return vsnip#range#cover({
+    \   'start': self.offset_to_position(l:context.range[0]),
+    \   'end': self.offset_to_position(l:context.range[1]),
+    \ }, a:diff.range)
+  endif
+endfunction
+
+"
 " get_placeholder_nodes
 "
 function! s:Snippet.get_placeholder_nodes() abort
@@ -260,6 +274,23 @@ function! s:Snippet.get_placeholder_nodes() abort
   call self.traverse(self, l:fn.traverse)
 
   return sort(l:fn.nodes, { a, b -> a.id - b.id })
+endfunction
+
+"
+" get_placeholder_context_by_tabstop
+"
+function! s:Snippet.get_placeholder_context_by_tabstop(current_tabstop) abort
+  let l:fn =  {}
+  let l:fn.current_tabstop = a:current_tabstop
+  let l:fn.context = v:null
+  function! l:fn.traverse(context) abort
+    if a:context.node.type ==# 'placeholder' && a:context.node.id == self.current_tabstop
+      let self.context = a:context
+      return v:true
+    endif
+  endfunction
+  call self.traverse(self, l:fn.traverse)
+  return l:fn.context
 endfunction
 
 "

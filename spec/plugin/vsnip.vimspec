@@ -218,7 +218,7 @@ Describe vsnip
 
   End
 
-  Context multiByte
+  Context multibyte
 
     It should jump to middle of snippet
       enew!
@@ -250,6 +250,83 @@ Describe vsnip
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
+  End
+
+  Context g:vsnip_deactivate_on
+    It should deactivate snippet on edit the outside of snippet
+      enew!
+      let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfSnippet
+
+      call setline(1, [
+      \   'outside',
+      \   'prefix',
+      \   'outside',
+      \ ])
+      call cursor([2, 7])
+      call vsnip#anonymous(join([
+      \   "function! $1() abort",
+      \   "\t$0",
+      \   "endfunction",
+      \ ], "\n"))
+      call s:expect(vsnip#get_session()).not.to_be_empty()
+
+      let g:vsnip_assert = {}
+      let l:sequence = ''
+
+      function g:vsnip_assert.step1()
+        call s:expect(vsnip#get_session()).not.to_be_empty()
+      endfunction
+      let l:sequence .= "ifuncname\<Plug>(vsnip-assert)"
+
+      function g:vsnip_assert.step2()
+        call s:expect(vsnip#get_session()).not.to_be_empty()
+      endfunction
+      let l:sequence .= "\<Right>arg\<Plug>(vsnip-assert)"
+
+      function g:vsnip_assert.step3()
+        call s:expect(vsnip#get_session()).to_be_empty()
+      endfunction
+      let l:sequence .= "\<Cmd>call cursor(1, 1)\<CR>modiied\<Plug>(vsnip-assert)"
+
+      call feedkeys(l:sequence, 'x')
+
+      let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfSnippet
+    End
+
+    It should deactivate snippet on edit the outside of current tabstop
+      enew!
+      let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfCurrentTabstop
+
+      call setline(1, [
+      \   'outside',
+      \   'prefix',
+      \   'outside',
+      \ ])
+      call cursor([2, 7])
+      call vsnip#anonymous(join([
+      \   "function! $1() abort",
+      \   "\t$0",
+      \   "endfunction",
+      \ ], "\n"))
+      call s:expect(vsnip#get_session()).not.to_be_empty()
+
+      let g:vsnip_assert = {}
+      let l:sequence = ''
+
+      function g:vsnip_assert.step1()
+        call s:expect(vsnip#get_session()).not.to_be_empty()
+      endfunction
+      let l:sequence .= "ifuncname\<Plug>(vsnip-assert)"
+
+      function g:vsnip_assert.step2()
+        call s:expect(vsnip#get_session()).to_be_empty()
+      endfunction
+      let l:sequence .= "\<Right>arg\<Plug>(vsnip-assert)"
+
+      call feedkeys(l:sequence, 'x')
+
+      let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfSnippet
+    End
   End
 
   Context realworld
