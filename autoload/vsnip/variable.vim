@@ -73,6 +73,11 @@ function! s:TM_FILEPATH(context) abort
 endfunction
 call vsnip#variable#register('TM_FILEPATH', function('s:TM_FILEPATH'))
 
+function! s:RELATIVE_FILEPATH(context) abort
+  return expand('%')
+endfunction
+call vsnip#variable#register('RELATIVE_FILEPATH', function('s:RELATIVE_FILEPATH'))
+
 function! s:CLIPBOARD(context) abort
   let l:clipboard = getreg(v:register)
   if empty(l:clipboard)
