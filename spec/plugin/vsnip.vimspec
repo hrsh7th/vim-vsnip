@@ -683,6 +683,30 @@ Describe vsnip
       call feedkeys(l:sequence, 'x')
     End
 
+    It should work issue249
+      enew!
+      set filetype=integration
+      call setline(1, ['issue249'])
+      call cursor([1, 8])
+
+      let g:vsnip_assert = {}
+      let l:sequence = ''
+
+      " expand
+      let l:sequence .= "a\<C-j>\<Plug>(vsnip-assert)"
+      function g:vsnip_assert.step1()
+        call s:expect(mode(1)).to_equal('s')
+        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 1])
+        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 3])
+        call s:expect(getbufline('%', '^', '$')).to_equal([
+        \   'FOO',
+        \   '',
+        \ ])
+      endfunction
+
+      call feedkeys(l:sequence, 'x')
+    End
+
   End
 
 End

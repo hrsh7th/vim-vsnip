@@ -5,10 +5,14 @@
   "scripts": {
     "open": "nvim -u .vimrc",
     "test": "run-s test:*",
-    "test:vim-virtualedit-off": "THEMIS_VIM=vim VIRTUALEDIT=0 themis ./spec",
-    "test:vim-virtualedit-on": "THEMIS_VIM=vim VIRTUALEDIT=1 themis ./spec",
-    "test:nvim-virtualedit-off": "THEMIS_VIM=nvim VIRTUALEDIT=0 themis ./spec",
-    "test:nvim-virtualedit-on": "THEMIS_VIM=nvim VIRTUALEDIT=1 themis ./spec",
+    "test:01": "THEMIS_VIM=vim EXCLUSIVE=0 VIRTUALEDIT=0 themis ./spec",
+    "test:02": "THEMIS_VIM=vim EXCLUSIVE=0 VIRTUALEDIT=1 themis ./spec",
+    "test:03": "THEMIS_VIM=vim EXCLUSIVE=1 VIRTUALEDIT=0 themis ./spec",
+    "test:04": "THEMIS_VIM=vim EXCLUSIVE=1 VIRTUALEDIT=1 themis ./spec",
+    "test:05": "THEMIS_VIM=nvim EXCLUSIVE=0 VIRTUALEDIT=0 themis ./spec",
+    "test:06": "THEMIS_VIM=nvim EXCLUSIVE=0 VIRTUALEDIT=1 themis ./spec",
+    "test:07": "THEMIS_VIM=nvim EXCLUSIVE=1 VIRTUALEDIT=0 themis ./spec",
+    "test:08": "THEMIS_VIM=nvim EXCLUSIVE=1 VIRTUALEDIT=1 themis ./spec",
     "lint": "vint ."
   },
   "husky": {

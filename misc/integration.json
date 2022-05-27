@@ -169,5 +169,9 @@
       "\t$TM_SELECTED_TEXT$5",
       "}$0"
     ]
+  },
+  "issue249": {
+    "prefix": "issue249",
+    "body": ["${1:FOO}\n"]
   }
 }
