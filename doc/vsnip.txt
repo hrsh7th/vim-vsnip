@@ -95,6 +95,9 @@ VARIABLE                                                      *vsnip-variable*
     Specify all snippet prefix's prefix.
     It useful when you use auto-completion.
 
+  let g:vsnip_append_final_tabstop = v:true~
+    Specify whether to add a final tabstop.
+
 
 
 ==============================================================================

@@ -82,7 +82,7 @@ function! s:Snippet.init() abort
   call self.traverse(self, l:fn.traverse)
 
   " Append ${MAX_TABSTOP} for the end of snippet.
-  if !l:fn.has_final_tabstop
+  if !l:fn.has_final_tabstop && g:vsnip_append_final_tabstop
     let self.children += [vsnip#snippet#node#create_from_ast({
     \   'type': 'placeholder',
     \   'id': 0,
