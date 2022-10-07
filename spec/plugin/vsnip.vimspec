@@ -1,5 +1,20 @@
 let s:expect = themis#helper('expect')
 
+function! s:expect_selection(s, e) abort
+  if &selection ==# 'exclusive' && &virtualedit ==# ''
+    return
+  endif
+
+  call s:expect(mode(1)).to_equal('s')
+  call s:expect(getpos("'<")[1 : 2]).to_equal([a:s[0], a:s[1]])
+  if &selection ==# 'exclusive'
+    let l:text = getline('.')
+    let l:char = strcharpart(l:text, charidx(l:text, a:e[1] - 1), 1)
+    let a:e[1] = a:e[1] + strlen(l:char)
+  endif
+  call s:expect(getpos("'>")[1 : 2]).to_equal([a:e[0], a:e[1]])
+endfunction
+
 Describe vsnip
 
   After each
@@ -128,9 +143,7 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 1])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 1])
+        call s:expect_selection([1, 1], [1, 1])
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
@@ -144,15 +157,13 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 3])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 3])
+        call s:expect_selection([1, 3], [1, 3])
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
     End
 
-    It should select 1 length last of snippet text 
+    It should select 1 length last of snippet text
       enew!
       set filetype=integration
       call setline(1, 'spec7')
@@ -160,9 +171,7 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 7])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 7])
+        call s:expect_selection([1, 7], [1, 7])
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
@@ -176,9 +185,7 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 1])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 3])
+        call s:expect_selection([1, 1], [1, 3])
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
@@ -192,9 +199,7 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 3])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 5])
+        call s:expect_selection([1, 3], [1, 5])
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
@@ -208,9 +213,7 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 5])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 7])
+        call s:expect_selection([1, 5], [1, 7])
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
@@ -242,9 +245,7 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 7])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 12])
+        call s:expect_selection([1, 7], [1, 12])
         call s:expect(getbufline('%', '^', '$')).to_equal(['あいかkaかう'])
       endfunction
       call feedkeys("a\<C-j>\<Tab>\<Plug>(vsnip-assert)", 'x')
@@ -547,15 +548,13 @@ Describe vsnip
       " can jump to $2
       let l:sequence .= "\<Tab>\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step5()
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 11])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 24])
+        call s:expect_selection([1, 11], [1, 24])
       endfunction
 
       " can jump to $3
       let l:sequence .= "\<Tab>\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step6()
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 12])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 23])
+        call s:expect_selection([1, 12], [1, 23])
       endfunction
 
       call feedkeys(l:sequence, 'x')
@@ -588,9 +587,7 @@ Describe vsnip
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
         call s:expect(getbufline('%', '^', '$')).to_equal(['for i=1,10', '  print(i)'])
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 5])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 5])
+        call s:expect_selection([1, 5], [1, 5])
       endfunction
       call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
     End
@@ -695,9 +692,7 @@ Describe vsnip
       " expand
       let l:sequence .= "a\<C-j>\<Plug>(vsnip-assert)"
       function g:vsnip_assert.step1()
-        call s:expect(mode(1)).to_equal('s')
-        call s:expect(getpos("'<")[1 : 2]).to_equal([1, 1])
-        call s:expect(getpos("'>")[1 : 2]).to_equal([1, 3])
+        call s:expect_selection([1, 1], [1, 3])
         call s:expect(getbufline('%', '^', '$')).to_equal([
         \   'FOO',
         \   '',
