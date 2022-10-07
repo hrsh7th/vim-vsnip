@@ -3,10 +3,16 @@ call themis#option('exclude', '\.vim$')
 
 set shiftwidth=2
 set expandtab
+
 if get(environ(), 'VIRTUALEDIT', '0') == '1'
   set virtualedit=all
 else
   set virtualedit=
+endif
+if get(environ(), 'EXCLUSIVE', '0') == '1'
+  set selection=exclusive
+else
+  set selection=inclusive
 endif
 
 let g:vsnip_test_mode = v:true
@@ -17,13 +23,17 @@ let g:vsnip_filetypes.source_spec_enhanced = ['source_spec']
 
 let &runtimepath .= ',' . g:vsnip_snippet_dir . '/source_spec_vscode'
 
-imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
-smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<C-j>'
+inoremap <Plug>(vsnip-C-j) <C-j>
+inoremap <Plug>(vsnip-Tab) <Tab>
+inoremap <Plug>(vsnip-S-Tab) <S-Tab>
 
-imap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<Tab>'
-smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Tab>'
-imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
-smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
+imap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<Plug>(vsnip-C-j)'
+smap <expr> <C-j>   vsnip#expandable()  ? '<Plug>(vsnip-expand)'         : '<Plug>(vsnip-C-j)'
+
+imap <expr> <Tab>   vsnip#available(1)  ? '<Plug>(vsnip-expand-or-jump)' : '<Plug>(vsnip-Tab)'
+smap <expr> <Tab>   vsnip#jumpable(1)   ? '<Plug>(vsnip-jump-next)'      : '<Plug>(vsnip-Tab)'
+imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<Plug>(vsnip-S-Tab)'
+smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<Plug>(vsnip-S-Tab)'
 
 imap <Plug>(vsnip-assert) <C-r>=<SID>assert()<CR>
 nmap <expr><Plug>(vsnip-assert) <SID>assert()
