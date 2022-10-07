@@ -64,6 +64,7 @@ Describe vsnip
     It should not expand when prefix is word and it does not separate by word boundary
       enew!
       set filetype=integration
+      set iskeyword=@,48-57,_,192-255
       call setline(1, '(aspec1)')
       call cursor([1, 7])
 
