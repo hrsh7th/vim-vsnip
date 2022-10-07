@@ -5,7 +5,6 @@ function! s:expect_selection(s, e) abort
     return
   endif
 
-  call s:expect(mode(1)).to_equal('s')
   call s:expect(getpos("'<")[1 : 2]).to_equal([a:s[0], a:s[1]])
   if &selection ==# 'exclusive'
     let l:text = getline('.')
