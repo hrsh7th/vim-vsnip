@@ -285,6 +285,7 @@ Describe vsnip
       let l:sequence .= "\<Right>arg\<Plug>(vsnip-assert)"
 
       function g:vsnip_assert.step3()
+        doautocmd TextChangedI
         call s:expect(vsnip#get_session()).to_be_empty()
       endfunction
       let l:sequence .= "\<Cmd>call cursor(1, 1)\<CR>modiied\<Plug>(vsnip-assert)"
