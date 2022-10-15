@@ -83,6 +83,14 @@
       "あ$1い${2:かkaか}う"
     ]
   },
+  "deactivate1": {
+    "prefix": "deactivate",
+    "body": [
+      "function! $1() abort",
+      "\t$0",
+      "endfunction"
+    ]
+  },
   "realworld1": {
     "description": "Complex example",
     "prefix": ["realworld1"],

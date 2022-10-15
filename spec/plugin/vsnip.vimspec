@@ -256,20 +256,15 @@ Describe vsnip
   Context g:vsnip_deactivate_on
     It should deactivate snippet on edit the outside of snippet
       enew!
+      set filetype=integration
       let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfSnippet
 
       call setline(1, [
       \   'outside',
-      \   'prefix',
+      \   'deactivate',
       \   'outside',
       \ ])
-      call cursor([2, 7])
-      call vsnip#anonymous(join([
-      \   "function! $1() abort",
-      \   "\t$0",
-      \   "endfunction",
-      \ ], "\n"))
-      call s:expect(vsnip#get_session()).not.to_be_empty()
+      call cursor([2, 11])
 
       let g:vsnip_assert = {}
       let l:sequence = ''
@@ -277,18 +272,22 @@ Describe vsnip
       function g:vsnip_assert.step1()
         call s:expect(vsnip#get_session()).not.to_be_empty()
       endfunction
-      let l:sequence .= "ifuncname\<Plug>(vsnip-assert)"
+      let l:sequence .= "a\<C-j>\<Plug>(vsnip-assert)"
 
       function g:vsnip_assert.step2()
         call s:expect(vsnip#get_session()).not.to_be_empty()
       endfunction
-      let l:sequence .= "\<Right>arg\<Plug>(vsnip-assert)"
+      let l:sequence .= "funcname\<Plug>(vsnip-assert)"
 
       function g:vsnip_assert.step3()
-        doautocmd TextChangedI
+        call s:expect(vsnip#get_session()).not.to_be_empty()
+      endfunction
+      let l:sequence .= "\<Tab>return 1\<Plug>(vsnip-assert)"
+
+      function g:vsnip_assert.step4()
         call s:expect(vsnip#get_session()).to_be_empty()
       endfunction
-      let l:sequence .= "\<Cmd>call cursor(1, 1)\<CR>modiied\<Plug>(vsnip-assert)"
+      let l:sequence .= "\<Cmd>call cursor([1, 1])\<CR>modified\<Esc>"
 
       call feedkeys(l:sequence, 'x')
 
@@ -297,20 +296,15 @@ Describe vsnip
 
     It should deactivate snippet on edit the outside of current tabstop
       enew!
+      set filetype=integration
       let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfCurrentTabstop
 
       call setline(1, [
       \   'outside',
-      \   'prefix',
+      \   'deactivate',
       \   'outside',
       \ ])
-      call cursor([2, 7])
-      call vsnip#anonymous(join([
-      \   "function! $1() abort",
-      \   "\t$0",
-      \   "endfunction",
-      \ ], "\n"))
-      call s:expect(vsnip#get_session()).not.to_be_empty()
+      call cursor([2, 11])
 
       let g:vsnip_assert = {}
       let l:sequence = ''
@@ -318,12 +312,17 @@ Describe vsnip
       function g:vsnip_assert.step1()
         call s:expect(vsnip#get_session()).not.to_be_empty()
       endfunction
-      let l:sequence .= "ifuncname\<Plug>(vsnip-assert)"
+      let l:sequence .= "a\<C-j>\<Plug>(vsnip-assert)"
 
       function g:vsnip_assert.step2()
+        call s:expect(vsnip#get_session()).not.to_be_empty()
+      endfunction
+      let l:sequence .= "funcname\<Plug>(vsnip-assert)"
+
+      function g:vsnip_assert.step3()
         call s:expect(vsnip#get_session()).to_be_empty()
       endfunction
-      let l:sequence .= "\<Right>arg\<Plug>(vsnip-assert)"
+      let l:sequence .= "\<Right>arguments\<Plug>(vsnip-assert)"
 
       call feedkeys(l:sequence, 'x')
 
