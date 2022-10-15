@@ -158,10 +158,12 @@ function! s:Session.move(jump_point) abort
 
   call cursor(l:pos)
 
-  if l:pos[1] > strlen(getline(l:pos[0]))
-    startinsert!
-  else
-    startinsert
+  if mode()[0] !~# 'i'
+    if l:pos[1] > strlen(getline(l:pos[0]))
+      call feedkeys('a', 'ni')
+    else
+      call feedkeys('i', 'ni')
+    endif
   endif
 endfunction
 

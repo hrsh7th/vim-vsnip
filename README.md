@@ -1,6 +1,6 @@
 # vim-vsnip
 
-VSCode(LSP)'s snippet feature in vim.
+VSCode(LSP)'s snippet feature in vim/nvim.
 
 # Features
 
