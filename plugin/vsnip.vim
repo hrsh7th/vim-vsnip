@@ -95,7 +95,7 @@ function! s:expand_or_jump()
   endfunction
 
   " This is needed to keep normal-mode during 0ms to prevent CompleteDone handling by LSP Client.
-  let l:maybe_complete_done = !empty(v:completed_item) && !empty(v:completed_item.user_data)
+  let l:maybe_complete_done = !empty(v:completed_item) && has_key(v:completed_item, 'user_data') && !empty(v:completed_item.user_data)
   if l:maybe_complete_done
     call timer_start(0, { -> l:ctx.callback() })
   else
