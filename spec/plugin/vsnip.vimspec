@@ -30,6 +30,7 @@ Describe vsnip
 
       let g:vsnip_assert = {}
       function g:vsnip_assert.step1()
+        call s:expect(getcurpos()[1 : 2]).to_equal([1, 8])
         call s:expect(getbufline('%', '^', '$')).to_equal(['snippet'])
       endfunction
       call feedkeys("a\<C-j>\<Plug>(vsnip-assert)", 'x')
