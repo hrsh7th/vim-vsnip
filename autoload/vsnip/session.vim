@@ -159,7 +159,7 @@ function! s:Session.move(jump_point) abort
   call cursor(l:pos)
 
   if mode()[0] !~# 'i'
-    if (getcurpos()[2] - 1) > strlen(getline(getcurpos()[1]))
+    if (getcurpos()[2] - 1) >= strlen(getline(getcurpos()[1]))
       call feedkeys('a', 'ni')
     else
       call feedkeys('i', 'ni')
