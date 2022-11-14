@@ -74,7 +74,7 @@ endfunction
 " extra mapping
 "
 if g:vsnip_extra_mapping
-  snoremap <expr> <BS> ("\<BS>" . (getcurpos()[2] == col('$') - 1 ? 'a' : 'i'))
+  snoremap <expr> <BS> ("\<BS>" . (&virtualedit ==# '' && getcurpos()[2] >= col('$') - 1 ? 'a' : 'i'))
 endif
 
 "
