@@ -28,11 +28,11 @@ augroup END
 "
 " command
 "
-command! -bang VsnipOpen call s:open_command(<bang>0, 'vsplit')
-command! -bang VsnipOpenEdit call s:open_command(<bang>0, 'edit')
-command! -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vsplit')
-command! -bang VsnipOpenSplit call s:open_command(<bang>0, 'split')
-function! s:open_command(bang, cmd)
+command! -nargs=* -bang VsnipOpen call s:open_command(<bang>0, 'vsplit', <q-args>)
+command! -nargs=* -bang VsnipOpenEdit call s:open_command(<bang>0, 'edit', <q-args>)
+command! -nargs=* -bang VsnipOpenVsplit call s:open_command(<bang>0, 'vsplit', <q-args>)
+command! -nargs=* -bang VsnipOpenSplit call s:open_command(<bang>0, 'split', <q-args>)
+function! s:open_command(bang, cmd, arg)
   let l:candidates = vsnip#source#filetypes(bufnr('%'))
   if a:bang
     let l:idx = 1
@@ -53,9 +53,12 @@ function! s:open_command(bang, cmd)
     endif
   endif
 
-  execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.json',
+  let l:ext = a:arg =~# '-format\s\+snipmate' ? 'snippets' : 'json'
+
+  execute printf('%s %s', a:cmd, fnameescape(printf('%s/%s.%s',
   \   resolve(l:expanded_dir),
-  \   l:candidates[l:idx - 1]
+  \   l:candidates[l:idx - 1],
+  \   l:ext
   \ )))
 endfunction
 
