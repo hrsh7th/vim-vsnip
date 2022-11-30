@@ -24,6 +24,9 @@ VSCode(LSP)'s snippet feature in vim/nvim.
     - [completion-nvim](https://github.com/nvim-lua/completion-nvim)
 - Vim script interpolation
   - You can use Vim script interpolation as `${VIM:...Vim script expression...}`.
+- SnipMate-like syntax support
+  - Snippet files in SnipMate format with the extension `.snippets` can be load.
+  - NOTE: Full compatibility is not guaranteed. It is intended to easily create user-defined snippets.
 
 # Concept
 
