@@ -36,7 +36,7 @@ function! vsnip#source#create(path) abort
     let l:file = iconv(l:file, 'utf-8', &encoding)
     let l:json = json_decode(l:file)
 
-    if type(l:json) != type({})
+    if type(l:json) != type({}) || json->keys() == "_TYPE_VAL"
       throw printf('%s is not valid json.', a:path)
     endif
   catch /.*/
