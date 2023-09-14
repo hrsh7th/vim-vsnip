@@ -4,6 +4,7 @@
 function! vsnip#source#refresh(path) abort
   call vsnip#source#user_snippet#refresh(a:path)
   call vsnip#source#vscode#refresh(a:path)
+  call vsnip#source#snipmate#refresh(a:path)
 endfunction
 
 "
@@ -13,6 +14,7 @@ function! vsnip#source#find(bufnr) abort
   let l:sources = []
   let l:sources += vsnip#source#user_snippet#find(a:bufnr)
   let l:sources += vsnip#source#vscode#find(a:bufnr)
+  let l:sources += vsnip#source#snipmate#find(a:bufnr)
   return l:sources
 endfunction
 
@@ -65,7 +67,7 @@ endfunction
 " format_snippet
 "
 function! s:format_snippet(label, snippet) abort
-  let [l:prefixes, l:prefixes_alias] = s:resolve_prefix(a:snippet.prefix)
+  let [l:prefixes, l:prefixes_alias] = vsnip#source#resolve_prefix(a:snippet.prefix)
   let l:description = get(a:snippet, 'description', '')
 
   return {
@@ -87,7 +89,7 @@ endfunction
 "
 " resolve_prefix.
 "
-function! s:resolve_prefix(prefix) abort
+function! vsnip#source#resolve_prefix(prefix) abort
   let l:prefixes = []
   let l:prefixes_alias = []
 

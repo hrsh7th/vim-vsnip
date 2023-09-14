@@ -145,14 +145,15 @@ COMMAND                                                        *vsnip-command*
 
 VsnipOpen~
 
->
-  :VsnipOpen
-  :VsnipOpenEdit
-  :VsnipOpenSplit
-  :VsnipOpenVsplit
-<
+
+  :VsnipOpen [-format {type}]
+  :VsnipOpenEdit [-format {type}]
+  :VsnipOpenSplit [-format {type}]
+  :VsnipOpenVsplit [-format {type}]
+
 
 Open snippet source file under `g:vsnip_snippet_dir`.
+{type} is either 'snipmate' or 'vscode'. If omitted, it is 'vscode'.
 
 
 VsnipYank~
@@ -238,6 +239,44 @@ ${VIM:...Vim script expression...}~
 <
 
     Currently, vsnip only once resolves variable at the snippet initialization.
+
+
+
+
+==============================================================================
+SNIPMATE SUPPORT                                      *vsnip-snipmate-support*
+
+Files with the extension 'snippets' in directories `g:vsnip_snippet_dir` or
+`g:vsnip_snippet_dirs` are recognized as snippets with SnipMate-like syntax.
+
+NOTE: This feature does not guarantee that SnipMate's snippet collection can
+be read in its entirety. It is intended to provide an easy way for users to
+write their own new snippet definitions.
+
+The following two examples are equivalent.
+In SnipMate format. >
+        snippet fn vim's function
+                function! $1($2) abort
+                        $0
+                endfunction
+<
+In VSCode format. >
+        {
+          "fn": {
+            "prefix": "fn",
+            "body": [
+              "function! $1($2) abort",
+              "\t$0",
+              "endfunction"
+            ],
+            "description": "vim's function"
+          }
+        }
+<
+You can also use the extends syntax. For example, the first line of
+cpp.snippets should have this. >
+        extends c
+<
 
 
 

@@ -57,5 +57,41 @@ Describe vsnip#source
 
   End
 
+  Describe #snipmate
+
+    It should load snippets
+      enew!
+      set filetype=snipmate
+      let l:snippets = vsnip#source#find(bufnr('%'))
+      call s:expect(l:snippets[0]).to_have_length(2)
+    End
+
+    It should format snippets
+      enew!
+      set filetype=snipmate
+      let l:snippets = vsnip#source#find(bufnr('%'))
+      call s:expect(sort(l:snippets[0])).to_equal(sort([{
+      \   'label': 'arrow-function',
+      \   'description': '',
+      \   'prefix': ['arrow-function'],
+      \   'prefix_alias': ['af'],
+      \   'body': [
+      \     "() => "
+      \   ]
+      \ }, {
+      \   'label': 'fn',
+      \   'description': "vim's function",
+      \   'prefix': ['fn'],
+      \   'prefix_alias': [],
+      \   'body': [
+      \     "function! $1($2) abort",
+      \     "\t$0",
+      \     "endfunction",
+      \   ]
+      \ }]))
+    End
+
+  End
+
 End
 

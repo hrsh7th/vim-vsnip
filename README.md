@@ -14,16 +14,19 @@ VSCode(LSP)'s snippet feature in vim/nvim.
   - LSP-client
     - [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
     - [vim-lsc](https://github.com/natebosch/vim-lsc)
+    - [yegappan-lsp](https://github.com/yegappan/lsp)
     - [LanguageClient-neovim](https://github.com/autozimu/LanguageClient-neovim)
     - [neovim built-in lsp](https://github.com/neovim/neovim)
-    - [vim-lamp](https://github.com/hrsh7th/vim-lamp)
   - completion-engine
-    - [deoplete.nvim](https://github.com/Shougo/deoplete.nvim)
     - [asyncomplete.vim](https://github.com/prabirshrestha/asyncomplete.vim)
     - [vim-mucomplete](https://github.com/lifepillar/vim-mucomplete)
-    - [completion-nvim](https://github.com/nvim-lua/completion-nvim)
+    - [ddc.vim](https://github.com/Shougo/ddc.vim)
+    - [vim-easycompletion](https://github.com/jayli/vim-easycomplete)
 - Vim script interpolation
   - You can use Vim script interpolation as `${VIM:...Vim script expression...}`.
+- SnipMate-like syntax support
+  - Snippet files in SnipMate format with the extension `.snippets` can be load.
+  - NOTE: Full compatibility is not guaranteed. It is intended to easily create user-defined snippets.
 
 # Concept
 
