@@ -32,14 +32,14 @@ setlocal nosmartindent
 setlocal indentkeys=!^F,o,O,=snippet,=extends
 setlocal indentexpr=GetSnippetIndent()
 
-if exists("*GetSnippetIndent")
+if exists('*GetSnippetIndent')
   finish
 endif
 
 function! GetSnippetIndent()
   let line = getline(v:lnum)
   let prev_lnum = v:lnum - 1
-  let prev_line = prev_lnum != 0 ? getline(prev_lnum) : ""
+  let prev_line = prev_lnum != 0 ? getline(prev_lnum) : ''
 
   if line =~# '\v^(snippet|extends) '
     return 0

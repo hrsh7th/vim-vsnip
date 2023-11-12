@@ -172,10 +172,10 @@ endfunction
 "
 function! s:_switch(path) abort
   let l:curr = bufnr('%')
-  let l:next = bufnr(a:path)
+  let l:next = filereadable(a:path) ? bufnr(fnameescape(a:path)) : bufnr(a:path)
   if l:next >= 0
     if l:curr != l:next
-      execute printf('noautocmd keepalt keepjumps %sbuffer!', bufnr(a:path))
+      execute printf('noautocmd keepalt keepjumps %sbuffer!', l:next)
     endif
   else
     execute printf('noautocmd keepalt keepjumps edit! %s', fnameescape(a:path))
