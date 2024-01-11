@@ -20,6 +20,7 @@ VSCode(LSP)'s snippet feature in vim/nvim.
   - completion-engine
     - [asyncomplete.vim](https://github.com/prabirshrestha/asyncomplete.vim)
     - [vim-mucomplete](https://github.com/lifepillar/vim-mucomplete)
+    - [vimcomplete](https://github.com/girishji/vimcomplete)
     - [ddc.vim](https://github.com/Shougo/ddc.vim)
     - [vim-easycompletion](https://github.com/jayli/vim-easycomplete)
 - Vim script interpolation
