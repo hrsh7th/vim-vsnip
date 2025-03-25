@@ -66,4 +66,3 @@ endfun
 fun! vsnip#source#user_snippet#paths(...) abort
   return s:get_source_paths(a:0 ? a:1 : bufnr(''))
 endfun
-

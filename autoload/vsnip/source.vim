@@ -22,7 +22,7 @@ endfunction
 " vsnip#source#filetypes
 "
 function! vsnip#source#filetypes( bufnr ) abort
-	if has( "nvim" )
+  if has( "nvim" )
     let g:vsnip_treesitter_bufnr = a:bufnr
 
     lua << EOF
@@ -30,7 +30,7 @@ function! vsnip#source#filetypes( bufnr ) abort
 EOF
 
     let l:filetype = g:vsnip_treesitter_bufnr_filetype
-	else
+  else
     let l:filetype = getbufvar( a:bufnr, "&filetype", "" )
   endif
 
@@ -124,4 +124,3 @@ function! vsnip#source#resolve_prefix(prefix) abort
   \   sort(l:prefixes_alias, { a, b -> strlen(b) - strlen(a) })
   \ ]
 endfunction
-

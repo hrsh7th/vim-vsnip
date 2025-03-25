@@ -36,7 +36,7 @@ function! s:Transform.text(input_text) abort
   endif
 
   let l:text = ''
- 
+
   for l:replacement in self.replacements
     if l:replacement.type ==# 'format'
       if l:replacement.modifier ==# '/capitalize'

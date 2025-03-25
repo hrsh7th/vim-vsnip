@@ -101,4 +101,3 @@ function! s:get_language(filetype) abort
   \   'cs': 'csharp',
   \ }, a:filetype, a:filetype)
 endfunction
-

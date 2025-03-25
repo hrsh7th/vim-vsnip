@@ -58,4 +58,3 @@ function! vsnip#indent#trim_base_indent(text) abort
   endfor
   return substitute(l:text, "\\%(^\\|\n\\)\\zs\\V" . l:base_indent, '', 'g')
 endfunction
-

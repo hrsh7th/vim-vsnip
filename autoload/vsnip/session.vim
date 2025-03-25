@@ -257,4 +257,3 @@ function! s:Session.store(changenr) abort
   \ }
   let self.changenr = a:changenr
 endfunction
-

@@ -220,4 +220,3 @@ function! s:getchar(text, pos) abort
   endif
   return ''
 endfunction
-

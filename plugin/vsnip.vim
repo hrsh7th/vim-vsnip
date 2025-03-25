@@ -222,4 +222,3 @@ endfunction
 function! s:on_buf_write_post() abort
   call vsnip#source#refresh(resolve(fnamemodify(bufname('%'), ':p')))
 endfunction
-

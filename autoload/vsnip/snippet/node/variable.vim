@@ -60,4 +60,3 @@ function! s:Variable.to_string() abort
   \   self.text()
   \ )
 endfunction
-
