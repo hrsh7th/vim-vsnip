@@ -21,9 +21,20 @@ endfunction
 "
 " vsnip#source#filetypes
 "
-function! vsnip#source#filetypes(bufnr) abort
-  let l:filetype = getbufvar(a:bufnr, '&filetype', '')
-  return split(l:filetype, '\.') + get(g:vsnip_filetypes, l:filetype, []) + ['global']
+function! vsnip#source#filetypes( bufnr ) abort
+	if has( "nvim" )
+    let g:vsnip_treesitter_bufnr = a:bufnr
+
+    lua << EOF
+      vim.g.vsnip_treesitter_bufnr_filetype = require( "vsnip/treesitter" ).get_ft_at_cursor( vim.g.vsnip_treesitter_bufnr )
+EOF
+
+    let l:filetype = g:vsnip_treesitter_bufnr_filetype
+	else
+    let l:filetype = getbufvar( a:bufnr, "&filetype", "" )
+  endif
+
+  return split( l:filetype, '\.' ) + get( g:vsnip_filetypes, l:filetype, [] ) + [ "global" ]
 endfunction
 
 "
