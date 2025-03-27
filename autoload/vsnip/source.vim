@@ -23,13 +23,7 @@ endfunction
 "
 function! vsnip#source#filetypes( bufnr ) abort
   if has( "nvim" )
-    let g:vsnip_treesitter_bufnr = a:bufnr
-
-    lua << EOF
-      vim.g.vsnip_treesitter_bufnr_filetype = require( "vsnip/treesitter" ).get_ft_at_cursor( vim.g.vsnip_treesitter_bufnr )
-EOF
-
-    let l:filetype = g:vsnip_treesitter_bufnr_filetype
+    let l:filetype = v:lua.require'vsnip.treesitter'.get_ft_at_cursor( a:bufnr )
   else
     let l:filetype = getbufvar( a:bufnr, "&filetype", "" )
   endif
