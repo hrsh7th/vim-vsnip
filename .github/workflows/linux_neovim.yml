@@ -46,4 +46,3 @@ jobs:
           themis ./spec
           export VIRTUALEDIT=1
           themis ./spec
-

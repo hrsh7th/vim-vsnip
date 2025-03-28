@@ -20,4 +20,3 @@ endfunction
 function! s:split_by_eol(text) abort
   return split(a:text, "\r\n\\|\r\\|\n", v:true)
 endfunction
-

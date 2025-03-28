@@ -5,15 +5,15 @@ let s:Combinator = vsnip#parser#combinator#import()
 " @see https://github.com/Microsoft/language-server-protocol/blob/master/snippetSyntax.md
 "
 function! vsnip#snippet#parser#parse(text) abort
-	if strlen(a:text) == 0
-		return []
-	endif
+  if strlen(a:text) == 0
+    return []
+  endif
 
-	let l:parsed = s:parser.parse(a:text, 0)
-	if !l:parsed[0]
-		throw json_encode({ 'text': a:text, 'result': l:parsed })
-	endif
-	return l:parsed[1]
+  let l:parsed = s:parser.parse(a:text, 0)
+  if !l:parsed[0]
+    throw json_encode({ 'text': a:text, 'result': l:parsed })
+  endif
+  return l:parsed[1]
 endfunction
 
 let s:skip = s:Combinator.skip
@@ -209,4 +209,3 @@ let s:choice = s:map(s:seq(
 " parser.
 "
 let s:parser = s:many(s:or(s:any, s:text(['$'], ['}'])))
-

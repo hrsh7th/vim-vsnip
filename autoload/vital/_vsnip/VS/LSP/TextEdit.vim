@@ -182,4 +182,3 @@ function! s:_switch(path) abort
   endif
   return bufnr('%')
 endfunction
-

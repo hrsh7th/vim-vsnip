@@ -120,7 +120,7 @@ The snippet format was described in [here](https://code.visualstudio.com/docs/ed
 
 # Recipe
 
-### $TM_FILENAME_BASE
+### $TM\_FILENAME\_BASE
 
 You can insert the filename via `fname\<Plug>(vsnip-expand)`.
 
@@ -133,7 +133,7 @@ You can insert the filename via `fname\<Plug>(vsnip-expand)`.
 }
 ```
 
-### Log $TM_SELECTED_TEXT
+### Log $TM\_SELECTED\_TEXT
 
 You can fill `$TM_SELECTED_TEXT` by `<Plug>(vsnip-select-text)` or `<Plug>(vsnip-cut-text)`.
 
@@ -197,4 +197,3 @@ You can run `npm run test` after install [vim-themis](https://github.com/thinca/
 1. compute the `user-diff` ... `s:Session.flush_changes`
 2. reflect the `user-diff` to snippet ast ... `s:Snippet.follow`
 3. reflect the `sync-diff` to buffer content ... `s:Snippet.sync & s:Session.flush_changes`
-

@@ -59,4 +59,3 @@ function! s:_get_buffer_line(expr, lnum) abort
   endif
   return v:null
 endfunction
-
