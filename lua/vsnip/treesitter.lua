@@ -40,7 +40,7 @@ function M.get_ft_at_cursor ( bufnr )
           local parent_language = parent_language_tree:lang()
           local parent_filetype = get_parser_filetype( parent_language )
 
-          if parent_filetype ~= "" and parent_filetype ~= filetype then
+          if parent_filetype ~= "" then
             filetype = filetype .. "." .. parent_filetype .. "/" .. filetype
           end
         end
