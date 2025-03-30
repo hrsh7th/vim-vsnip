@@ -18,7 +18,7 @@ local function get_parser_filetype ( lang )
   end
 end
 
-function M.is_available ()
+local function is_available ()
   return ok_parsers and ok_utils
 end
 
@@ -28,7 +28,7 @@ function M.get_ft_at_cursor ( bufnr )
     injected_filetype = "",
   }
 
-  if M.is_available() then
+  if is_available() then
     local cur_node = ts_utils.get_node_at_cursor( vim.fn.bufwinid( bufnr ) )
 
     if cur_node then
