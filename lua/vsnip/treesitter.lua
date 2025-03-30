@@ -10,6 +10,14 @@ if not ok_utils then
   ts_utils = nil
 end
 
+local function get_parser_filetype ( lang )
+  if lang and ts_parsers.list[ lang ] then
+    return ts_parsers.list[ lang ].filetype or lang
+  else
+    return ""
+  end
+end
+
 function M.is_available ()
   return ok_parsers and ok_utils
 end
@@ -22,8 +30,29 @@ function M.get_ft_at_cursor ( bufnr )
       local parser = ts_parsers.get_parser( bufnr )
       local lang = parser:language_for_range( { cur_node:range() } ):lang()
 
-      if ts_parsers.list[ lang ] ~= nil then
-        return ts_parsers.list[ lang ].filetype or lang
+      local filetype = get_parser_filetype( lang )
+
+      if filetype ~= "" then
+
+        -- XXX: not works
+        local parent_parser = parser:parent()
+
+        if parent_parser then
+          local parent_lang = parent_parser:lang()
+
+          if parent_lang and parent_lang ~= filetype then
+            local parent_filetype = get_parser_filetype( parent_lang )
+
+            if parent_filetype ~= "" then
+              filetype = filetype .. "." .. parent_filetype .. "/" .. filetype
+            end
+          end
+        end
+
+        -- XXX
+        vim.print( "--- " .. filetype )
+
+        return filetype
       end
     end
   end
