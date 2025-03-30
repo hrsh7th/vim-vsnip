@@ -28,29 +28,22 @@ function M.get_ft_at_cursor ( bufnr )
 
     if cur_node then
       local parser = ts_parsers.get_parser( bufnr )
-      local lang = parser:language_for_range( { cur_node:range() } ):lang()
+      local language_tree_at_cursor = parser:language_for_range( { cur_node:range() } )
+      local language_at_cursor = language_tree_at_cursor:lang()
 
-      local filetype = get_parser_filetype( lang )
+      local filetype = get_parser_filetype( language_at_cursor )
 
       if filetype ~= "" then
+        local parent_language_tree = language_tree_at_cursor:parent()
 
-        -- XXX: not works
-        local parent_parser = parser:parent()
+        if parent_language_tree then
+          local parent_language = parent_language_tree:lang()
+          local parent_filetype = get_parser_filetype( parent_language )
 
-        if parent_parser then
-          local parent_lang = parent_parser:lang()
-
-          if parent_lang and parent_lang ~= filetype then
-            local parent_filetype = get_parser_filetype( parent_lang )
-
-            if parent_filetype ~= "" then
-              filetype = filetype .. "." .. parent_filetype .. "/" .. filetype
-            end
+          if parent_filetype ~= "" and parent_filetype ~= filetype then
+            filetype = filetype .. "." .. parent_filetype .. "/" .. filetype
           end
         end
-
-        -- XXX
-        vim.print( "--- " .. filetype )
 
         return filetype
       end
