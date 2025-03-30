@@ -25,11 +25,14 @@ function! vsnip#source#filetypes( bufnr ) abort
   if has( "nvim" )
     let l:filetypes = v:lua.require'vsnip.treesitter'.get_ft_at_cursor( a:bufnr )
 
+    " buffer has no filetype defined
     if l:filetypes.filetype == ""
       return [ "global" ]
+
+    " buffer has filetype
     else
-      return get(
-        \ g:vsnip_filetypes, l:filetypes.injected_filetype,
+      return
+        \ get( g:vsnip_filetypes, l:filetypes.injected_filetype,
         \ get( g:vsnip_filetypes, l:filetypes.filetype,
         \ [ l:filetypes.filetype ]
         \ ) )
