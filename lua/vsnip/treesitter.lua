@@ -23,6 +23,11 @@ function M.is_available ()
 end
 
 function M.get_ft_at_cursor ( bufnr )
+  local filetypes = {
+    filetype = "",
+    injected_filetype = "",
+  }
+
   if M.is_available() then
     local cur_node = ts_utils.get_node_at_cursor( vim.fn.bufwinid( bufnr ) )
 
@@ -34,6 +39,8 @@ function M.get_ft_at_cursor ( bufnr )
       local filetype = get_parser_filetype( language_at_cursor )
 
       if filetype ~= "" then
+        filetypes.filetype = filetype
+
         local parent_language_tree = language_tree_at_cursor:parent()
 
         if parent_language_tree then
@@ -41,16 +48,18 @@ function M.get_ft_at_cursor ( bufnr )
           local parent_filetype = get_parser_filetype( parent_language )
 
           if parent_filetype ~= "" then
-            filetype = filetype .. "." .. parent_filetype .. "/" .. filetype
+            filetypes.injected_filetype = parent_filetype .. "/" .. filetype
           end
         end
 
-        return filetype
+        return filetypes
       end
     end
   end
 
-  return vim.bo[ bufnr ].filetype or ""
+  filetypes.filetype = vim.bo[ bufnr ].filetype or ""
+
+  return filetypes
 end
 
 return M

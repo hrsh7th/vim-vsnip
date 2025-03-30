@@ -23,12 +23,25 @@ endfunction
 "
 function! vsnip#source#filetypes( bufnr ) abort
   if has( "nvim" )
-    let l:filetype = v:lua.require'vsnip.treesitter'.get_ft_at_cursor( a:bufnr )
+    let l:filetypes = v:lua.require'vsnip.treesitter'.get_ft_at_cursor( a:bufnr )
+
+    if l:filetypes.filetype == ""
+      return [ "global" ]
+    else
+      return get(
+        \ g:vsnip_filetypes, l:filetypes.injected_filetype,
+        \ get( g:vsnip_filetypes, l:filetypes.filetype,
+        \ [ l:filetypes.filetype ]
+        \ ) )
+        \ + [ "global" ]
+    endif
   else
     let l:filetype = getbufvar( a:bufnr, "&filetype", "" )
-  endif
 
-  return split( l:filetype, '\.' ) + get( g:vsnip_filetypes, l:filetype, [] ) + [ "global" ]
+    " FIXME: split( l:filetype, '\.' ) - does it has any sense, can buffer filetype contain "." character?
+    " return split( l:filetype, '\.' ) + get( g:vsnip_filetypes, l:filetype, [] ) + [ "global" ]
+    return [ l:filetype ] + get( g:vsnip_filetypes, l:filetype, [] ) + [ "global" ]
+  endif
 endfunction
 
 "
