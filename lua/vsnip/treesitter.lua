@@ -48,7 +48,7 @@ function M.get_ft_at_cursor ( bufnr )
           local parent_filetype = get_parser_filetype( parent_language )
 
           if parent_filetype ~= "" then
-            filetypes.injected_filetype = parent_filetype .. "/" .. filetype
+            filetypes.injected_filetype = parent_filetype .. "." .. filetype
           end
         end
 

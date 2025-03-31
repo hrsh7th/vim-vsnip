@@ -41,9 +41,7 @@ function! vsnip#source#filetypes( bufnr ) abort
   else
     let l:filetype = getbufvar( a:bufnr, "&filetype", "" )
 
-    " FIXME: split( l:filetype, '\.' ) - does it has any sense, can buffer filetype contain "." character?
-    " return split( l:filetype, '\.' ) + get( g:vsnip_filetypes, l:filetype, [] ) + [ "global" ]
-    return [ l:filetype ] + get( g:vsnip_filetypes, l:filetype, [] ) + [ "global" ]
+    return split( l:filetype, '\.' ) + get( g:vsnip_filetypes, l:filetype, [] ) + [ "global" ]
   endif
 endfunction
 
