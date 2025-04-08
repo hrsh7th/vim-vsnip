@@ -76,9 +76,9 @@ VARIABLE                                                      *vsnip-variable*
     languages like this:
 
 >
-    let g:vsnip_filetypes['vim.lua'] = ['lua', 'vim/lua']
+    let g:vsnip_filetypes['vim/lua'] = ['lua', 'vim/lua']
     let g:vsnip_filetypes['vue'] = ['html']
-    let g:vsnip_filetypes['vim.javascript'] = ['javascript', 'vue/javascript']
+    let g:vsnip_filetypes['vim/javascript'] = ['javascript', 'vue/javascript']
 <
 
  let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfSnippet~
