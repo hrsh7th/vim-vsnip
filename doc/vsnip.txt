@@ -71,6 +71,16 @@ VARIABLE                                                      *vsnip-variable*
       let g:vsnip_filetypes = {}
       let g:vsnip_filetypes.javascriptreact = ['javascript']
 <
+
+    If you are using `treesitter` you can define snippets for injected
+    languages like this:
+
+>
+    let g:vsnip_filetypes['vim/lua'] = ['lua', 'vim/lua']
+    let g:vsnip_filetypes['vue'] = ['html']
+    let g:vsnip_filetypes['vue/javascript'] = ['javascript', 'vue/javascript']
+<
+
  let g:vsnip_deactivate_on = g:vsnip#DeactivateOn.OutsideOfSnippet~
     Specify when to deactivate the current snippet.
 
