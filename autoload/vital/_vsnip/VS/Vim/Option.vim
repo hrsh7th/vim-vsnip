@@ -18,3 +18,4 @@ function! s:define(map) abort
   endfor
   return { -> s:define(l:old) }
 endfunction
+

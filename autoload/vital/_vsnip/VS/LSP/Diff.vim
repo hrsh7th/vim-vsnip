@@ -161,3 +161,4 @@ if has('nvim')
   catch /.*/
   endtry
 endif
+

@@ -28,16 +28,21 @@ endfunction
 " apply
 "
 function! s:apply(path, text_edits) abort
-  let l:current_bufname = bufname('%')
-  let l:current_position = s:Position.cursor()
-
-  let l:target_bufnr = s:_switch(a:path)
-  call s:_substitute(l:target_bufnr, a:text_edits, l:current_position)
-  let l:current_bufnr = s:_switch(l:current_bufname)
-
-  if l:current_bufnr == l:target_bufnr
-    call cursor(s:Position.lsp_to_vim('%', l:current_position))
+  let l:current_bufnr = bufnr('%')
+  for l:bufnr in range(1, bufnr('$'))
+    if index([fnamemodify(a:path, ':p'),fnameescape(fnamemodify(a:path, ':p'))], bufname(l:bufnr)) != -1
+      let l:target_bufnr = l:bufnr
+      break
+    endif
+  endfor
+  if !exists('l:target_bufnr')
+    let l:target_bufnr = s:Buffer.ensure(a:path)
   endif
+
+  let l:current_position = s:Position.cursor()
+  call s:Buffer.do(l:target_bufnr, { -> s:_substitute(l:target_bufnr, a:text_edits, l:current_position) })
+
+  call cursor(s:Position.lsp_to_vim('%', l:current_position))
 endfunction
 
 "
@@ -167,18 +172,3 @@ function! s:_fix_text_edits(bufnr, text_edits) abort
   return [l:fixeol, l:text_edits]
 endfunction
 
-"
-" _switch
-"
-function! s:_switch(path) abort
-  let l:curr = bufnr('%')
-  let l:next = filereadable(a:path) ? bufnr(fnameescape(a:path)) : bufnr(a:path)
-  if l:next >= 0
-    if l:curr != l:next
-      execute printf('noautocmd keepalt keepjumps %sbuffer!', l:next)
-    endif
-  else
-    execute printf('noautocmd keepalt keepjumps edit! %s', fnameescape(a:path))
-  endif
-  return bufnr('%')
-endfunction
