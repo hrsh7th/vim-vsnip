@@ -41,6 +41,7 @@ function! s:find(languages) abort
         continue
       endif
       let l:package_json = readfile(l:package_json)
+      let l:package_json = filter(l:file, {_, line -> line !~ '^\s\+\/\/' } )
       let l:package_json = type(l:package_json) == type([]) ? join(l:package_json, "\n") : l:package_json
       let l:package_json = iconv(l:package_json, 'utf-8', &encoding)
       let l:package_json = json_decode(l:package_json)
