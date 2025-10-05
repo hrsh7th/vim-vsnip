@@ -145,5 +145,50 @@ Describe vsnip
 
   End
 
+  Describe #completefunc
+
+    It should return start position
+      enew!
+      set filetype=basic_spec
+      call setline(1, ' if')
+      call cursor([1, 3])
+      call s:expect(vsnip#completefunc(1, '')).to_equal(1)
+    End
+
+    It should return complete items
+      enew!
+      set filetype=basic_spec
+      call s:expect(vsnip#completefunc(0, 'if')[-1]).to_equal({
+      \   'word': 'if',
+      \   'abbr': 'if',
+      \   'kind': 'Snippet',
+      \   'menu': '[v] if',
+      \   'dup': 1,
+      \   'user_data': json_encode({
+      \     'vsnip': {
+      \       'snippet': [
+      \         "if ${1:condition}",
+      \         "\t$0",
+      \         "endif",
+      \       ]
+      \     }
+      \   })
+      \ }, {
+      \   'word': 'inline-fn',
+      \   'abbr': 'inline-fn',
+      \   'kind': 'Snippet',
+      \   'menu': '[v] inline-fn',
+      \   'dup': 1,
+      \   'user_data': json_encode({
+      \     'vsnip': {
+      \       'snippet': [
+      \         "{ -> $1 }$0"
+      \       ]
+      \     }
+      \   })
+      \ })
+    End
+  End
+
 End
 

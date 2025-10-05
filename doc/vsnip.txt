@@ -117,7 +117,12 @@ FUNCTION                                                      *vsnip-function*
 
     Register your own custom variable resolver.
 
+  vsnip#completefunc()
 
+    Register for finding completions.
+>
+    set complete+=Fvsnip#completefunc
+<
 
 ==============================================================================
 MAPPING                                                        *vsnip-mapping*

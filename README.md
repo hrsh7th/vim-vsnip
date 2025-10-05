@@ -23,6 +23,9 @@ VSCode(LSP)'s snippet feature in vim/nvim.
     - [vimcomplete](https://github.com/girishji/vimcomplete)
     - [ddc.vim](https://github.com/Shougo/ddc.vim)
     - [vim-easycompletion](https://github.com/jayli/vim-easycomplete)
+- Support built-in completion
+  - A function can be registered for finding completions.
+    `set complete+=Fvsnip#completefunc`
 - Vim script interpolation
   - You can use Vim script interpolation as `${VIM:...Vim script expression...}`.
 - SnipMate-like syntax support

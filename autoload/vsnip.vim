@@ -167,6 +167,25 @@ function! vsnip#get_context() abort
 endfunction
 
 "
+" vsnip#completefunc
+"
+function! vsnip#completefunc(findstart, base) abort
+  if !a:findstart
+    if a:base ==# ''
+      return []
+    endif
+    return vsnip#get_complete_items(bufnr('%'))
+  endif
+
+  let line = getline('.')
+  let start = col('.') - 2
+  while start >= 0 && line[start] =~# '\k'
+    let start -= 1
+  endwhile
+  return start + 1
+endfunction
+
+"
 " vsnip#get_complete_items
 "
 function! vsnip#get_complete_items(bufnr) abort
