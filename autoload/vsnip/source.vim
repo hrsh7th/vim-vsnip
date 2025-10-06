@@ -51,6 +51,7 @@ endfunction
 function! vsnip#source#create(path) abort
   try
     let l:file = readfile(a:path)
+    let l:file = filter(l:file, {_, line -> line !~ '^\(\s\+\)\?\/\/' } )
     let l:file = type(l:file) == type([]) ? join(l:file, "\n") : l:file
     let l:file = iconv(l:file, 'utf-8', &encoding)
     let l:json = json_decode(l:file)
