@@ -1,25 +1,19 @@
 local M = {}
 
-local ok_parsers, ts_parsers = pcall( require, "nvim-treesitter.parsers" )
-if not ok_parsers then
-  ts_parsers = nil
-end
-
-local ok_utils, ts_utils = pcall( require, "nvim-treesitter.ts_utils" )
-if not ok_utils then
-  ts_utils = nil
-end
+local is_available = pcall( require, "nvim-treesitter.util" )
 
 local function get_parser_filetype ( lang )
-  if lang and ts_parsers.list[ lang ] then
-    return ts_parsers.list[ lang ].filetype or lang
+  if lang then
+
+    -- NOTE: first element [ 1 ] is always the lang itself
+    -- other element placed in random order
+    -- XXX: unclear how to use this data, how to distinguish lang from filetype
+    -- return vim.treesitter.language.get_filetypes( lang )[ 2 ] or lang
+
+    return lang
   else
     return ""
   end
-end
-
-local function is_available ()
-  return ok_parsers and ok_utils
 end
 
 function M.get_ft_at_cursor ( bufnr )
@@ -28,11 +22,11 @@ function M.get_ft_at_cursor ( bufnr )
     injected_filetype = "",
   }
 
-  if is_available() then
-    local cur_node = ts_utils.get_node_at_cursor( vim.fn.bufwinid( bufnr ) )
+  if is_available then
+    local cur_node = vim.treesitter.get_node( { bufnr = bufnr } )
 
     if cur_node then
-      local parser = ts_parsers.get_parser( bufnr )
+      local parser = vim.treesitter.get_parser( bufnr )
       local language_tree_at_cursor = parser:language_for_range( { cur_node:range() } )
       local language_at_cursor = language_tree_at_cursor:lang()
 
